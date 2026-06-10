@@ -205,6 +205,29 @@
             android:insetBottom="0dp" />
     </LinearLayout>
 
+    <!-- ── Loading indicator ── -->
+    <ProgressBar
+        android:id="@+id/explore_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        android:indeterminateTint="@color/brand_primary"
+        android:visibility="gone" />
+
+    <!-- ── Empty state ── -->
+    <TextView
+        android:id="@+id/explore_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="32dp"
+        android:text="✨ Không tìm thấy nhân vật nào"
+        android:textColor="@color/text_tertiary"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
     <!-- ── Character Grid ── -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/explore_recycler"

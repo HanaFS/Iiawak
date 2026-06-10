@@ -123,14 +123,17 @@ public class LoginFragment extends Fragment {
 
                 if (success) {
                     try {
-                        JSONObject userData = json.getJSONObject("user");
-                        String token = json.getString("token");
-                        String userId = userData.getString("id");
-                        String username = userData.getString("username");
-                        String displayName = userData.getString("displayName");
-                        String emailAddr = userData.getString("email");
-                        String role = userData.optString("role", "user");
-                        int kchBalance = userData.optInt("kchBalance", 0);
+                        // Backend: { success: true, data: { token, user } }
+                        JSONObject data    = json.getJSONObject("data");
+                        String token       = data.getString("token");
+                        JSONObject userData = data.getJSONObject("user");
+
+                        String userId      = userData.getString("id");
+                        String username    = userData.getString("username");
+                        String displayName = userData.optString("displayName", username);
+                        String emailAddr   = userData.getString("email");
+                        String role        = userData.optString("role", "user");
+                        int kchBalance     = userData.optInt("kchBalance", 0);
 
                         UserSession.getInstance(requireContext())
                                 .login(token, userId, username, displayName, emailAddr, role, kchBalance);
@@ -143,6 +146,7 @@ public class LoginFragment extends Fragment {
                 } else {
                     Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                 }
+
             }
 
             @Override

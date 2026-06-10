@@ -56,66 +56,78 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Danh sách chat bạn bè -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/friend_chat_recycler"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingBottom="80dp"
-        android:clipToPadding="false"
-        android:overScrollMode="never" />
+        android:layout_weight="1">
 
-    <!-- Empty state khi chưa có bạn bè -->
-    <LinearLayout
-        android:id="@+id/friend_empty_state"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        android:padding="32dp">
+        <!-- Danh sách chat bạn bè -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/friend_chat_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never" />
 
-        <TextView
+        <!-- Loading State -->
+        <ProgressBar
+            android:id="@+id/friend_chat_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="👥"
-            android:textSize="48sp"
-            android:gravity="center" />
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/brand_primary"
+            android:visibility="gone" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chưa có bạn bè nào"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            android:gravity="center" />
+        <!-- Empty state khi chưa có bạn bè -->
+        <LinearLayout
+            android:id="@+id/friend_empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="32dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cả hai cần theo dõi lẫn nhau\nđể trở thành bạn bè và nhắn tin"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:lineSpacingMultiplier="1.5"
-            android:layout_marginTop="8dp"
-            android:gravity="center" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👥"
+                android:textSize="48sp"
+                android:gravity="center" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_find_friends"
-            android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:text="🔍 Tìm người dùng"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:background="@drawable/bg_button_gradient"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            app:cornerRadius="100dp"
-            android:layout_marginTop="24dp" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chưa có bạn bè nào"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:gravity="center" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cả hai cần theo dõi lẫn nhau\nđể trở thành bạn bè và nhắn tin"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.5"
+                android:layout_marginTop="8dp"
+                android:gravity="center" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_find_friends"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="🔍 Tìm người dùng"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:background="@drawable/bg_button_gradient"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="100dp"
+                android:layout_marginTop="24dp" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

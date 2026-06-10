@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,22 +12,31 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.iiawak_mobile.R;
-import com.example.iiawak_mobile.data.remote.CharacterApiService;
+import com.example.iiawak_mobile.data.model.ChatSession;
+import com.example.iiawak_mobile.data.remote.ChatApiService;
 import com.example.iiawak_mobile.network.ApiClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * BotChatTabFragment — Danh sách nhân vật AI để bắt đầu chat.
- * KHÔNG có dữ liệu fallback cứng: toàn bộ từ GET /api/characters.
- * Nếu mạng lỗi → hiển thị thông báo và danh sách trống.
+ * BotChatTabFragment — Tab 1: Danh sách phiên chat AI của người dùng.
+ *
+ * Gọi GET /api/chat/sessions → { success, data: [ ChatSession ] }
+ * Mỗi session có: _id, characterId{ name, avatar }, messages[], mode, updatedAt
+ *
+ * Khi nhấn vào một session → navigate ChatFragment với characterId + chatMode.
  */
 public class BotChatTabFragment extends Fragment {
 
-    private CharacterListAdapter      adapter;
-    private final List<CharacterItem> characterList = new ArrayList<>();
+    private ChatSessionAdapter          adapter;
+    private final List<ChatSession>     sessions = new ArrayList<>();
+    private View                        loadingView, emptyView;
+    private RecyclerView                recycler;
 
     @Nullable
     @Override
@@ -39,135 +49,153 @@ public class BotChatTabFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView recycler = view.findViewById(R.id.bot_chat_recycler);
-        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        // ── Views ─────────────────────────────────────────────────────────────
+        recycler    = view.findViewById(R.id.bot_chat_recycler);
+        loadingView = view.findViewById(R.id.bot_chat_loading);
+        emptyView   = view.findViewById(R.id.bot_chat_empty);
 
-        adapter = new CharacterListAdapter(characterList, (character, mode) -> {
+        // ── Adapter ───────────────────────────────────────────────────────────
+        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ChatSessionAdapter(sessions, session -> {
+            // Mở lại cuộc trò chuyện với nhân vật
             Bundle args = new Bundle();
-            args.putString("characterId", character.id);
-            args.putString("botName",     character.name);
-            args.putString("botAvatar",   character.avatar);
-            args.putString("chatMode",    mode);
-            androidx.navigation.Navigation.findNavController(view)
-                    .navigate(R.id.chatFragment, args);
+            args.putString("characterId", session.characterId);
+            args.putString("botName",     session.botName);
+            args.putString("botAvatar",   session.avatarUrl);
+            args.putString("chatMode",    session.chatMode);
+            try {
+                androidx.navigation.Navigation.findNavController(view)
+                        .navigate(R.id.chatFragment, args);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Mở chat: " + session.botName, Toast.LENGTH_SHORT).show();
+            }
         });
         recycler.setAdapter(adapter);
 
-        fetchCharacters();
+        // ── Fetch sessions từ backend ─────────────────────────────────────────
+        fetchSessions();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Load từ backend — không fallback về dữ liệu cứng
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── Gọi API lấy sessions đã chat ────────────────────────────────────────
 
-    private void fetchCharacters() {
-        CharacterApiService.getPublicCharacters(getContext(), null, new ApiClient.ApiCallback() {
+    private void fetchSessions() {
+        setLoading(true);
+
+        ChatApiService.getAiChatSessions(getContext(), new ApiClient.ApiCallback() {
             @Override
-            public void onSuccess(JSONObject resp) {
-                try {
-                    JSONArray data = resp.getJSONArray("data");
-                    characterList.clear();
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject obj = data.getJSONObject(i);
-                        characterList.add(new CharacterItem(
-                                obj.getString("_id"),
-                                obj.optString("name",       ""),
-                                obj.optString("avatar",     ""),
-                                obj.optString("slogan",     ""),
-                                obj.optString("chatMode",   "both"),
-                                obj.optInt("totalChats",    0)
-                        ));
-                    }
-                    adapter.notifyDataSetChanged();
-                } catch (Exception e) {
-                    showError("Lỗi phân tích dữ liệu");
+            public void onSuccess(JSONObject json) {
+                setLoading(false);
+                if (!json.optBoolean("success", false)) {
+                    setEmpty(true);
+                    return;
                 }
+
+                JSONArray data = json.optJSONArray("data");
+                sessions.clear();
+
+                if (data != null) {
+                    for (int i = 0; i < data.length(); i++) {
+                        try {
+                            JSONObject s = data.getJSONObject(i);
+
+                            // characterId là object (populated) hoặc string
+                            String charId   = "";
+                            String charName = "";
+                            String avatar   = "";
+                            Object charObj  = s.opt("characterId");
+                            if (charObj instanceof JSONObject) {
+                                JSONObject c = (JSONObject) charObj;
+                                charId   = c.optString("_id", "");
+                                charName = c.optString("name", "Nhân vật");
+                                avatar   = c.optString("avatar", "");
+                            } else if (charObj instanceof String) {
+                                charId = (String) charObj;
+                            }
+
+                            // Lấy tin nhắn cuối từ messages[]
+                            String lastMsg = "";
+                            JSONArray messages = s.optJSONArray("messages");
+                            if (messages != null && messages.length() > 0) {
+                                JSONObject lastMsgObj = messages.getJSONObject(messages.length() - 1);
+                                lastMsg = lastMsgObj.optString("content", "");
+                                // Cắt ngắn nếu quá dài
+                                if (lastMsg.length() > 60) lastMsg = lastMsg.substring(0, 60) + "…";
+                            }
+
+                            // Thời gian tương đối từ updatedAt
+                            String timeAgo = formatTimeAgo(s.optString("updatedAt", ""));
+
+                            // chatMode
+                            String mode = s.optString("mode", "normal");
+
+                            sessions.add(new ChatSession(
+                                    s.optString("_id", ""),
+                                    charId,
+                                    charName,
+                                    avatar,
+                                    lastMsg,
+                                    timeAgo,
+                                    "😊",   // emotion default
+                                    mode,
+                                    0,       // altegoLevel
+                                    0,       // affectionLevel
+                                    0        // unreadCount
+                            ));
+                        } catch (Exception e) {
+                            // Skip malformed entry
+                        }
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
+                setEmpty(sessions.isEmpty());
             }
 
             @Override
             public void onError(String errorMessage, int statusCode) {
-                showError("Không thể tải danh sách nhân vật. Kiểm tra kết nối mạng.");
+                setLoading(false);
+                setEmpty(sessions.isEmpty());
+                if (statusCode != 401) { // Không hiện lỗi nếu chưa đăng nhập
+                    Toast.makeText(getContext(),
+                            "Không thể tải lịch sử chat: " + errorMessage,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    private void showError(String msg) {
-        if (getContext() != null) {
-            Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
-        }
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    private void setLoading(boolean loading) {
+        if (loadingView != null) loadingView.setVisibility(loading ? View.VISIBLE : View.GONE);
+        if (recycler    != null) recycler.setVisibility(loading ? View.GONE : View.VISIBLE);
+        if (loading && emptyView != null) emptyView.setVisibility(View.GONE);
     }
 
-    // ─── Model ───────────────────────────────────────────────────────────────
-
-    static class CharacterItem {
-        String id, name, avatar, slogan, chatMode;
-        int totalChats;
-        CharacterItem(String id, String name, String avatar, String slogan,
-                      String chatMode, int totalChats) {
-            this.id = id; this.name = name; this.avatar = avatar;
-            this.slogan = slogan; this.chatMode = chatMode; this.totalChats = totalChats;
-        }
+    private void setEmpty(boolean empty) {
+        if (emptyView != null) emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
+        if (recycler  != null && !empty) recycler.setVisibility(View.VISIBLE);
     }
 
-    // ─── Callback ────────────────────────────────────────────────────────────
-
-    interface OnCharacterClickListener {
-        void onChatClick(CharacterItem character, String mode);
-    }
-
-    // ─── Adapter ─────────────────────────────────────────────────────────────
-
-    static class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.VH> {
-        private final List<CharacterItem>    list;
-        private final OnCharacterClickListener listener;
-
-        CharacterListAdapter(List<CharacterItem> list, OnCharacterClickListener listener) {
-            this.list = list;
-            this.listener = listener;
-        }
-
-        @NonNull @Override
-        public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_character_card, parent, false);
-            return new VH(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull VH h, int position) {
-            CharacterItem c = list.get(position);
-            h.tvName.setText(c.name);
-            h.tvSlogan.setText(c.slogan);
-            h.tvChats.setText(formatCount(c.totalChats) + " lượt chat");
-
-            boolean hasStory = "story".equals(c.chatMode) || "both".equals(c.chatMode);
-            h.btnNormal.setVisibility(View.VISIBLE);
-            h.btnStory.setVisibility(hasStory ? View.VISIBLE : View.GONE);
-
-            h.btnNormal.setOnClickListener(v -> listener.onChatClick(c, "normal"));
-            h.btnStory.setOnClickListener(v  -> listener.onChatClick(c, "story"));
-        }
-
-        @Override public int getItemCount() { return list.size(); }
-
-        /** Format số lớn: 1200 → "1.2K" */
-        private String formatCount(int n) {
-            if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
-            if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
-            return String.valueOf(n);
-        }
-
-        static class VH extends RecyclerView.ViewHolder {
-            android.widget.TextView tvName, tvSlogan, tvChats;
-            android.widget.Button   btnNormal, btnStory;
-            VH(View v) {
-                super(v);
-                tvName   = v.findViewById(R.id.tv_char_name);
-                tvSlogan = v.findViewById(R.id.tv_char_slogan);
-                tvChats  = v.findViewById(R.id.tv_char_chats);
-                btnNormal = v.findViewById(R.id.btn_chat_normal);
-                btnStory  = v.findViewById(R.id.btn_chat_story);
-            }
+    /**
+     * Chuyển ISO 8601 timestamp thành chuỗi thời gian tương đối.
+     * Ví dụ: "2p trước", "3h trước", "2 ngày trước"
+     */
+    private String formatTimeAgo(String isoTimestamp) {
+        if (isoTimestamp == null || isoTimestamp.isEmpty()) return "";
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            Date past    = sdf.parse(isoTimestamp);
+            long diffMs  = System.currentTimeMillis() - past.getTime();
+            long diffMin = diffMs / 60_000;
+            if (diffMin < 1)   return "Vừa xong";
+            if (diffMin < 60)  return diffMin + "p";
+            long diffH = diffMin / 60;
+            if (diffH < 24)    return diffH + "h";
+            long diffD = diffH / 24;
+            return diffD + " ngày";
+        } catch (Exception e) {
+            return "";
         }
     }
 }

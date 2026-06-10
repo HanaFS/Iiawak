@@ -16,6 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.UserSession;
+import com.example.iiawak_mobile.data.remote.UserApiService;
+import com.example.iiawak_mobile.network.ApiClient;
+import org.json.JSONObject;
 import com.google.android.material.textfield.TextInputEditText;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -89,20 +92,36 @@ public class EditProfileFragment extends Fragment {
         String username = editUsername != null && editUsername.getText() != null
                 ? editUsername.getText().toString().trim() : "";
 
+        String bio = editBio != null && editBio.getText() != null
+                ? editBio.getText().toString().trim() : "";
+
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "Vui lòng nhập tên hiển thị", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (username.isEmpty()) {
-            Toast.makeText(getContext(), "Vui lòng nhập tên người dùng", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        // Lưu vào session
-        session.setDisplayName(name);
-        session.setUsername(username);
+        // TODO: Xử lý upload ảnh (hiện tại để trống avatar)
+        String avatarUrl = ""; 
 
-        Toast.makeText(getContext(), "Hồ sơ đã được cập nhật ✅", Toast.LENGTH_SHORT).show();
-        androidx.navigation.Navigation.findNavController(view).navigateUp();
+        UserApiService.updateProfile(getContext(), name, bio, avatarUrl, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (response.optBoolean("success", false)) {
+                    // Lưu vào session
+                    session.setDisplayName(name);
+                    session.setUsername(username); // Username thường không đổi qua API này, nhưng giữ tạm local
+
+                    Toast.makeText(getContext(), "Hồ sơ đã được cập nhật ✅", Toast.LENGTH_SHORT).show();
+                    androidx.navigation.Navigation.findNavController(view).navigateUp();
+                } else {
+                    Toast.makeText(getContext(), "Lỗi: " + response.optString("message"), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage, int statusCode) {
+                Toast.makeText(getContext(), "Lỗi kết nối: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
