@@ -79,6 +79,30 @@ class UserRepository {
     const tx = new Transaction(data);
     return tx.save();
   }
+
+  async findTransactionByTxId(txId) {
+    return Transaction.findOne({ txId });
+  }
+
+  async findTransactionById(id) {
+    return Transaction.findById(id);
+  }
+
+  async updateTransaction(id, updateData) {
+    return Transaction.findByIdAndUpdate(id, { ...updateData, updatedAt: new Date() }, { new: true });
+  }
+
+  async findTransactions(query = {}, options = {}) {
+    const { skip = 0, limit = 20 } = options;
+    return Transaction.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  async countTransactions(query = {}) {
+    return Transaction.countDocuments(query);
+  }
 }
 
 module.exports = new UserRepository();

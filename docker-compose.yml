@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: iiawak-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: iiawak
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin123}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - iiawak-network
+    healthcheck:
+      test: echo 'db.adminCommand("ping")' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: iiawak-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    volumes:
+      - redis_data:/data
+    networks:
+      - iiawak-network
+    healthcheck:
+      test: redis-cli --raw incr ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend API Server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iiawak-backend
+    ports:
+      - "5000:5000"
+    environment:
+      # Application
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5000
+      
+      # Database
+      MONGODB_URI: mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-admin123}@mongodb:27017/iiawak?authSource=admin
+      
+      # Authentication
+      JWT_SECRET: ${JWT_SECRET:-iiawak_super_secret_key_2026}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      
+      # Redis
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis123}@redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123}
+      
+      # External APIs
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      
+      # VNPay Payment
+      VNPAY_TMN_CODE: ${VNPAY_TMN_CODE:-}
+      VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
+      VNPAY_URL: ${VNPAY_URL:-https://sandbox.vnpayment.vn/paygate}
+      VNPAY_RETURN_URL: ${VNPAY_RETURN_URL:-http://localhost:3000/payment-result}
+      
+      # CORS
+      ADMIN_URL: ${ADMIN_URL:-http://localhost:5173}
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FILE_PATH: ./logs
+      
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./Iiawak_backend:/app/Iiawak_backend
+      - ./logs:/app/logs
+    networks:
+      - iiawak-network
+    restart: unless-stopped
+
+networks:
+  iiawak-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+  redis_data:

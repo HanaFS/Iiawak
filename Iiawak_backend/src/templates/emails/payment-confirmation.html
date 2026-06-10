@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .status-success {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .status-pending {
+            background-color: #fff9c4;
+            color: #f57f17;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .content {
+            padding: 30px 20px;
+            color: #333;
+        }
+        .content h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .content p {
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .payment-details {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .detail-value {
+            color: #333;
+            text-align: right;
+        }
+        .total-row {
+            padding: 12px 0;
+            font-size: 18px;
+            color: #667eea;
+            font-weight: bold;
+            border-top: 2px solid #667eea;
+            margin-top: 10px;
+        }
+        .kch-display {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .cta-button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Xác nhận thanh toán</h1>
+        </div>
+        
+        <div class="status-success">
+            ✅ {{status}} - {{date}}
+        </div>
+        
+        <div class="content">
+            <h2>Xin chào {{userName}},</h2>
+            
+            <p>Cảm ơn bạn đã nạp KCH trên {{appName}}!</p>
+            
+            <p>Dưới đây là chi tiết giao dịch của bạn:</p>
+            
+            <div class="payment-details">
+                <div class="detail-row">
+                    <span class="detail-label">Mã giao dịch:</span>
+                    <span class="detail-value">{{transactionId}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian:</span>
+                    <span class="detail-value">{{date}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">KCH nhận được:</span>
+                    <span class="detail-value">
+                        <div class="kch-display">{{amount}} KCH</div>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Bonus:</span>
+                    <span class="detail-value">
+                        <div class="kch-display">{{bonus}} KCH</div>
+                    </span>
+                </div>
+                <div class="total-row">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Tổng cộng:</span>
+                        <span id="total">{{amount}} + {{bonus}} KCH</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p>KCH của bạn đã được thêm vào tài khoản và sẵn sàng sử dụng để:</p>
+            <ul>
+                <li>🎭 Tạo các nhân vật AI mới</li>
+                <li>💬 Chat không giới hạn với nhân vật</li>
+                <li>🎁 Mua các gói nâng cấp VIP</li>
+                <li>✨ Truy cập các tính năng cao cấp</li>
+            </ul>
+            
+            <center>
+                <a href="{{appUrl}}" class="cta-button">Bắt đầu sử dụng KCH</a>
+            </center>
+            
+            <p>Nếu bạn có bất kỳ câu hỏi nào về giao dịch này, vui lòng liên hệ với đội hỗ trợ của chúng tôi.</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 {{appName}}. Tất cả quyền được bảo lưu.</p>
+            <p>Đây là email tự động. Vui lòng không trả lời email này.</p>
+        </div>
+    </div>
+</body>
+</html>
