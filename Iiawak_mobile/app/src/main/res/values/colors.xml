@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- ══════════════════════════════════════════
+         Iiawak Brand — Vibrant Neon Dark Palette
+         ══════════════════════════════════════════ -->
+
+    <!-- Primary: Hot Pink / Rose -->
+    <color name="brand_primary">#FF2E9D</color>
+    <color name="brand_primary_dark">#C2185B</color>
+    <color name="brand_primary_light">#FF6EC7</color>
+    <color name="brand_primary_ultra">#FF0080</color>
+
+    <!-- Secondary: Aurora Purple -->
+    <color name="brand_secondary">#A855F7</color>
+    <color name="brand_secondary_dark">#7C3AED</color>
+    <color name="brand_secondary_light">#D8B4FE</color>
+
+    <!-- Accent Colors -->
+    <color name="brand_accent">#FF6F91</color>
+    <color name="brand_accent_cyan">#22D3EE</color>
+    <color name="brand_gold">#FFD700</color>
+    <color name="brand_gold_light">#FFF176</color>
+    <color name="brand_heart">#FF4B6E</color>
+    <color name="neon_pink">#FF2E9D</color>
+    <color name="aurora_purple">#A855F7</color>
+    <color name="deep_rose">#FF0080</color>
+    <color name="electric_violet">#8B5CF6</color>
+
+    <!-- ══════════════════════════════════════════
+         Background — Deep Space Dark
+         ══════════════════════════════════════════ -->
+    <color name="bg_primary">#0A0612</color>
+    <color name="bg_secondary">#0F0A1E</color>
+    <color name="bg_card">#160E2A</color>
+    <color name="bg_card_elevated">#1E1438</color>
+    <color name="bg_overlay">#99000000</color>
+    <color name="bg_gradient_start">#0A0612</color>
+    <color name="bg_gradient_mid">#1A0A2E</color>
+    <color name="bg_gradient_end">#0D0518</color>
+
+    <!-- ══════════════════════════════════════════
+         Surface / Glass Effects
+         ══════════════════════════════════════════ -->
+    <!-- Pink glass: 20% opacity pink -->
+    <color name="surface_glass">#33FF2E9D</color>
+    <color name="surface_glass_dark">#1A160E2A</color>
+    <color name="surface_glass_purple">#26A855F7</color>
+    <color name="surface_border">#40FF2E9D</color>
+    <color name="surface_border_subtle">#1AFF2E9D</color>
+    <color name="surface_divider">#14FFFFFF</color>
+
+    <!-- Glow overlays -->
+    <color name="glow_pink_10">#1AFF2E9D</color>
+    <color name="glow_pink_20">#33FF2E9D</color>
+    <color name="glow_pink_30">#4DFF2E9D</color>
+    <color name="glow_pink_50">#80FF2E9D</color>
+    <color name="glow_purple_20">#33A855F7</color>
+    <color name="glow_gold_30">#4DFFD700</color>
+    <color name="diamond_shine">#CCE8F4FD</color>
+
+    <!-- ══════════════════════════════════════════
+         Text Colors
+         ══════════════════════════════════════════ -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#CCF0E6FF</color>
+    <color name="text_tertiary">#66FFFFFF</color>
+    <color name="text_placeholder">#33FFFFFF</color>
+    <color name="text_pink">#FFB3D1</color>
+    <color name="text_hint">#80FF2E9D</color>
+    <color name="text_neon">#FF6EC7</color>
+    <color name="text_gold">#FFD700</color>
+
+    <!-- ══════════════════════════════════════════
+         Status Colors
+         ══════════════════════════════════════════ -->
+    <color name="status_online">#22C55E</color>
+    <color name="status_offline">#4B5563</color>
+    <color name="status_altego">#A855F7</color>
+    <color name="status_altego_dark">#4A148C</color>
+    <color name="status_warning">#F59E0B</color>
+    <color name="status_error">#EF4444</color>
+    <color name="status_success">#22C55E</color>
+
+    <!-- ══════════════════════════════════════════
+         Economy — Hearts & Diamonds
+         ══════════════════════════════════════════ -->
+    <color name="heart_free">#FF6B9D</color>
+    <color name="heart_premium">#FF2E9D</color>
+    <color name="heart_glow">#66FF2E9D</color>
+    <color name="diamond_pink">#FF2E9D</color>
+    <color name="diamond_glow">#4DFF2E9D</color>
+
+    <!-- ══════════════════════════════════════════
+         Rating / Stars
+         ══════════════════════════════════════════ -->
+    <color name="star_filled">#FFD700</color>
+    <color name="star_empty">#33FFFFFF</color>
+
+    <!-- ══════════════════════════════════════════
+         Navigation
+         ══════════════════════════════════════════ -->
+    <color name="nav_active">#FF2E9D</color>
+    <color name="nav_inactive">#55FFFFFF</color>
+    <color name="nav_background">#E6100828</color>
+
+    <!-- ══════════════════════════════════════════
+         AlterEgo Meter
+         ══════════════════════════════════════════ -->
+    <color name="meter_low">#22C55E</color>
+    <color name="meter_mid">#F59E0B</color>
+    <color name="meter_high">#A855F7</color>
+    <color name="meter_max">#FF0080</color>
+
+    <!-- ══════════════════════════════════════════
+         Affection Levels — Vibrant Spectrum
+         ══════════════════════════════════════════ -->
+    <color name="affection_stranger">#6B7280</color>
+    <color name="affection_acquaintance">#60A5FA</color>
+    <color name="affection_friend">#4ADE80</color>
+    <color name="affection_close">#FBBF24</color>
+    <color name="affection_lover">#FF2E9D</color>
+
+    <!-- ══════════════════════════════════════════
+         Streak / Calendar
+         ══════════════════════════════════════════ -->
+    <color name="streak_active_start">#F59E0B</color>
+    <color name="streak_active_end">#FF6F00</color>
+    <color name="streak_done_start">#22C55E</color>
+    <color name="streak_done_end">#16A34A</color>
+    <color name="streak_empty">#1AFFFFFF</color>
+</resources>

@@ -1,0 +1,602 @@
+/* ── Page header ── */
+.eco-page-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ── Stats ── */
+.eco-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) { .eco-stats-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 540px) { .eco-stats-grid { grid-template-columns: 1fr; } }
+
+.eco-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px var(--glow, rgba(255,105,180,0.15));
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.eco-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px var(--glow, rgba(255,105,180,0.25));
+}
+
+.eco-stat-icon {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.eco-stat-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.eco-stat-label {
+  font-size: 0.78rem;
+  color: #666;
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.eco-stat-sub {
+  font-size: 0.68rem;
+  color: #aaa;
+  margin: 2px 0 0;
+}
+
+/* ── Sections ── */
+.eco-section {
+  margin-bottom: 20px;
+  padding: 20px 22px;
+  border-radius: 18px;
+}
+
+.eco-sec-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.eco-sec-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--hot-pink);
+  margin: 0;
+}
+
+/* ── Toolbar ── */
+.eco-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.eco-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.eco-search-ico {
+  position: absolute;
+  left: 10px;
+  color: #ccc;
+}
+
+.eco-search {
+  padding: 7px 12px 7px 30px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,105,180,0.2);
+  outline: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  background: white;
+  color: #333;
+  min-width: 220px;
+}
+
+.eco-search:focus {
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 3px rgba(255,105,180,0.1);
+}
+
+.eco-select {
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,105,180,0.2);
+  font-family: inherit;
+  font-size: 0.82rem;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ── Table ── */
+.eco-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255,105,180,0.1);
+}
+
+.eco-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.eco-table th {
+  background: rgba(255,105,180,0.06);
+  color: var(--primary-pink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 11px 14px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255,105,180,0.1);
+}
+
+.eco-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255,105,180,0.05);
+  vertical-align: middle;
+  color: #444;
+}
+
+.eco-table tbody tr:hover {
+  background: rgba(255,105,180,0.03);
+}
+
+.eco-code {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--hot-pink);
+  background: rgba(255,105,180,0.08);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.eco-code-sm { font-size: 0.75rem; color: #888; background: rgba(0,0,0,0.04); }
+
+.eco-qty { font-size: 1rem; font-weight: 700; color: #333; }
+.eco-muted { font-size: 0.78rem; color: #999; }
+.eco-empty { text-align: center; padding: 24px; color: #bbb; font-style: italic; }
+
+.eco-kch-val {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d946a8;
+}
+
+.eco-kch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(255,105,180,0.12);
+  color: var(--hot-pink);
+}
+
+.eco-pack-icon {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(255,105,180,0.6)) drop-shadow(0 2px 4px rgba(255,20,147,0.3));
+}
+
+.eco-pack-kch {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--hot-pink);
+  margin: 0;
+}
+
+.eco-pack-kch span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0.7;
+  margin-left: 3px;
+}
+
+.eco-scope { font-size: 0.8rem; color: #666; }
+
+.eco-refund-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,105,180,0.3);
+  background: rgba(255,105,180,0.06);
+  color: var(--hot-pink);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.eco-refund-btn:hover {
+  background: rgba(255,105,180,0.15);
+  box-shadow: 0 0 8px rgba(255,105,180,0.3);
+}
+
+/* ── IAP Packs ── */
+.eco-packs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 900px) { .eco-packs-grid { grid-template-columns: 1fr 1fr; } }
+
+.eco-pack-card {
+  position: relative;
+  padding: 18px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255,105,180,0.2);
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,240,245,0.6));
+  text-align: center;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.eco-pack-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255,105,180,0.2);
+}
+.eco-pack-card.x2 {
+  border-color: #d97706;
+  background: linear-gradient(135deg, rgba(255,249,230,0.95), rgba(255,237,180,0.6));
+  box-shadow: 0 4px 16px rgba(217,119,6,0.2);
+}
+
+.eco-x2-badge {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: linear-gradient(135deg,#f59e0b,#d97706);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(217,119,6,0.4);
+}
+
+.eco-pack-name  { font-size: 0.85rem; font-weight: 700; color: #444; margin: 0; }
+.eco-pack-price { font-size: 1.4rem; font-weight: 800; color: var(--hot-pink); margin: 0; }
+.eco-pack-price span { font-size: 0.7rem; font-weight: 600; }
+.eco-pack-xu    { font-size: 0.88rem; font-weight: 600; color: #d97706; margin: 0; }
+.eco-pack-bonus {
+  display: inline-block;
+  background: rgba(34,197,94,0.12);
+  color: #15803d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.eco-pack-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 5px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,105,180,0.25);
+  background: transparent;
+  color: var(--primary-pink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.eco-pack-edit-btn:hover {
+  background: rgba(255,105,180,0.1);
+}
+
+/* ── Heart Slider ── */
+.eco-slider-wrap {
+  background: rgba(255,105,180,0.04);
+  border: 1px solid rgba(255,105,180,0.1);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+.eco-slider-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.eco-slider {
+  width: 100%;
+  accent-color: var(--hot-pink);
+  height: 6px;
+  cursor: pointer;
+}
+.eco-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+/* ── Giftcode Usage bar ── */
+.eco-usage-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #666;
+}
+.eco-usage-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,105,180,0.12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.eco-usage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-pink), var(--hot-pink));
+  border-radius: 10px;
+  transition: width 0.4s;
+}
+
+/* ── Create Code Form ── */
+.eco-create-code-form {
+  padding: 18px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+.eco-form-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--hot-pink);
+  margin: 0 0 14px;
+}
+.eco-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 600px) { .eco-form-grid { grid-template-columns: 1fr; } }
+
+.eco-label {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--primary-pink);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.eco-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,105,180,0.2);
+  outline: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #333;
+  background: white;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+.eco-input:focus {
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 3px rgba(255,105,180,0.1);
+}
+.eco-select-full { width: 100%; }
+
+/* ── Manual Adjustment ── */
+.eco-adj-form { display: flex; flex-direction: column; gap: 12px; }
+.eco-adj-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 900px) { .eco-adj-grid { grid-template-columns: 1fr 1fr; } }
+
+.eco-adj-reason { grid-column: span 4; }
+@media (max-width: 900px) { .eco-adj-reason { grid-column: span 2; } }
+
+.eco-adj-submit {
+  align-self: flex-start;
+}
+
+.eco-adj-msg {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.2);
+  color: #15803d;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+/* ── Buttons ── */
+.eco-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-pink), var(--hot-pink));
+  color: white;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s;
+  box-shadow: 0 4px 12px rgba(255,105,180,0.3);
+}
+.eco-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,105,180,0.5);
+}
+
+.eco-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,105,180,0.25);
+  background: transparent;
+  color: var(--primary-pink);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.eco-btn-ghost:hover {
+  background: rgba(255,105,180,0.07);
+}
+
+/* ── Overlay + Modal ── */
+.eco-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 20px;
+}
+
+.eco-modal {
+  width: 420px;
+  max-width: 100%;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.97) !important;
+  border: 1px solid rgba(255,105,180,0.2) !important;
+  box-shadow: 0 20px 60px rgba(255,105,180,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eco-modal-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.eco-modal-hd h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--hot-pink);
+  margin: 0;
+}
+.eco-modal-hd button {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  transition: all 0.2s;
+}
+.eco-modal-hd button:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+.eco-modal-ft {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.eco-refund-info {
+  background: rgba(255,105,180,0.05);
+  border: 1px solid rgba(255,105,180,0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.eco-refund-info p { margin: 0; font-size: 0.85rem; color: #555; }
+
+.eco-err { font-size: 0.78rem; color: #ef4444; font-weight: 600; margin: 0; }
+
+/* ── Event Toggle ── */
+.eco-event-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #d97706;
+}
+.eco-toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.12);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s;
+}
+.eco-toggle.on { background: linear-gradient(135deg,#f59e0b,#d97706); }
+.eco-toggle-knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+.eco-toggle.on .eco-toggle-knob { transform: translateX(20px); }

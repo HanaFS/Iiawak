@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Community Character Card — Horizontal list style, richer visual -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="@color/bg_card"
+    app:cardElevation="2dp"
+    app:rippleColor="@color/glow_pink_30"
+    app:strokeColor="@color/glow_pink_30"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:gravity="center_horizontal">
+
+        <!-- Official / AlterEgo badge row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/char_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_button_gradient"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="✅ Chính thức"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Avatar with glow -->
+        <FrameLayout
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="4dp">
+
+            <View
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_glow_pink"
+                android:alpha="0.35" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_comm_char_avatar"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@color/brand_primary"
+                android:contentDescription="Avatar nhân vật"
+                app:civ_border_color="@color/brand_primary"
+                app:civ_border_width="2dp" />
+        </FrameLayout>
+
+        <!-- AlterEgo badge -->
+        <TextView
+            android:id="@+id/char_altego_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_glass"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:text="🌑 AlterEgo"
+            android:textColor="@color/brand_secondary_light"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:layout_marginTop="5dp" />
+
+        <!-- Name -->
+        <TextView
+            android:id="@+id/char_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="8dp"
+            android:text="Nhân vật" />
+
+        <!-- Rating stars -->
+        <TextView
+            android:id="@+id/char_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/brand_gold"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginTop="3dp"
+            android:text="★ 0.0" />
+
+        <!-- User count -->
+        <TextView
+            android:id="@+id/char_users"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_tertiary"
+            android:textSize="10sp"
+            android:layout_marginTop="2dp"
+            android:text="👥 0 người chơi" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start_chat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="36dp"
+            android:text="Chat ngay ♥"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:background="@drawable/bg_button_gradient"
+            app:backgroundTint="@null"
+            app:cornerRadius="12dp"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

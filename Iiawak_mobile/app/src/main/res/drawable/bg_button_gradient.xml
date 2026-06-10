@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 3-stop gradient: Neon Pink → Hot Pink → Deep Purple -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#FF2E9D"
+        android:centerColor="#E91E8C"
+        android:endColor="#7C3AED"
+        android:angle="135"
+        android:type="linear" />
+    <corners android:radius="16dp" />
+    <stroke
+        android:width="1dp"
+        android:color="#4DFF2E9D" />
+</shape>

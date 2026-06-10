@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- 1. TOPBAR TÍCH HỢP (Avatar + Tên + Thanh Thiện Cảm) -->
+        <LinearLayout
+            android:id="@+id/chat_topbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="12dp"
+            android:background="@color/bg_secondary"
+            android:elevation="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                style="@style/Widget.Iiawak.Button.Text"
+                android:layout_width="44dp"
+                android:layout_height="wrap_content"
+                android:minHeight="44dp"
+                android:text="←"
+                android:textSize="22sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/chat_header_avatar"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_diamond"
+                android:layout_marginStart="4dp"
+                app:civ_border_color="@color/brand_primary"
+                app:civ_border_width="2dp" />
+
+            <!-- Khối thông tin nhân vật -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/chat_header_bot_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tên nhân vật"
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.02"/>
+
+                <!-- Thanh thiện cảm được thiết kế mỏng, tinh tế dưới tên -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp">
+
+                    <TextView
+                        android:id="@+id/affection_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Người quen"
+                        android:textColor="@color/brand_primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"/>
+
+                    <ProgressBar
+                        android:id="@+id/affection_meter"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="4dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="16dp"
+                        android:progress="60"
+                        android:max="100"
+                        android:progressTint="@color/brand_primary"
+                        android:progressBackgroundTint="@color/surface_divider" />
+                </LinearLayout>
+
+                <!-- Altego meter row removed -->
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_chat_options"
+                style="@style/Widget.Iiawak.Button.Text"
+                android:layout_width="44dp"
+                android:layout_height="wrap_content"
+                android:minHeight="44dp"
+                android:text="⋮"
+                android:textSize="22sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+        </LinearLayout>
+
+        <!-- Chat Mode Indicator -->
+        <TextView
+            android:id="@+id/tv_chat_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bg_card"
+            android:gravity="center"
+            android:paddingVertical="4dp"
+            android:text="@string/label_chat_mode_normal"
+            android:textColor="@color/text_tertiary"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <!-- 2. KHU VỰC HIỂN THỊ TIN NHẮN (Tự động chiếm phần diện tích còn lại) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_messages_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="12dp" />
+
+        <!-- Loading Indicator nhỏ gọn -->
+        <LinearLayout
+            android:id="@+id/chat_loading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:visibility="gone">
+            <ProgressBar
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:indeterminateTint="@color/brand_primary" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_bot_typing"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:textStyle="italic"/>
+        </LinearLayout>
+
+        <!-- 3. GỢI Ý HÀNH ĐỘNG (Dạng Action Chips mềm mại) -->
+        <HorizontalScrollView
+            android:id="@+id/rp_suggestions_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingHorizontal="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp">
+
+            <LinearLayout
+                android:id="@+id/rp_suggestions_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/rp_suggestion_1"
+                    style="@style/Widget.Iiawak.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
+                    android:text="@string/rp_suggestion_smile"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    app:cornerRadius="18dp"
+                    android:paddingHorizontal="16dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/rp_suggestion_2"
+                    style="@style/Widget.Iiawak.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
+                    android:text="@string/rp_suggestion_ask"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    app:cornerRadius="18dp"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginStart="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/rp_suggestion_3"
+                    style="@style/Widget.Iiawak.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
+                    android:text="@string/rp_suggestion_challenge"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    app:cornerRadius="18dp"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginStart="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+            </LinearLayout>
+        </HorizontalScrollView> <!-- Đã vá lỗi thiếu thẻ đóng tại đây -->
+
+        <!-- 4. KHU VỰC NHẬP TEXT (Thiết kế Bo Tròn Sang Trọng) -->
+        <LinearLayout
+            android:id="@+id/chat_input_area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="10dp"
+            android:background="@color/bg_secondary"
+            android:elevation="8dp">
+
+            <!-- CardView tạo độ bo tròn hoàn hảo cho ô gõ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/bg_primary"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/surface_divider">
+
+                <EditText
+                    android:id="@+id/et_chat_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="@string/chat_input_hint_v2"
+                    android:textColorHint="@color/text_secondary"
+                    android:textColor="@color/white"
+                    android:inputType="textMultiLine"
+                    android:maxLines="4"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:textSize="15sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_send"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="↗"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_button_gradient"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:layout_marginStart="10dp"
+                app:backgroundTint="@null"
+                app:cornerRadius="24dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Neon pink radial glow — for ambient background effects -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:startColor="#80FF2E9D"
+        android:centerColor="#33FF2E9D"
+        android:endColor="#00FF2E9D"
+        android:type="radial"
+        android:gradientRadius="50%" />
+</shape>

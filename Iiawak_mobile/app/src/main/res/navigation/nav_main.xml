@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Thẻ gốc <navigation> định nghĩa sơ đồ điều hướng của toàn bộ ứng dụng.
+    - android:id: Định danh của sơ đồ điều hướng này (nav_main).
+    - app:startDestination: Màn hình đích đầu tiên sẽ hiển thị ngay khi ứng dụng khởi chạy (ở đây là loginFragment).
+-->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/loginFragment">
+
+    <!-- =================== AUTH FLOW (LUỒNG XÁC THỰC TÀI KHOẢN) =================== -->
+
+    <!-- Màn hình Đăng nhập -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.LoginFragment"
+        android:label="Đăng nhập">
+        <!-- Chuyển từ Đăng nhập vào màn hình chính (Cộng đồng) khi thành công.
+             Sử dụng popUpToInclusive="true" để xóa loginFragment khỏi bộ nhớ (Backstack),
+             ngăn người dùng ấn nút Back quay lại màn hình login sau khi đã vào app. -->
+        <action
+            android:id="@+id/action_login_to_main"
+            app:destination="@id/communityFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
+        <!-- Chuyển hướng sang màn hình Đăng ký tài khoản -->
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+        <!-- Chuyển hướng sang màn hình Quên mật khẩu -->
+        <action
+            android:id="@+id/action_login_to_forgot_password"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+
+    <!-- Màn hình Đăng ký tài khoản mới -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.RegisterFragment"
+        android:label="Đăng ký">
+        <!-- Chuyển thẳng từ Đăng ký vào màn hình chính nếu tự động login thành công,
+             đồng thời xóa lịch sử các trang trước đó. -->
+        <action
+            android:id="@+id/action_register_to_main"
+            app:destination="@id/communityFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
+        <!-- Nút quay lại màn hình Đăng nhập dành cho người đã có tài khoản -->
+        <action
+            android:id="@+id/action_register_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Màn hình Yêu cầu khôi phục mật khẩu -->
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.ForgotPasswordFragment"
+        android:label="Quên mật khẩu">
+        <!-- Quay lại màn hình Đăng nhập sau khi gửi yêu cầu khôi phục thành công -->
+        <action
+            android:id="@+id/action_forgot_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- =================== MAIN APP (CÁC PHÂN HỆ VÀ TAB CHÍNH) =================== -->
+
+    <!-- Tab Cộng đồng: Hiển thị danh sách nhân vật/bot -->
+    <fragment
+        android:id="@+id/communityFragment"
+        android:name="com.example.iiawak_mobile.ui.community.CommunityFragment"
+        android:label="Cộng đồng">
+        <!-- Lối tắt đi tới Ví cá nhân -->
+        <action
+            android:id="@+id/action_community_to_wallet"
+            app:destination="@id/walletFragment" />
+        <!-- Bấm vào một item để xem chi tiết nhân vật -->
+        <action
+            android:id="@+id/action_community_to_character_detail"
+            app:destination="@id/characterDetailFragment" />
+    </fragment>
+
+    <!-- Tab Khám phá: Tìm kiếm và lọc nhân vật theo thẻ -->
+    <fragment
+        android:id="@+id/exploreFragment"
+        android:name="com.example.iiawak_mobile.ui.explore.ExploreFragment"
+        android:label="Khám phá">
+        <!-- Đi tới trang chi tiết của nhân vật được chọn -->
+        <action
+            android:id="@+id/action_explore_to_character_detail"
+            app:destination="@id/characterDetailFragment" />
+        <!-- Nút bắt đầu chat nhanh (ví dụ tính năng Chat ngẫu nhiên) -->
+        <action
+            android:id="@+id/action_explore_to_chat"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
+    <!-- Tab ChatList: Hiển thị lịch sử các đoạn hội thoại gần đây -->
+    <fragment
+        android:id="@+id/chatListFragment"
+        android:name="com.example.iiawak_mobile.ui.chat.ChatListFragment"
+        android:label="Chat">
+        <!-- Bấm vào lịch sử để tiếp tục trò chuyện -->
+        <action
+            android:id="@+id/action_chat_list_to_chat"
+            app:destination="@id/chatFragment" />
+        <!-- Lối tắt đi đến giao diện tạo nhân vật mới -->
+        <action
+            android:id="@+id/action_chat_list_to_create_character"
+            app:destination="@id/createCharacterFragment" />
+    </fragment>
+
+    <!-- Tab Creator: Bảng điều khiển quản lý nhân vật tự tạo -->
+    <fragment
+        android:id="@+id/creatorFragment"
+        android:name="com.example.iiawak_mobile.ui.creator.CreatorDashboardFragment"
+        android:label="Creator">
+        <!-- Action mở biểu mẫu khởi tạo một bot/nhân vật mới -->
+        <action
+            android:id="@+id/action_creator_to_create_character"
+            app:destination="@id/createCharacterFragment" />
+    </fragment>
+
+    <!-- Tab Hồ sơ: Quản lý thông tin cá nhân và tài sản -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.ProfileFragment"
+        android:label="Hồ sơ">
+        <!-- Mở Cài đặt hệ thống -->
+        <action
+            android:id="@+id/action_profile_to_settings"
+            app:destination="@id/settingsFragment" />
+        <!-- Mở Ví kim cương -->
+        <action
+            android:id="@+id/action_profile_to_wallet"
+            app:destination="@id/walletFragment" />
+        <!-- Mở Cửa hàng mua sắm vật phẩm -->
+        <action
+            android:id="@+id/action_profile_to_store"
+            app:destination="@id/storeFragment" />
+        <!-- Đi làm nhiệm vụ nhận tim/kim cương -->
+        <action
+            android:id="@+id/action_profile_to_earn_hearts"
+            app:destination="@id/earnHeartsFragment" />
+    </fragment>
+
+    <!-- =================== DETAIL SCREENS (CÁC MÀN HÌNH CHI TIẾT) =================== -->
+
+    <!-- Màn hình hiển thị toàn bộ hồ sơ của một Nhân vật -->
+    <fragment
+        android:id="@+id/characterDetailFragment"
+        android:name="com.example.iiawak_mobile.ui.community.CharacterDetailFragment"
+        android:label="Chi tiết nhân vật">
+        <!-- Action khi người dùng ấn nút "Chat ngay" -->
+        <action
+            android:id="@+id/action_character_detail_to_chat"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
+    <!-- Màn hình Phòng Chat nhập vai (Nơi diễn ra tương tác AI) -->
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.iiawak_mobile.ui.chat.ChatFragment"
+        android:label="Chat">
+        <!-- Định nghĩa các đối số (arguments) cần nhận vào khi mở phòng chat này
+             (ví dụ: ID của bot, Tên bot, Chế độ chat) -->
+        <argument
+            android:name="characterId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="botName"
+            app:argType="string"
+            android:defaultValue="Nhân vật" />
+        <argument
+            android:name="chatMode"
+            app:argType="string"
+            android:defaultValue="normal" />
+        <!-- Chuyển sang màn hình Bản đồ Ký ức (Xem các sự kiện đã nhớ) -->
+        <action
+            android:id="@+id/action_chat_to_memory_map"
+            app:destination="@id/memoryMapFragment" />
+        <!-- Chuyển sang tiến trình Chinh phục (Xem mức độ thiện cảm) -->
+        <action
+            android:id="@+id/action_chat_to_conquest"
+            app:destination="@id/conquestFragment" />
+    </fragment>
+
+    <!-- Màn hình quản lý Ví cá nhân -->
+    <fragment
+        android:id="@+id/walletFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.WalletFragment"
+        android:label="Ví Kim Cương Hồng">
+        <!-- Lối tắt dẫn thẳng đến Cửa hàng để nạp thêm -->
+        <action
+            android:id="@+id/action_wallet_to_store"
+            app:destination="@id/storeFragment" />
+    </fragment>
+
+    <!-- Màn hình Cài đặt chung của ứng dụng -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.SettingsFragment"
+        android:label="Cài đặt">
+        <!-- Action Xử lý Đăng xuất: Đẩy người dùng về loginFragment và
+             xóa sạch toàn bộ backstack (popUpTo="@id/communityFragment") để không thể ấn nút Back -->
+        <action
+            android:id="@+id/action_settings_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/communityFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
+        <!-- Mở biểu mẫu cập nhật thông tin cá nhân (Tên hiển thị, Avatar) -->
+        <action
+            android:id="@+id/action_settings_to_edit_profile"
+            app:destination="@id/editProfileFragment" />
+        <!-- Cấu hình tính năng bảo mật bằng mã PIN -->
+        <action
+            android:id="@+id/action_settings_to_app_lock"
+            app:destination="@id/appLockFragment" />
+    </fragment>
+
+    <!-- Các màn hình chức năng bổ trợ độc lập (Chưa có action đi tiếp) -->
+    <fragment
+        android:id="@+id/memoryMapFragment"
+        android:name="com.example.iiawak_mobile.ui.chat.MemoryMapFragment"
+        android:label="Bản đồ ký ức" />
+
+    <fragment
+        android:id="@+id/conquestFragment"
+        android:name="com.example.iiawak_mobile.ui.chat.ConquestFragment"
+        android:label="Chinh phục" />
+
+    <fragment
+        android:id="@+id/earnHeartsFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.EarnHeartsFragment"
+        android:label="Nhận Kim Cương Hồng" />
+
+    <!-- Màn hình biểu mẫu thiết kế Bot/Nhân vật mới -->
+    <fragment
+        android:id="@+id/createCharacterFragment"
+        android:name="com.example.iiawak_mobile.ui.creator.CreateCharacterFragment"
+        android:label="Tạo nhân vật">
+        <!-- Khi tạo xong, quay trở lại Dashboard của Creator,
+             giải phóng trang tạo nhân vật này khỏi bộ nhớ -->
+        <action
+            android:id="@+id/action_create_character_to_creator"
+            app:destination="@id/creatorFragment"
+            app:popUpTo="@id/creatorFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Các màn hình tiện ích khác thuộc về Profile -->
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.EditProfileFragment"
+        android:label="Chỉnh sửa hồ sơ" />
+
+    <fragment
+        android:id="@+id/storeFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.StoreFragment"
+        android:label="Cửa hàng Kim Cương" />
+
+    <fragment
+        android:id="@+id/appLockFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.AppLockFragment"
+        android:label="Khóa ứng dụng" />
+
+</navigation>

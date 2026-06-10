@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ══════════════════════════════════════════
+         Base Application Theme — Iiawak Deep Space Dark
+         ══════════════════════════════════════════ -->
+    <style name="Base.Theme.Iiawak_mobile" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorPrimaryDark">@color/brand_primary_dark</item>
+        <item name="colorPrimaryVariant">@color/brand_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="colorSecondaryVariant">@color/brand_secondary_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorTertiary">@color/brand_accent</item>
+        <item name="colorSurface">@color/bg_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/bg_card_elevated</item>
+        <item name="android:colorBackground">@color/bg_primary</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="android:statusBarColor">@color/bg_primary</item>
+        <item name="android:navigationBarColor">@color/bg_primary</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="colorControlHighlight">@color/surface_glass</item>
+        <item name="colorControlActivated">@color/brand_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <!-- Remove ripple color override to keep Material3 defaults -->
+        <item name="rippleColor">@color/glow_pink_30</item>
+    </style>
+
+    <style name="Theme.Iiawak_mobile" parent="Base.Theme.Iiawak_mobile" />
+
+    <!-- Splash Theme -->
+    <style name="Theme.Iiawak.Splash" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
+    </style>
+
+    <!-- Auth Theme -->
+    <style name="Theme.Iiawak.Auth" parent="Theme.Iiawak_mobile">
+        <item name="android:windowBackground">@color/bg_primary</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════
+         Widget Styles
+         ══════════════════════════════════════════ -->
+
+    <!-- Primary Button — Gradient Pink → Purple -->
+    <style name="Widget.Iiawak.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:background">@drawable/bg_button_gradient</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="backgroundTint">@null</item>
+        <item name="rippleColor">@color/glow_pink_30</item>
+    </style>
+
+    <!-- Secondary / Outline Button -->
+    <style name="Widget.Iiawak.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/brand_primary</item>
+        <item name="strokeColor">@color/brand_primary</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="rippleColor">@color/glow_pink_20</item>
+    </style>
+
+    <!-- Text Button -->
+    <style name="Widget.Iiawak.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/brand_primary</item>
+        <item name="rippleColor">@color/glow_pink_20</item>
+    </style>
+
+    <!-- Card Style — Glass Dark -->
+    <style name="Widget.Iiawak.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/bg_card</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/surface_border</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Card — Character (richer, higher contrast) -->
+    <style name="Widget.Iiawak.Card.Character" parent="Widget.Iiawak.Card">
+        <item name="cardCornerRadius">22dp</item>
+        <item name="strokeColor">@color/glow_pink_30</item>
+        <item name="strokeWidth">1.5dp</item>
+    </style>
+
+    <!-- Input Field -->
+    <style name="Widget.Iiawak.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/bg_card</item>
+        <item name="boxStrokeColor">@color/input_stroke_selector</item>
+        <item name="boxStrokeWidth">1.5dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">@color/brand_primary_light</item>
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="android:textColorHint">@color/text_placeholder</item>
+    </style>
+
+    <!-- Tab Layout -->
+    <style name="Widget.Iiawak.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="tabSelectedTextColor">@color/brand_primary</item>
+        <item name="tabTextColor">@color/text_tertiary</item>
+        <item name="tabIndicatorColor">@color/brand_primary</item>
+        <item name="tabIndicatorFullWidth">false</item>
+        <item name="tabBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="tabRippleColor">@color/glow_pink_20</item>
+    </style>
+
+    <!-- Bottom Sheet -->
+    <style name="Widget.Iiawak.BottomSheet" parent="Widget.Material3.BottomSheet">
+        <item name="android:background">@color/bg_card_elevated</item>
+    </style>
+
+    <!-- Chip — Default -->
+    <style name="Widget.Iiawak.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@drawable/selector_chip_bg</item>
+        <item name="chipStrokeColor">@color/selector_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/selector_chip_text</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipIconVisible">false</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════
+         Text Styles
+         ══════════════════════════════════════════ -->
+    <style name="TextAppearance.Iiawak.Title" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="TextAppearance.Iiawak.Subtitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Iiawak.Label" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Iiawak.Pink" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/brand_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- NEW: Neon glow text -->
+    <style name="TextAppearance.Iiawak.Neon" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/text_neon</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <!-- NEW: Gold text for economy -->
+    <style name="TextAppearance.Iiawak.Gold" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/brand_gold</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

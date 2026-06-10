@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gradient overlay for bottom of character card image -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#00000000"
+        android:centerColor="#80100828"
+        android:endColor="#F0100828"
+        android:angle="270"
+        android:type="linear" />
+    <corners android:radius="22dp" />
+</shape>

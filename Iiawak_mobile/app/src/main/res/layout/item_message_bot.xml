@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bot message bubble (left) -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="bottom"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="4dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/msg_bot_avatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_diamond"
+        app:civ_border_color="@color/brand_primary"
+        app:civ_border_width="1dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="64dp">
+
+        <TextView
+            android:id="@+id/msg_bot_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xin chào! Tôi là..."
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.5"
+            android:background="@drawable/bg_chat_bubble_bot"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
+            android:maxWidth="280dp" />
+
+        <TextView
+            android:id="@+id/msg_bot_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10:32"
+            android:textColor="@color/text_tertiary"
+            android:textSize="11sp"
+            android:layout_marginTop="3dp"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+</LinearLayout>

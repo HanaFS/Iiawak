@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Avatar neon ring: glow border for profile avatar -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:startColor="#FF2E9D"
+        android:centerColor="#A855F7"
+        android:endColor="#FF2E9D"
+        android:type="sweep" />
+    <stroke
+        android:width="3dp"
+        android:color="#FF2E9D" />
+</shape>

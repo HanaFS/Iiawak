@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_splash_gradient">
+
+    <!-- ── Header Section with glow ── -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Pink glow blob top-right -->
+        <View
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="top|end"
+            android:background="@drawable/bg_glow_pink"
+            android:alpha="0.3" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="56dp"
+            android:paddingBottom="14dp">
+
+            <!-- Title row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✨ Khám phá"
+                        android:textColor="@color/brand_primary_light"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nhân vật"
+                        android:textColor="@color/text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.02" />
+                </LinearLayout>
+
+                <!-- Random button (icon-style) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_random_char"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="🎲"
+                    android:textSize="20sp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:background="@drawable/bg_card_glass"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="14dp" />
+            </LinearLayout>
+
+            <!-- ── Search Bar ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Iiawak.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="@string/search_hint"
+                app:startIconDrawable="@drawable/ic_nav_explore"
+                app:startIconTint="@color/brand_primary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text"
+                    android:textColor="@color/text_primary"
+                    android:imeOptions="actionSearch" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ── Filter Chips (scrollable) ── -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="10dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filter_tags_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_all"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="🌟 Tất cả"
+                android:checked="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_romance"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="❤ Lãng mạn" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_fantasy"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="✨ Fantasy" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_mystery"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="🔮 Bí ẩn" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_action"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="⚔ Hành động" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_slice"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="☀ Đời thường" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_horror"
+                style="@style/Widget.Iiawak.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="👻 Kinh dị" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- ── Sort & Filter Row ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/tv_result_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Kết quả"
+            android:textColor="@color/text_tertiary"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sort"
+            style="@style/Widget.Iiawak.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="36dp"
+            android:text="Phổ biến ▾"
+            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_filter"
+            style="@style/Widget.Iiawak.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="36dp"
+            android:text="⚙ Lọc"
+            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+    </LinearLayout>
+
+    <!-- ── Character Grid ── -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/explore_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="10dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="90dp"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="2"
+        tools:listitem="@layout/item_character_card" />
+
+</LinearLayout>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_gradient">
+
+    <!-- ── Ambient Glow: Top-left pink blob ── -->
+    <View
+        android:id="@+id/splash_glow_top_left"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:background="@drawable/bg_glow_pink"
+        android:alpha="0.55"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="-120dp"
+        android:layout_marginStart="-80dp" />
+
+    <!-- ── Ambient Glow: Bottom-right purple blob ── -->
+    <View
+        android:id="@+id/splash_glow_bottom_right"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:background="@drawable/bg_glow_purple"
+        android:alpha="0.6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Ambient Glow: Center pink highlight ── -->
+    <View
+        android:id="@+id/splash_glow_center"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:background="@drawable/bg_glow_pink"
+        android:alpha="0.3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Main Logo Container ── -->
+    <LinearLayout
+        android:id="@+id/splash_logo_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="60dp">
+
+        <!-- Icon outer glow ring -->
+        <FrameLayout
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center">
+
+            <!-- Outer glow halo -->
+            <View
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="@drawable/bg_glow_pink"
+                android:alpha="0.5" />
+
+            <!-- Icon card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="116dp"
+                android:layout_height="116dp"
+                android:layout_gravity="center"
+                app:cardCornerRadius="32dp"
+                app:cardBackgroundColor="#00000000"
+                app:cardElevation="0dp"
+                app:strokeColor="#60FF2E9D"
+                app:strokeWidth="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_gradient"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/ic_pink_diamond"
+                        app:tint="@color/white"
+                        android:contentDescription="Iiawak Logo" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </FrameLayout>
+
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/splash_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Iiawak"
+            android:textColor="@color/white"
+            android:textSize="52sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.06"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- Tagline -->
+        <TextView
+            android:id="@+id/splash_tagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✨  Thế giới nhân vật của bạn  ✨"
+            android:textColor="@color/text_pink"
+            android:textSize="15sp"
+            android:letterSpacing="0.05"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+    <!-- ── Decorative top sparkles ── -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="★"
+        android:textSize="14sp"
+        android:textColor="@color/brand_primary_light"
+        android:alpha="0.7"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✦"
+        android:textSize="10sp"
+        android:textColor="@color/brand_secondary_light"
+        android:alpha="0.6"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="140dp"
+        android:layout_marginEnd="50dp" />
+
+    <!-- ── Loading area bottom ── -->
+    <LinearLayout
+        android:id="@+id/splash_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="52dp">
+
+        <!-- Loading dots -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="14dp">
+
+            <View
+                android:id="@+id/dot1"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_avatar_ring"
+                android:layout_marginHorizontal="5dp" />
+
+            <View
+                android:id="@+id/dot2"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_glow_pink"
+                android:alpha="0.5"
+                android:layout_marginHorizontal="5dp" />
+
+            <View
+                android:id="@+id/dot3"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_glow_purple"
+                android:alpha="0.5"
+                android:layout_marginHorizontal="5dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="v2.1"
+            android:textColor="@color/text_tertiary"
+            android:textSize="11sp"
+            android:letterSpacing="0.1" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

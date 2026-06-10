@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chat bubble — user (right side) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#E91E8C"
+        android:endColor="#7C3AED"
+        android:angle="135" />
+    <corners
+        android:topLeftRadius="18dp"
+        android:topRightRadius="4dp"
+        android:bottomRightRadius="18dp"
+        android:bottomLeftRadius="18dp" />
+</shape>

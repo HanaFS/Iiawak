@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_splash_gradient">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_back_settings"
+            style="@style/Widget.Iiawak.Button.Text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:text="←"
+            android:textSize="20sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:contentDescription="@string/content_desc_back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/settings_title"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="100dp">
+
+            <!-- Section: Tài khoản -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_section_account"
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="8dp" />
+
+            <!-- Edit Profile -->
+            <LinearLayout
+                android:id="@+id/row_edit_profile"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="✏" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_edit_profile"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="›" android:textColor="@color/text_tertiary" android:textSize="18sp"
+                    android:contentDescription="@string/content_desc_next" />
+            </LinearLayout>
+
+            <!-- Change Password -->
+            <LinearLayout
+                android:id="@+id/row_change_password"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🔑" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_change_password"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="›" android:textColor="@color/text_tertiary" android:textSize="18sp"
+                    android:contentDescription="@string/content_desc_next" />
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="@color/surface_divider" android:layout_marginHorizontal="20dp" />
+
+            <!-- Section: Ứng dụng -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_section_app"
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="8dp" />
+
+            <!-- Language -->
+            <LinearLayout
+                android:id="@+id/row_language"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🌐" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_language"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/settings_language_val" android:textColor="@color/text_secondary" android:textSize="13sp"
+                    android:layout_marginEnd="6dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="›" android:textColor="@color/text_tertiary" android:textSize="18sp"
+                    android:contentDescription="@string/content_desc_next" />
+            </LinearLayout>
+
+            <!-- Notifications -->
+            <LinearLayout
+                android:id="@+id/row_notifications"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🔔" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_notifications"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_notifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:thumbTint="@color/brand_primary"
+                    app:trackTint="@color/brand_primary" />
+            </LinearLayout>
+
+            <!-- Content Level -->
+            <LinearLayout
+                android:id="@+id/row_content"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🎭" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_content_level"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/settings_content_level_val" android:textColor="@color/text_secondary" android:textSize="13sp"
+                    android:layout_marginEnd="6dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="›" android:textColor="@color/text_tertiary" android:textSize="18sp"
+                    android:contentDescription="@string/content_desc_next" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_app_lock"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🔒" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_app_lock"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:id="@+id/tv_lock_status"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/settings_app_lock_val_off" android:textColor="@color/text_secondary" android:textSize="13sp"
+                    android:layout_marginEnd="6dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="›" android:textColor="@color/text_tertiary" android:textSize="18sp"
+                    android:contentDescription="@string/content_desc_next" />
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="@color/surface_divider" android:layout_marginHorizontal="20dp" />
+
+            <!-- Section: Về ứng dụng -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_section_about"
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="8dp" />
+
+            <!-- Version -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="ℹ" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_version"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/settings_version_val" android:textColor="@color/text_tertiary" android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="@color/surface_divider" android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="16dp" />
+
+            <!-- Phản hồi / Liên hệ -->
+            <LinearLayout
+                android:id="@+id/row_feedback"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="✉" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/settings_feedback"
+                    android:textColor="@color/text_primary" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="›" android:textColor="@color/text_tertiary" android:textSize="18sp"
+                    android:contentDescription="@string/content_desc_next" />
+            </LinearLayout>
+
+            <!-- LOGOUT BUTTON -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_logout"
+                style="@style/Widget.Iiawak.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:text="@string/settings_logout"
+                android:textColor="#FF5252"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="14dp"
+                app:strokeColor="#FF5252"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="24dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

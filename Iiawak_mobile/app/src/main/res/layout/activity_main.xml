@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <!-- NavHost Fragment: goes behind bottom nav so content can scroll under -->
+    <!-- ── Bottom Navigation Bar (declared FIRST so NavHost can constrain to it) ── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottom_nav_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="#F0100828"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="24dp"
+        app:strokeColor="#40FF2E9D"
+        app:strokeWidth="1dp"
+        android:elevation="32dp"
+        android:translationZ="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:background="@android:color/transparent"
+            app:itemIconTint="@color/nav_selector"
+            app:itemTextColor="@color/nav_selector"
+            app:itemIconSize="24dp"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu"
+            app:elevation="0dp" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ── NavHost Fragment: constrained ABOVE bottom nav, never overlaps it ── -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_main"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chip stroke color: bright pink when selected, muted when not -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="#FF2E9D" android:state_checked="true" />
+    <item android:color="#33FF2E9D" />
+</selector>

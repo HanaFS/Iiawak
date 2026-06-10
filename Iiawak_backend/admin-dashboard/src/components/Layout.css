@@ -1,0 +1,31 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  position: relative;
+}
+
+.content-area {
+  flex: 1;
+  padding: 1rem;
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  /* sidebar width(240px) + left offset(10px) + gap(10px) */
+  .sidebar-open {
+    margin-left: 260px;
+  }
+  /* sidebar width(60px) + left offset(10px) + gap(10px) */
+  .sidebar-closed {
+    margin-left: 80px;
+  }
+}

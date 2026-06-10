@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="22dp"
+    app:cardBackgroundColor="@color/bg_card"
+    app:cardElevation="2dp"
+    app:rippleColor="@color/glow_pink_30"
+    app:strokeColor="@color/glow_pink_30"
+    app:strokeWidth="1dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="12dp"
+            android:paddingHorizontal="10dp">
+
+            <!-- ── Badge Row ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <!-- Online / Featured badge (top-right) -->
+                <TextView
+                    android:id="@+id/tv_char_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_button_gradient"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="2dp"
+                    android:text="⭐ Nổi bật"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- ── Avatar with Glow Ring ── -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <!-- Glow halo behind avatar -->
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_glow_pink"
+                    android:alpha="0.4" />
+
+                <!-- Avatar image -->
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/iv_char_avatar"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_gravity="center"
+                    android:src="@color/brand_primary"
+                    android:contentDescription="Avatar nhân vật"
+                    app:civ_border_color="@color/brand_primary"
+                    app:civ_border_width="2.5dp" />
+            </FrameLayout>
+
+            <!-- ── Character Name ── -->
+            <TextView
+                android:id="@+id/tv_char_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:text="Tên nhân vật"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:letterSpacing="0.01" />
+
+            <!-- ── Slogan ── -->
+            <TextView
+                android:id="@+id/tv_char_slogan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:layout_marginTop="3dp"
+                android:text="Slogan ngắn..." />
+
+            <!-- ── Category Tag ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="7dp">
+
+                <TextView
+                    android:id="@+id/tv_char_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_glass"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="3dp"
+                    android:text="❤ Lãng mạn"
+                    android:textColor="@color/brand_primary_light"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- ── Stats: chat count + hearts ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_nav_chat"
+                    app:tint="@color/brand_primary"
+                    android:contentDescription="Chats" />
+
+                <TextView
+                    android:id="@+id/tv_char_chats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/brand_primary_light"
+                    android:textSize="11sp"
+                    android:text="0 chat"
+                    android:layout_marginStart="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  •  "
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tv_char_affection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/brand_accent"
+                    android:textSize="11sp"
+                    android:text="♥ 0" />
+            </LinearLayout>
+
+            <!-- ── Buttons ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp">
+
+                <!-- Chat normal: gradient button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_chat_normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
+                    android:text="@string/btn_chat_simple"
+                    android:textSize="11sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:background="@drawable/bg_button_gradient"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="12dp" />
+
+                <!-- Chat story: outlined -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_chat_story"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/btn_chat_story"
+                    android:textSize="11sp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    style="@style/Widget.Iiawak.Button.Secondary"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</com.google.android.material.card.MaterialCardView>
