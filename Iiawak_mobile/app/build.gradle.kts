@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
+    implementation("io.socket:socket.io-client:2.1.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

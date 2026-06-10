@@ -1,6 +1,8 @@
 package com.example.iiawak_mobile.ui.community;
 
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,24 +11,30 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.model.FeedPost;
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 /**
  * FeedAdapter — Bind dữ liệu FeedPost thực từ backend lên item_feed_post.
- * Không còn dữ liệu mock. Hỗ trợ callback fire (like) từ Fragment.
  */
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder> {
 
-    public interface OnFireClickListener {
-        void onFire(String postId);
+    public interface FeedInteractionListener {
+        void onFireClick(String postId);
+        void onCommentClick(String postId);
     }
 
-    private final List<FeedPost>    posts;
-    private final OnFireClickListener fireListener;
+    private final List<FeedPost>          posts;
+    private final FeedInteractionListener listener;
 
-    public FeedAdapter(List<FeedPost> posts, OnFireClickListener fireListener) {
-        this.posts         = posts;
-        this.fireListener  = fireListener;
+    public FeedAdapter(List<FeedPost> posts, FeedInteractionListener listener) {
+        this.posts    = posts;
+        this.listener = listener;
     }
 
     @NonNull
@@ -40,7 +48,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
     @Override
     public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
         FeedPost post = posts.get(position);
-        holder.bind(post, fireListener);
+        holder.bind(post, listener);
     }
 
     @Override
@@ -49,36 +57,58 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
     // ─── ViewHolder ──────────────────────────────────────────────────────────
 
     static class FeedViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAuthorName, tvTimeAgo, tvContent, tvCharName, tvFireCount, tvCommentCount;
+        CircleImageView authorAvatar;
+        TextView tvAuthorName, tvTimeAgo, tvContent, tvCharName, tvFireCount;
         View     charCard, btnFire, btnComment;
+        com.google.android.material.button.MaterialButton btnCommentView;
 
         FeedViewHolder(View v) {
             super(v);
+            authorAvatar   = v.findViewById(R.id.feed_author_avatar);
             tvAuthorName   = v.findViewById(R.id.feed_author_name);
             tvTimeAgo      = v.findViewById(R.id.feed_time);
             tvContent      = v.findViewById(R.id.feed_content);
             charCard       = v.findViewById(R.id.feed_char_card);
             tvCharName     = v.findViewById(R.id.feed_char_name);
             tvFireCount    = v.findViewById(R.id.feed_reaction_count);
-            // tvCommentCount = v.findViewById(R.id.feed_comment_count);
-            // btnFire        = v.findViewById(R.id.btn_fire_post);
-            btnComment     = v.findViewById(R.id.btn_comment);
+            btnFire        = v.findViewById(R.id.btn_fire_post);
+            btnCommentView = v.findViewById(R.id.btn_comment);
         }
 
-        void bind(FeedPost post, OnFireClickListener fireListener) {
+        void bind(FeedPost post, FeedInteractionListener listener) {
             if (tvAuthorName != null) tvAuthorName.setText(post.authorName);
             if (tvTimeAgo    != null) tvTimeAgo.setText(post.timeAgo);
             if (tvContent    != null) tvContent.setText(post.content);
 
+            // Avatar 
+            if (authorAvatar != null) {
+                if (post.authorAvatar != null && !post.authorAvatar.isEmpty()) {
+                    new ImageLoader(authorAvatar).execute(post.authorAvatar);
+                } else {
+                    authorAvatar.setImageResource(R.drawable.ic_nav_profile);
+                }
+            }
+
             // Đếm fire / comment
-            if (tvFireCount    != null) tvFireCount.setText(formatCount(post.fireCount));
-            if (tvCommentCount != null) tvCommentCount.setText(formatCount(post.commentCount));
+            if (tvFireCount != null) {
+                tvFireCount.setText(formatCount(post.fireCount));
+            }
+            if (btnCommentView != null) {
+                btnCommentView.setText("💬 " + formatCount(post.commentCount));
+            }
 
             // Trạng thái đã fire
             if (btnFire != null) {
                 btnFire.setAlpha(post.firedByMe ? 1f : 0.55f);
                 btnFire.setOnClickListener(v -> {
-                    if (fireListener != null) fireListener.onFire(post.postId);
+                    if (listener != null) listener.onFireClick(post.postId);
+                });
+            }
+
+            // Nhấn comment
+            if (btnCommentView != null) {
+                btnCommentView.setOnClickListener(v -> {
+                    if (listener != null) listener.onCommentClick(post.postId);
                 });
             }
 
@@ -96,6 +126,32 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
             if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
             return String.valueOf(n);
+        }
+    }
+
+    // ── AsyncTask Load Ảnh ──────────────────────────────────────────────────
+    @SuppressWarnings("deprecation")
+    private static class ImageLoader extends AsyncTask<String, Void, Bitmap> {
+        private final WeakReference<CircleImageView> ref;
+
+        ImageLoader(CircleImageView iv) { this.ref = new WeakReference<>(iv); }
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            try {
+                HttpURLConnection conn = (HttpURLConnection) new URL(urls[0]).openConnection();
+                conn.connect();
+                InputStream is = conn.getInputStream();
+                return BitmapFactory.decodeStream(is);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bmp) {
+            CircleImageView iv = ref.get();
+            if (iv != null && bmp != null) iv.setImageBitmap(bmp);
         }
     }
 }

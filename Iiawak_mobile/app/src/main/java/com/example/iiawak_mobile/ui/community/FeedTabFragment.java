@@ -63,7 +63,9 @@ public class FeedTabFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.feed_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new FeedAdapter(posts, postId ->
+        adapter = new FeedAdapter(posts, new FeedAdapter.FeedInteractionListener() {
+            @Override
+            public void onFireClick(String postId) {
                 CommunityApiService.firePost(getContext(), postId, new ApiClient.ApiCallback() {
                     @Override public void onSuccess(JSONObject resp) {
                         if (resp.optBoolean("success", false)) {
@@ -77,26 +79,74 @@ public class FeedTabFragment extends Fragment {
                         }
                     }
                     @Override public void onError(String msg, int code) {}
-                })
-        );
+                });
+            }
+
+            @Override
+            public void onCommentClick(String postId) {
+                // TODO: Điều hướng sang màn hình Chi tiết bài viết / Bình luận
+                Toast.makeText(getContext(), "Tính năng bình luận đang phát triển", Toast.LENGTH_SHORT).show();
+            }
+        });
         recyclerView.setAdapter(adapter);
 
-        loadFeed();
+        // Load more (pagination)
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) { // Cuộn xuống
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        int visibleItemCount = layoutManager.getChildCount();
+                        int totalItemCount = layoutManager.getItemCount();
+                        int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
+
+                        if (!isLoading && !isLastPage) {
+                            if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                                loadFeed(false);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        loadFeed(true);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Load dữ liệu thật từ backend
     // ─────────────────────────────────────────────────────────────────────────
 
-    private void loadFeed() {
-        // sort: "viral" cho Trending, "following" cho Following
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private int     currentPage = 0;
+    private static final int LIMIT = 10;
+
+    private void loadFeed(boolean isRefresh) {
+        if (isLoading) return;
+        isLoading = true;
+
+        if (isRefresh) {
+            currentPage = 0;
+            isLastPage = false;
+            posts.clear();
+            adapter.notifyDataSetChanged();
+        }
+
         String sort = (tabType == TAB_FOLLOWING) ? "following" : "viral";
-        CommunityApiService.getFeed(getContext(), sort, 30, 0, new ApiClient.ApiCallback() {
+        int skip = currentPage * LIMIT;
+
+        CommunityApiService.getFeed(getContext(), sort, LIMIT, skip, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject resp) {
+                isLoading = false;
                 try {
                     JSONArray data = resp.getJSONArray("data");
-                    posts.clear();
+                    if (data.length() < LIMIT) {
+                        isLastPage = true;
+                    }
+
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject obj = data.getJSONObject(i);
 
@@ -137,6 +187,7 @@ public class FeedTabFragment extends Fragment {
                         ));
                     }
                     adapter.notifyDataSetChanged();
+                    currentPage++;
                 } catch (Exception e) {
                     showError("Không thể tải bài đăng");
                 }
@@ -144,6 +195,7 @@ public class FeedTabFragment extends Fragment {
 
             @Override
             public void onError(String msg, int code) {
+                isLoading = false;
                 showError("Lỗi kết nối: " + msg);
             }
         });

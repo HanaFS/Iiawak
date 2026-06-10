@@ -1,8 +1,6 @@
 package com.example.iiawak_mobile.ui.auth;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,24 +11,28 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.iiawak_mobile.R;
-import com.example.iiawak_mobile.config.NetworkConfig;
 import com.example.iiawak_mobile.data.UserSession;
+import com.example.iiawak_mobile.data.remote.AuthApiService;
+import com.example.iiawak_mobile.network.ApiClient;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
+/**
+ * RegisterFragment — Màn hình đăng ký tài khoản mới.
+ *
+ * Flow:
+ *  1. Validate form cục bộ (username, email, password, confirm)
+ *  2. Gọi POST /api/auth/register  → { success, data: { token, user } }
+ *  3. Lưu session (tự đăng nhập luôn — không cần đăng nhập lại)
+ *  4. Navigate vào màn hình chính
+ */
 public class RegisterFragment extends Fragment {
 
-    private TextInputLayout tilUsername, tilEmail, tilPassword, tilConfirmPassword;
+    private TextInputLayout   tilUsername, tilEmail, tilPassword, tilConfirmPassword;
     private TextInputEditText etUsername, etEmail, etPassword, etConfirmPassword;
-    private MaterialButton btnRegister, btnGoLogin;
+    private MaterialButton    btnRegister, btnGoLogin;
 
     @Nullable
     @Override
@@ -43,40 +45,44 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Bind views
-        tilUsername = view.findViewById(R.id.til_username);
-        tilEmail = view.findViewById(R.id.til_email);
-        tilPassword = view.findViewById(R.id.til_password);
+        // ── Bind views ────────────────────────────────────────────────────────
+        tilUsername        = view.findViewById(R.id.til_username);
+        tilEmail           = view.findViewById(R.id.til_email);
+        tilPassword        = view.findViewById(R.id.til_password);
         tilConfirmPassword = view.findViewById(R.id.til_confirm_password);
-        etUsername = view.findViewById(R.id.et_username);
-        etEmail = view.findViewById(R.id.et_email);
-        etPassword = view.findViewById(R.id.et_password);
-        etConfirmPassword = view.findViewById(R.id.et_confirm_password);
-        btnRegister = view.findViewById(R.id.btn_register);
-        btnGoLogin = view.findViewById(R.id.btn_go_login);
+        etUsername         = view.findViewById(R.id.et_username);
+        etEmail            = view.findViewById(R.id.et_email);
+        etPassword         = view.findViewById(R.id.et_password);
+        etConfirmPassword  = view.findViewById(R.id.et_confirm_password);
+        btnRegister        = view.findViewById(R.id.btn_register);
+        btnGoLogin         = view.findViewById(R.id.btn_go_login);
 
-        // Register button
+        // ── Nút Đăng ký ───────────────────────────────────────────────────────
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> attemptRegister(view));
         }
 
-        // Go to Login
+        // ── Nút Back (←) và link "Đã có tài khoản?" ──────────────────────────
+        View btnBack = view.findViewById(R.id.btn_back);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> Navigation.findNavController(view).navigateUp());
+        }
         if (btnGoLogin != null) {
-            btnGoLogin.setOnClickListener(v ->
-                    Navigation.findNavController(view).navigateUp());
+            btnGoLogin.setOnClickListener(v -> Navigation.findNavController(view).navigateUp());
         }
     }
 
+    // ─── Xử lý đăng ký ───────────────────────────────────────────────────────
+
     private void attemptRegister(View view) {
-        // Clear errors
         clearErrors();
 
         String username = getText(etUsername);
-        String email = getText(etEmail);
+        String email    = getText(etEmail);
         String password = getText(etPassword);
-        String confirm = getText(etConfirmPassword);
+        String confirm  = getText(etConfirmPassword);
 
-        // Validate
+        // ── Validation cục bộ ─────────────────────────────────────────────────
         boolean valid = true;
 
         if (TextUtils.isEmpty(username)) {
@@ -113,33 +119,71 @@ public class RegisterFragment extends Fragment {
 
         if (!valid) return;
 
-        // Show loading
+        // ── Gọi API Backend ───────────────────────────────────────────────────
         setLoading(true);
 
-        com.example.iiawak_mobile.data.remote.AuthApiService.register(getContext(), username, email, password, username, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
-            @Override
-            public void onSuccess(JSONObject json) {
-                setLoading(false);
-                boolean success = json.optBoolean("success", false);
-                String msg = json.optString("message", "Lỗi đăng ký");
+        // displayName = username (layout không có field displayName riêng)
+        String displayName = username;
 
-                if (success) {
-                    Toast.makeText(getContext(), "Đăng ký thành công! Hãy đăng nhập nhé. ✅", Toast.LENGTH_LONG).show();
-                    Navigation.findNavController(view).navigateUp();
-                } else {
-                    Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
-                }
-            }
+        AuthApiService.register(getContext(), username, email, password, displayName,
+                new ApiClient.ApiCallback() {
+                    @Override
+                    public void onSuccess(JSONObject json) {
+                        setLoading(false);
+                        boolean success = json.optBoolean("success", false);
 
-            @Override
-            public void onError(String errorMessage, int statusCode) {
-                setLoading(false);
-                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
+                        if (success) {
+                            try {
+                                // Backend: { success: true, data: { token, user } }
+                                JSONObject data     = json.getJSONObject("data");
+                                String     token    = data.getString("token");
+                                JSONObject userData = data.getJSONObject("user");
+
+                                String userId   = userData.getString("id");
+                                String uname    = userData.getString("username");
+                                String dName    = userData.optString("displayName", uname);
+                                String emailStr = userData.getString("email");
+                                String role     = userData.optString("role", "user");
+                                int    kch      = userData.optInt("kchBalance", 0);
+
+                                // Tự đăng nhập — không cần quay lại màn login
+                                UserSession.getInstance(requireContext())
+                                        .login(token, userId, uname, dName, emailStr, role, kch);
+
+                                Toast.makeText(getContext(),
+                                        "Chào mừng " + dName + " đến với Iiawak! 🎉",
+                                        Toast.LENGTH_LONG).show();
+
+                                // Navigate vào màn hình chính
+                                Navigation.findNavController(view)
+                                        .navigate(R.id.action_login_to_main);
+
+                            } catch (Exception e) {
+                                Toast.makeText(getContext(),
+                                        "Lỗi xử lý phản hồi: " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // Server trả success=false với thông báo lỗi cụ thể
+                            String msg = json.optString("message", "Đăng ký không thành công");
+                            Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage, int statusCode) {
+                        setLoading(false);
+                        // 409 Conflict = email/username đã tồn tại
+                        String display = (statusCode == 409)
+                                ? "Email hoặc tên người dùng đã tồn tại"
+                                : errorMessage;
+                        Toast.makeText(getContext(), display, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    // Helpers
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
     private String getText(TextInputEditText et) {
         return et != null && et.getText() != null ? et.getText().toString().trim() : "";
     }
@@ -149,9 +193,9 @@ public class RegisterFragment extends Fragment {
     }
 
     private void clearErrors() {
-        if (tilUsername != null) tilUsername.setError(null);
-        if (tilEmail != null) tilEmail.setError(null);
-        if (tilPassword != null) tilPassword.setError(null);
+        if (tilUsername        != null) tilUsername.setError(null);
+        if (tilEmail           != null) tilEmail.setError(null);
+        if (tilPassword        != null) tilPassword.setError(null);
         if (tilConfirmPassword != null) tilConfirmPassword.setError(null);
     }
 

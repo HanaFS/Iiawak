@@ -38,7 +38,7 @@ public class ApiClient {
         executeAsync(() -> {
             try {
                 HttpURLConnection conn = openConnection(context, endpoint, "GET");
-                handleResponse(conn, callback);
+                handleResponse(context, conn, callback);
             } catch (Exception e) {
                 postError(callback, "Lỗi kết nối: " + e.getMessage(), 0);
             }
@@ -59,7 +59,7 @@ public class ApiClient {
                         os.flush();
                     }
                 }
-                handleResponse(conn, callback);
+                handleResponse(context, conn, callback);
             } catch (Exception e) {
                 postError(callback, "Lỗi kết nối: " + e.getMessage(), 0);
             }
@@ -80,7 +80,7 @@ public class ApiClient {
                         os.flush();
                     }
                 }
-                handleResponse(conn, callback);
+                handleResponse(context, conn, callback);
             } catch (Exception e) {
                 postError(callback, "Lỗi kết nối: " + e.getMessage(), 0);
             }
@@ -93,7 +93,7 @@ public class ApiClient {
         executeAsync(() -> {
             try {
                 HttpURLConnection conn = openConnection(context, endpoint, "DELETE");
-                handleResponse(conn, callback);
+                handleResponse(context, conn, callback);
             } catch (Exception e) {
                 postError(callback, "Lỗi kết nối: " + e.getMessage(), 0);
             }
@@ -122,7 +122,7 @@ public class ApiClient {
         return conn;
     }
 
-    private static void handleResponse(HttpURLConnection conn, ApiCallback callback) {
+    private static void handleResponse(Context context, HttpURLConnection conn, ApiCallback callback) {
         try {
             int code = conn.getResponseCode();
             InputStream is = (code < 400) ? conn.getInputStream() : conn.getErrorStream();
@@ -137,6 +137,11 @@ public class ApiClient {
             if (code < 400) {
                 postSuccess(callback, json);
             } else {
+                if (code == 401) {
+                    if (context != null) {
+                        UserSession.getInstance(context).logout();
+                    }
+                }
                 String msg = json.optString("message", "Lỗi server: " + code);
                 postError(callback, msg, code);
             }

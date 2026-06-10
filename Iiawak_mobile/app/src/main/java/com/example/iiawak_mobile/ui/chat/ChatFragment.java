@@ -62,6 +62,8 @@ public class ChatFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         session = UserSession.getInstance(requireContext());
+        
+        com.example.iiawak_mobile.network.SocketManager.getInstance().connect(session.getAuthHeader());
 
         // Lấy args từ navigation
         if (getArguments() != null) {
@@ -77,7 +79,11 @@ public class ChatFragment extends Fragment {
         // Hiển thị mode chat
         TextView modeLabel = view.findViewById(R.id.tv_chat_mode);
         if (modeLabel != null) {
-            modeLabel.setText(chatMode.equals("story") ? "📖 Chế độ Câu Chuyện" : "💬 Chat Thường");
+            if (chatMode.equals("dm")) {
+                modeLabel.setText("💬 Tin nhắn riêng");
+            } else {
+                modeLabel.setText(chatMode.equals("story") ? "📖 Chế độ Câu Chuyện" : "💬 Chat Thường");
+            }
             modeLabel.setVisibility(View.VISIBLE);
         }
 
@@ -92,11 +98,10 @@ public class ChatFragment extends Fragment {
         // Tải lịch sử chat từ Backend
         loadChatHistory();
 
-        // Send button
         View btnSend = view.findViewById(R.id.btn_send);
         inputField = view.findViewById(R.id.et_chat_input);
         if (btnSend != null) {
-            btnSend.setOnClickListener(v -> sendMessageToAI());
+            btnSend.setOnClickListener(v -> sendMessage());
         }
 
         // Back button
@@ -107,13 +112,88 @@ public class ChatFragment extends Fragment {
         }
 
         // RP suggestions
-        setupRpSuggestions(view);
+        if (!chatMode.equals("dm")) {
+            setupRpSuggestions(view);
+        } else {
+            View sugContainer = view.findViewById(R.id.rp_suggestions_container); // Assuming it has a container, or we just don't setup
+            // Actually, setupRpSuggestions just sets listeners. We can just hide them.
+            view.findViewById(R.id.rp_suggestion_1).setVisibility(View.GONE);
+            view.findViewById(R.id.rp_suggestion_2).setVisibility(View.GONE);
+            view.findViewById(R.id.rp_suggestion_3).setVisibility(View.GONE);
+        }
+        
+        if (chatMode.equals("dm")) {
+            setupSocketListeners();
+        }
+    }
+    
+    private void setupSocketListeners() {
+        io.socket.client.Socket socket = com.example.iiawak_mobile.network.SocketManager.getInstance().getSocket();
+        if (socket != null) {
+            socket.on("receive_direct_msg", args -> {
+                if (args.length > 0) {
+                    try {
+                        JSONObject msg = (JSONObject) args[0];
+                        String senderId = msg.optString("senderId");
+                        String content = msg.optString("content");
+                        if (senderId.equals(characterId)) { // Message from partner
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                messages.add(new ChatMessage(content, false));
+                                messageAdapter.notifyItemInserted(messages.size() - 1);
+                                messagesRecycler.smoothScrollToPosition(messages.size() - 1);
+                            });
+                        }
+                    } catch (Exception e) {}
+                }
+            });
+        }
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (chatMode.equals("dm")) {
+            io.socket.client.Socket socket = com.example.iiawak_mobile.network.SocketManager.getInstance().getSocket();
+            if (socket != null) {
+                socket.off("receive_direct_msg");
+            }
+        }
     }
 
     // ─── Tải lịch sử chat ────────────────────────────────────────────────────
     private void loadChatHistory() {
         if (characterId == null || characterId.isEmpty()) return;
         String userId = session.getUserId().isEmpty() ? "demo_user" : session.getUserId();
+
+        if (chatMode.equals("dm")) {
+            com.example.iiawak_mobile.data.remote.ChatApiService.getDirectMessages(getContext(), characterId, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
+                @Override
+                public void onSuccess(JSONObject resp) {
+                    try {
+                        JSONArray historyArr = resp.getJSONArray("data");
+                        messages.clear();
+                        for (int i = 0; i < historyArr.length(); i++) {
+                            JSONObject m = historyArr.getJSONObject(i);
+                            boolean isUser = m.optString("senderId").equals(session.getUserId());
+                            messages.add(new ChatMessage(m.getString("content"), isUser));
+                        }
+                        if (messages.isEmpty()) {
+                            messages.add(new ChatMessage("Bắt đầu trò chuyện với " + characterName, false));
+                        }
+                        messageAdapter.notifyDataSetChanged();
+                        messagesRecycler.scrollToPosition(messages.size() - 1);
+                    } catch (Exception e) {
+                        fallbackLoadChat();
+                    }
+                }
+
+                @Override
+                public void onError(String errorMessage, int statusCode) {
+                    fallbackLoadChat();
+                }
+            });
+            return;
+        }
 
         com.example.iiawak_mobile.data.remote.CharacterApiService.getChatHistory(getContext(), characterId, userId, chatMode, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
             @Override
@@ -148,8 +228,8 @@ public class ChatFragment extends Fragment {
         messageAdapter.notifyDataSetChanged();
     }
 
-    // ─── Gửi tin nhắn đến AI Backend ─────────────────────────────────────────
-    private void sendMessageToAI() {
+    // ─── Gửi tin nhắn ─────────────────────────────────────────
+    private void sendMessage() {
         if (inputField == null) return;
         String text = inputField.getText() != null ? inputField.getText().toString().trim() : "";
         if (text.isEmpty()) return;
@@ -160,7 +240,22 @@ public class ChatFragment extends Fragment {
         messagesRecycler.smoothScrollToPosition(messages.size() - 1);
         inputField.setText("");
 
-        // Hiển thị loading
+        if (chatMode.equals("dm")) {
+            io.socket.client.Socket socket = com.example.iiawak_mobile.network.SocketManager.getInstance().getSocket();
+            if (socket != null && socket.connected()) {
+                try {
+                    JSONObject payload = new JSONObject();
+                    payload.put("receiverId", characterId);
+                    payload.put("content", text);
+                    socket.emit("send_direct_msg", payload);
+                } catch (Exception e) {}
+            } else {
+                Toast.makeText(getContext(), "Đang mất kết nối mạng", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
+        // Hiển thị loading (chỉ cho AI)
         if (loadingIndicator != null) loadingIndicator.setVisibility(View.VISIBLE);
 
         String userId = session.getUserId().isEmpty() ? "demo_user" : session.getUserId();
@@ -198,13 +293,13 @@ public class ChatFragment extends Fragment {
         View sug3 = view.findViewById(R.id.rp_suggestion_3);
 
         if (sug1 != null && inputField != null) {
-            sug1.setOnClickListener(v -> { inputField.setText("*Mỉm cười nhẹ*"); sendMessageToAI(); });
+            sug1.setOnClickListener(v -> { inputField.setText("*Mỉm cười nhẹ*"); sendMessage(); });
         }
         if (sug2 != null && inputField != null) {
-            sug2.setOnClickListener(v -> { inputField.setText("Kể cho mình nghe về bản thân bạn đi"); sendMessageToAI(); });
+            sug2.setOnClickListener(v -> { inputField.setText("Kể cho mình nghe về bản thân bạn đi"); sendMessage(); });
         }
         if (sug3 != null && inputField != null) {
-            sug3.setOnClickListener(v -> { inputField.setText("*Thách thức bạn*"); sendMessageToAI(); });
+            sug3.setOnClickListener(v -> { inputField.setText("*Thách thức bạn*"); sendMessage(); });
         }
     }
 }
