@@ -65,12 +65,9 @@
 
     <!-- Chat -->
     <string name="chat_input_hint">Nhắn tin với {name}...</string>
-    <string name="label_altego_meter">Tâm ma</string>
     <string name="emotion_happy">Vui vẻ</string>
     <string name="emotion_angry">Cáu kỉnh</string>
     <string name="emotion_sad">Buồn bã</string>
-    <string name="emotion_altego">Tâm ma trỗi dậy</string>
-    <string name="affection_level">Mức độ tình cảm</string>
     <string name="relationship_stranger">Người lạ</string>
     <string name="relationship_acquaintance">Người quen</string>
     <string name="relationship_friend">Bạn bè</string>

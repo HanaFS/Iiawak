@@ -96,11 +96,32 @@ public class SettingsFragment extends Fragment {
 
     private void showChangePasswordDialog() {
         if (getContext() == null) return;
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_change_password, null);
+        android.widget.EditText etOld = view.findViewById(R.id.et_old_password);
+        android.widget.EditText etNew = view.findViewById(R.id.et_new_password);
+
         new AlertDialog.Builder(requireContext())
                 .setTitle("Đổi mật khẩu")
-                .setMessage("Một email đổi mật khẩu sẽ được gửi tới địa chỉ email của bạn. Bạn có muốn tiếp tục không?")
-                .setPositiveButton("Gửi email", (dialog, which) ->
-                        Toast.makeText(getContext(), "Email đặt lại mật khẩu đã được gửi ✅", Toast.LENGTH_LONG).show())
+                .setView(view)
+                .setPositiveButton("Đổi mật khẩu", (dialog, which) -> {
+                    String oldPass = etOld.getText().toString();
+                    String newPass = etNew.getText().toString();
+                    if (oldPass.isEmpty() || newPass.isEmpty()) {
+                        Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    com.example.iiawak_mobile.data.remote.UserApiService.changePassword(getContext(), oldPass, newPass, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
+                        @Override
+                        public void onSuccess(org.json.JSONObject response) {
+                            Toast.makeText(getContext(), "Đổi mật khẩu thành công ✅", Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onError(String errorMessage, int statusCode) {
+                            Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                })
                 .setNegativeButton("Hủy", null)
                 .show();
     }

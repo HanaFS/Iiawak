@@ -72,7 +72,7 @@
             android:id="@+id/feed_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Vừa mới chinh phục được nhân vật này sau 3 ngày! 🔥"
+            android:text="Nội dung bài viết"
             android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:lineSpacingMultiplier="1.5"
@@ -149,27 +149,29 @@
             android:gravity="center_vertical"
             android:layout_marginTop="14dp">
 
-            <!-- Reactions -->
+            <!-- Reactions (Lửa) -->
             <LinearLayout
+                android:id="@+id/btn_fire_post"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_chip_tag"
                 android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp">
+                android:paddingVertical="6dp"
+                android:gravity="center_vertical">
 
                 <TextView
+                    android:id="@+id/feed_fire_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🔥"
-                    android:textSize="16sp"
-                    android:layout_marginStart="4dp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/feed_reaction_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="42"
+                    android:text="0"
                     android:textColor="@color/text_secondary"
                     android:textSize="13sp"
                     android:layout_marginStart="8dp" />
@@ -186,7 +188,7 @@
                 android:minHeight="36dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="💬 12"
+                android:text="💬 0"
                 android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton

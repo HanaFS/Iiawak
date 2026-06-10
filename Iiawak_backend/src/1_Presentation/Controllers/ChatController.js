@@ -6,6 +6,20 @@ const ChatService = require('../../2_BusinessLogic/Services/ChatService');
  */
 class ChatController {
 
+  async sendMessageToAi(req, res) {
+    try {
+      const { characterId, content, mode } = req.body;
+      if (!characterId || !content) {
+        return res.status(400).json({ success: false, message: 'Thiếu characterId hoặc nội dung' });
+      }
+      const result = await ChatService.sendMessageToAi(req.user.id, characterId, content, mode);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
   async getAiSessions(req, res) {
     try {
       const sessions = await ChatService.getAiSessions(req.user.id);

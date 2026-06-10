@@ -5,6 +5,7 @@ const ChatController  = require('../1_Presentation/Controllers/ChatController');
 const { verifyToken } = require('../1_Presentation/Middlewares/auth.middleware');
 
 // ─── AI CHAT (User - Character) ──────────────────────────────────────────────
+router.post('/ai/send',                   verifyToken, ChatController.sendMessageToAi.bind(ChatController));
 router.get('/sessions',                   verifyToken, ChatController.getAiSessions.bind(ChatController));
 router.get('/sessions/:characterId',      verifyToken, ChatController.getAiChatHistory.bind(ChatController));
 

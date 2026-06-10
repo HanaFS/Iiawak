@@ -23,6 +23,7 @@ public class CharacterDetailFragment extends Fragment {
 
     private TextView tvName, tvSlogan, tvGender, tvBio, tvPersonality,
                      tvStatus, tvTotalChats, tvCreator, tvOpeningLine;
+    private de.hdodenhof.circleimageview.CircleImageView ivAvatar;
     private View     btnChatNormal, btnChatStory;
     private String   characterId;
 
@@ -52,6 +53,7 @@ public class CharacterDetailFragment extends Fragment {
         tvTotalChats   = view.findViewById(R.id.detail_total_chats);
         tvCreator      = view.findViewById(R.id.detail_creator_name);
         tvOpeningLine  = view.findViewById(R.id.detail_opening_line);
+        ivAvatar       = view.findViewById(R.id.detail_char_avatar);
         btnChatNormal  = view.findViewById(R.id.detail_btn_chat_normal);
         btnChatStory   = view.findViewById(R.id.detail_btn_chat_story);
 
@@ -122,12 +124,22 @@ public class CharacterDetailFragment extends Fragment {
         if (tvName        != null) tvName.setText(name);
         if (tvSlogan      != null) tvSlogan.setText(slogan);
         if (tvGender      != null) tvGender.setText(gender + (tags.length() > 0 ? "  " + tags : ""));
-        if (tvBio         != null) tvBio.setText(bio);
-        if (tvPersonality != null) tvPersonality.setText(personality);
-        if (tvStatus      != null) tvStatus.setText("● " + status);
-        if (tvOpeningLine != null) tvOpeningLine.setText("\"" + openingLine + "\"");
+        if (tvBio         != null) tvBio.setText(bio.isEmpty() ? "Chưa có thông tin" : bio);
+        if (tvPersonality != null) tvPersonality.setText(personality.isEmpty() ? "Chưa có thông tin" : personality);
+        if (tvStatus      != null) tvStatus.setText("● " + (status.isEmpty() ? "Công khai" : status));
+        if (tvOpeningLine != null) tvOpeningLine.setText("\"" + (openingLine.isEmpty() ? "Xin chào!" : openingLine) + "\"");
         if (tvTotalChats  != null) tvTotalChats.setText("💬 " + formatCount(totalChats) + " lượt chat");
         if (tvCreator     != null) tvCreator.setText("Tạo bởi: " + creatorName);
+
+        // Avatar
+        String avatarUrl = data.optString("avatar", "");
+        if (ivAvatar != null) {
+            if (!avatarUrl.isEmpty()) {
+                new ImageLoader(ivAvatar).execute(avatarUrl);
+            } else {
+                ivAvatar.setImageResource(R.drawable.ic_diamond);
+            }
+        }
 
         // Chat buttons
         boolean hasNormal = "normal".equals(chatMode) || "both".equals(chatMode);
@@ -162,5 +174,31 @@ public class CharacterDetailFragment extends Fragment {
         if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
         if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
         return String.valueOf(n);
+    }
+
+    // ── AsyncTask Load Ảnh ──────────────────────────────────────────────────
+    @SuppressWarnings("deprecation")
+    private static class ImageLoader extends android.os.AsyncTask<String, Void, android.graphics.Bitmap> {
+        private final java.lang.ref.WeakReference<de.hdodenhof.circleimageview.CircleImageView> ref;
+
+        ImageLoader(de.hdodenhof.circleimageview.CircleImageView iv) { this.ref = new java.lang.ref.WeakReference<>(iv); }
+
+        @Override
+        protected android.graphics.Bitmap doInBackground(String... urls) {
+            try {
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(urls[0]).openConnection();
+                conn.connect();
+                java.io.InputStream is = conn.getInputStream();
+                return android.graphics.BitmapFactory.decodeStream(is);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(android.graphics.Bitmap bmp) {
+            de.hdodenhof.circleimageview.CircleImageView iv = ref.get();
+            if (iv != null && bmp != null) iv.setImageBitmap(bmp);
+        }
     }
 }
