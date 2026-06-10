@@ -26,6 +26,6 @@ git branch -M main
 
 # Push main branch forcefully if needed (to ensure everything on main is updated)
 echo "Dang push toan bo code len nhanh main..."
-git push -u origin main
+git push -u origin main --force
 
 echo "=== Hoan thanh! ==="
