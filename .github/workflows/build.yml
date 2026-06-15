@@ -57,10 +57,11 @@ jobs:
       - name: Docker image scan
         continue-on-error: true
         run: |
+          IMAGE=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" | tr '[:upper:]' '[:lower:]')
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             aquasec/trivy image \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            $IMAGE
 
       - name: Notify build success
         if: success()
