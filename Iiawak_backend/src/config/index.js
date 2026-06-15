@@ -21,6 +21,13 @@ const config = {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   },
+  vnpay: {
+    tmnCode: process.env.VNPAY_TMN_CODE,
+    hashSecret: process.env.VNPAY_HASH_SECRET,
+    url: process.env.VNPAY_URL || 'https://sandbox.vnpayment.vn/paygate',
+    returnUrl: process.env.VNPAY_RETURN_URL || 'http://localhost:3000/payment-result',
+    api: process.env.VNPAY_API || 'https://api.vnpayment.vn/',
+  },
   cors: {
     adminUrl: process.env.ADMIN_URL || 'http://localhost:5173',
   },

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .content {
+            padding: 30px 20px;
+            color: #333;
+        }
+        .content h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .content p {
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .cta-button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .features {
+            background-color: #f0f4ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            margin: 10px 0;
+            padding: 10px;
+        }
+        .feature-item strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 {{appName}}</h1>
+            <p>Chào mừng bạn!</p>
+        </div>
+        
+        <div class="content">
+            <h2>Xin chào {{userName}}!</h2>
+            
+            <p>Cảm ơn bạn đã tạo tài khoản trên {{appName}}. Chúng tôi rất vui mừng được chào đón bạn!</p>
+            
+            <p>Tài khoản của bạn đã được kích hoạt và sẵn sàng sử dụng. Hãy khám phá những tính năng tuyệt vời:</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <strong>💬 Chat với AI:</strong> Trò chuyện với các nhân vật AI được xây dựng bởi cộng đồng
+                </div>
+                <div class="feature-item">
+                    <strong>👥 Kết nối xã hội:</strong> Theo dõi bạn bè, chia sẻ bài viết và comment
+                </div>
+                <div class="feature-item">
+                    <strong>💎 Nhân vật riêng:</strong> Tạo và quản lý các nhân vật AI của riêng bạn
+                </div>
+                <div class="feature-item">
+                    <strong>🎁 Phần thưởng hàng ngày:</strong> Check-in mỗi ngày để nhận KCH
+                </div>
+            </div>
+            
+            <p>Hãy bắt đầu tạo một nhân vật AI hoặc khám phá cộng đồng ngay bây giờ:</p>
+            
+            <center>
+                <a href="{{loginUrl}}" class="cta-button">Bắt đầu ngay</a>
+            </center>
+            
+            <p>Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với đội hỗ trợ của chúng tôi.</p>
+            
+            <p>Chúc bạn có một trải nghiệm tuyệt vời!</p>
+            
+            <p>
+                <strong>{{appName}} Team</strong><br>
+                <em>Tạo ra những khoảnh khắc AI kỳ lạ</em>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 {{appName}}. Tất cả quyền được bảo lưu.</p>
+            <p>Bạn nhận được email này vì đã tạo tài khoản trên {{appName}}</p>
+        </div>
+    </div>
+</body>
+</html>

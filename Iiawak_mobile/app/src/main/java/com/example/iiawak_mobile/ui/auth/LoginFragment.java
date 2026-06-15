@@ -128,7 +128,7 @@ public class LoginFragment extends Fragment {
                         String token       = data.getString("token");
                         JSONObject userData = data.getJSONObject("user");
 
-                        String userId      = userData.getString("id");
+                        String userId      = userData.optString("id", userData.optString("_id", ""));
                         String username    = userData.getString("username");
                         String displayName = userData.optString("displayName", username);
                         String emailAddr   = userData.getString("email");
@@ -139,6 +139,8 @@ public class LoginFragment extends Fragment {
                                 .login(token, userId, username, displayName, emailAddr, role, kchBalance);
 
                         Toast.makeText(getContext(), getString(R.string.login_welcome_back, displayName), Toast.LENGTH_SHORT).show();
+                        
+                        // Đảm bảo navigate đúng action
                         Navigation.findNavController(view).navigate(R.id.action_login_to_main);
                     } catch (Exception e) {
                         Toast.makeText(getContext(), "Lỗi xử lý dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -159,18 +161,25 @@ public class LoginFragment extends Fragment {
 
     private void mockGoogleLogin(View view) {
         setLoading(true);
+        // Giả lập xử lý đăng nhập Google
         view.postDelayed(() -> {
             if (getContext() == null) return;
             setLoading(false);
 
+            // Hiện tại chúng ta giả lập một tài khoản Google thành công
+            // Trong thực tế, bạn sẽ gọi GoogleSignInClient và gửi idToken lên server
+            String mockToken = "google_token_" + System.currentTimeMillis();
+            String mockUserId = "google_user_id";
+            
             UserSession.getInstance(requireContext())
-                    .login("google_001", "google_user", "Google User", "google@gmail.com");
+                    .login(mockToken, mockUserId, "google_user", "Google User", "google@gmail.com", "user", 0);
 
             Toast.makeText(getContext(), "Đăng nhập Google thành công! 🎉",
                     Toast.LENGTH_SHORT).show();
 
+            // Chuyển hướng vào màn hình chính sau khi login thành công
             Navigation.findNavController(view).navigate(R.id.action_login_to_main);
-        }, 1200);
+        }, 1500);
     }
 
     private void setLoading(boolean loading) {

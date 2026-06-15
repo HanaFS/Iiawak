@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px 20px;
+            color: #333;
+        }
+        .event-title {
+            font-size: 18px;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .event-description {
+            background-color: #f0f4ff;
+            padding: 15px;
+            border-radius: 5px;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .event-meta {
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .cta-button:hover {
+            background-color: #5568d3;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Thông báo sự kiện</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Xin chào {{userName}},</h2>
+            
+            <div class="event-title">
+                {{eventTitle}}
+            </div>
+            
+            <div class="event-description">
+                {{eventDescription}}
+            </div>
+            
+            <div class="event-meta">
+                <strong>Ngày:</strong> {{eventDate}}
+            </div>
+            
+            <center>
+                <a href="{{actionUrl}}" class="cta-button">{{actionText}}</a>
+            </center>
+            
+            <p>Cảm ơn bạn đã là một phần của cộng đồng {{appName}}!</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 {{appName}}. Tất cả quyền được bảo lưu.</p>
+            <p>Bạn nhận được email này vì đã bật thông báo sự kiện.</p>
+        </div>
+    </div>
+</body>
+</html>

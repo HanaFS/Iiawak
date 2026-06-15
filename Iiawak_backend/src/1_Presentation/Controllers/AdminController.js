@@ -1,5 +1,6 @@
 'use strict';
 const AdminService = require('../../2_BusinessLogic/Services/AdminService');
+const NotificationService = require('../../2_BusinessLogic/Services/NotificationService');
 const AppError     = require('../../4_Core/Exceptions/AppError');
 
 /**
@@ -43,6 +44,12 @@ class AdminController {
     try {
       const { action, reason } = req.body;
       const user = await AdminService.takeActionOnUser(req.params.id, action, reason, req.user.id);
+      
+      const io = req.app.get('io');
+      if (io) {
+        NotificationService.emitToUser(user._id.toString(), 'admin:action', { action, reason }, io);
+      }
+      
       res.json({ success: true, message: `Đã thực hiện: ${action}`, data: user });
     } catch (err) {
       const code = err.isAppError ? err.statusCode : 500;
@@ -54,6 +61,16 @@ class AdminController {
     try {
       const { amount } = req.body;
       const user = await AdminService.adjustUserKch(req.params.id, amount);
+      
+      const io = req.app.get('io');
+      if (io) {
+        NotificationService.emitToUser(user._id.toString(), 'admin:action', { 
+          action: 'kch_update', 
+          amount: amount, 
+          newBalance: user.kchBalance 
+        }, io);
+      }
+
       res.json({ success: true, message: `Đã điều chỉnh ${amount} KCH`, newBalance: user.kchBalance });
     } catch (err) {
       const code = err.isAppError ? err.statusCode : 500;

@@ -139,7 +139,7 @@ public class RegisterFragment extends Fragment {
                                 String     token    = data.getString("token");
                                 JSONObject userData = data.getJSONObject("user");
 
-                                String userId   = userData.getString("id");
+                                String userId   = userData.optString("id", userData.optString("_id", ""));
                                 String uname    = userData.getString("username");
                                 String dName    = userData.optString("displayName", uname);
                                 String emailStr = userData.getString("email");
@@ -156,7 +156,7 @@ public class RegisterFragment extends Fragment {
 
                                 // Navigate vào màn hình chính
                                 Navigation.findNavController(view)
-                                        .navigate(R.id.action_login_to_main);
+                                        .navigate(R.id.action_register_to_main);
 
                             } catch (Exception e) {
                                 Toast.makeText(getContext(),
