@@ -15,7 +15,7 @@
     "backup:restore": "bash scripts/backup.sh restore",
     "backup:list": "bash scripts/backup.sh list",
     "backup:clean": "bash scripts/backup.sh clean",
-    "test": "jest --coverage",
+    "test": "jest --passWithNoTests --coverage",
     "test:integration": "jest --testPathPattern=integration",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
