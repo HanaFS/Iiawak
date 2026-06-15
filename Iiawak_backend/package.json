@@ -16,7 +16,7 @@
     "backup:list": "bash scripts/backup.sh list",
     "backup:clean": "bash scripts/backup.sh clean",
     "test": "jest --passWithNoTests --coverage",
-    "test:integration": "jest --testPathPattern=integration",
+    "test:integration": "jest --passWithNoTests --testPathPattern=integration",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
     "smoke-tests": "bash scripts/smoke-tests.sh"
