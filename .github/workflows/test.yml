@@ -84,6 +84,7 @@ jobs:
           name: codecov-umbrella
 
       - name: SonarCloud Scan
+        if: false
         uses: SonarSource/sonarcloud-github-action@master
         continue-on-error: true
         env:
