@@ -26,6 +26,9 @@ const io     = new Server(server, {
   transports: ['websocket', 'polling'],
 });
 
+// Lưu trữ io vào express app để các controller/service có thể truy cập
+app.set('io', io);
+
 // ─── Security Middlewares ─────────────────────────────────────────────────────
 app.use(helmet()); // Security headers
 app.use(compression()); // Gzip compression

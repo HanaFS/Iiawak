@@ -217,8 +217,10 @@ public class ExploreFragment extends Fragment {
         } catch (Exception e) {
             // Fallback nếu navigation graph chưa có action trực tiếp
             try {
+                Bundle detailArgs = new Bundle();
+                detailArgs.putString("characterId", card.id);
                 androidx.navigation.Navigation.findNavController(requireView())
-                        .navigate(R.id.characterDetailFragment, new Bundle() {{ putString("characterId", card.id); }});
+                        .navigate(R.id.characterDetailFragment, detailArgs);
             } catch (Exception ignored) {
                 Toast.makeText(getContext(), "Mở chat: " + card.name, Toast.LENGTH_SHORT).show();
             }
