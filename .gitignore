@@ -1,0 +1,16 @@
+# Android Studio / Gradle
+local.properties
+.idea/workspace.xml
+.idea/caches
+.idea/libraries
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.gradle/
+build/
+
+# Node
+node_modules/
+npm-debug.log
+
+# OS
+.DS_Store

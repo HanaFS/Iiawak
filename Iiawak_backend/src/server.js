@@ -7,12 +7,24 @@ const helmet     = require('helmet');
 const compression = require('compression');
 
 const db      = require('./3_DataAccess/Database/connection');
+const redis   = require('./3_DataAccess/Cache/redisClient');
 const Message = require('./3_DataAccess/Models/Message.model');
 const logger  = require('./4_Core/Logger/logger');
 const requestLogger = require('./1_Presentation/Middlewares/requestLogger.middleware');
 const webSocketManager = require('./1_Presentation/Middlewares/websocket.middleware');
 const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./1_Presentation/Middlewares/rateLimiter.middleware');
 const { sanitizeMiddleware, preventInjectionMiddleware } = require('./1_Presentation/Middlewares/requestValidator.middleware');
+const errorHandler = require('./4_Core/Exceptions/ErrorHandler');
+const errorMiddleware = require('./1_Presentation/Middlewares/error.middleware');
+
+// ─── Process Level Error Catching (Node Best Practices) ───────────────────────
+process.on('uncaughtException', (error) => {
+  errorHandler.handleError(error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  errorHandler.handleError(reason);
+});
 
 const app    = express();
 const server = http.createServer(app);
@@ -47,11 +59,13 @@ app.use(requestLogger); // Request logging
 app.use(sanitizeMiddleware); // Input sanitization
 app.use(preventInjectionMiddleware); // Injection prevention
 
-// ─── Kết nối MongoDB (từ 3_DataAccess/Database) ───────────────────────────────
-db.connect().catch(err => {
-  logger.error('❌ MongoDB connection error:', err.message);
-  process.exit(1);
-});
+// ─── Kết nối MongoDB & Redis ───────────────────────────────────────────────
+db.connect()
+  .then(() => redis.connect())
+  .catch(err => {
+    logger.error('❌ Database connection error:', err.message);
+    process.exit(1);
+  });
 
 // ─── Socket.io: Real-time messaging with JWT Authentication ──────────────────
 // Middleware: Authenticate all Socket.io connections with JWT
@@ -156,7 +170,7 @@ app.use('/api/auth',       authLimiter, require('./routes/auth'));
 app.use('/api/user',       apiLimiter, require('./routes/user'));
 
 // Search routes (search-specific limiter)
-app.use('/api/search',     searchLimiter, require('./routes/search'));
+// app.use('/api/search',     searchLimiter, require('./routes/search'));
 
 // Character routes
 app.use('/api/characters', require('./routes/characters'));
@@ -197,14 +211,7 @@ app.get('/', (req, res) => {
 });
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
-app.use((err, req, res, next) => {
-  logger.error(`[Error] ${err.message}`, { status: err.status, path: req.path });
-  res.status(err.status || 500).json({
-    success: false,
-    error: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
-});
+app.use(errorMiddleware);
 
 // ─── Server Startup ───────────────────────────────────────────────────────────
 const PORT = config.app.port || 5000;
