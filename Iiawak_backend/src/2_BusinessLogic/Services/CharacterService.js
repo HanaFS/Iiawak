@@ -1,32 +1,58 @@
 'use strict';
 const characterRepository = require('../../3_DataAccess/Repositories/CharacterRepository');
-const chatRepository      = require('../../3_DataAccess/Repositories/ChatRepository');
 const AppError            = require('../../4_Core/Exceptions/AppError');
 const Errors              = require('../../4_Core/Constants/errorMessages');
-const { GEMINI_MODEL, CHAT_SESSION_MAX_MESSAGES } = require('../../4_Core/Constants/appConstants');
-const axios = require('axios');
-const config = require('../../config');
+const macroService        = require('./MacroService');
 
 /**
- * CharacterService — Nghiệp vụ quản lý Nhân vật và Chat AI.
- * DB calls → CharacterRepository / ChatRepository.
- * AI calls → Gemini API.
+ * CharacterService — Nghiệp vụ quản lý Nhân vật.
+ *
+ * Lưu ý kiến trúc:
+ *   - Toàn bộ logic Chat AI đã được chuyển sang ChatService + AiService pipeline.
+ *   - CharacterService chỉ lo CRUD nhân vật và quản lý các cài đặt nâng cao
+ *     (Lorebook, Author's Note, Dialogue Examples, System Prompt Template).
  */
 class CharacterService {
 
   // ─── CRUD Nhân vật ────────────────────────────────────────────────────────
 
+  /**
+   * Tạo nhân vật mới.
+   * Hỗ trợ đầy đủ các fields SillyTavern-inspired:
+   *   - systemPromptTemplate: Template với macro {{user}}, {{char}}...
+   *   - dialogueExamples:     Few-shot examples để định hình văn phong
+   *   - authorNote:           Lệnh cố định inject vào history
+   *   - lorebook:             World Info entries (keyword → context)
+   */
   async createCharacter(userId, data) {
     const {
       name, avatar, gender, tags, slogan, creatorNotes, privacy, ageRating,
-      publicInfo, personality, openingLine, bio, firstMessage, status,
-      chatMode, advancedSettings,
+      publicInfo, personality, openingLine, bio, firstMessage, status, chatMode,
+      advancedSettings,
+      // ── Fields mới (SillyTavern-inspired) ──
+      systemPromptTemplate,
+      dialogueExamples,
+      authorNote,
+      authorNoteDepth,
+      lorebook,
+      lorebookScanDepth,
     } = data;
 
-    // Nghiệp vụ: kiểm tra các trường bắt buộc
     if (!name || !avatar || !gender || !slogan || !privacy || !ageRating ||
         !publicInfo || !personality || !openingLine || !bio || !firstMessage || !status) {
       throw AppError.badRequest(Errors.CHARACTER.REQUIRED_FIELDS, 'MISSING_FIELDS');
+    }
+
+    // Validate macro trong systemPromptTemplate (nếu có)
+    if (systemPromptTemplate) {
+      const validation = macroService.validateMacros(systemPromptTemplate);
+      if (!validation.valid) {
+        throw AppError.badRequest(
+          `System Prompt chứa macro không hợp lệ: ${validation.unknownMacros.join(', ')}. ` +
+          `Macro hợp lệ: ${validation.supportedMacros.slice(0, 8).join(', ')}...`,
+          'INVALID_MACROS'
+        );
+      }
     }
 
     const tagsArr = Array.isArray(tags)
@@ -36,7 +62,15 @@ class CharacterService {
     return characterRepository.create({
       name, avatar, gender, tags: tagsArr, slogan, creatorNotes, privacy, ageRating,
       publicInfo, personality, openingLine, bio, firstMessage, status,
-      chatMode: chatMode || 'both', advancedSettings,
+      chatMode: chatMode || 'both',
+      advancedSettings,
+      // ── SillyTavern fields ──
+      systemPromptTemplate: systemPromptTemplate || '',
+      dialogueExamples:     dialogueExamples     || [],
+      authorNote:           authorNote           || '',
+      authorNoteDepth:      authorNoteDepth      || 2,
+      lorebook:             lorebook             || [],
+      lorebookScanDepth:    lorebookScanDepth    || 5,
       creatorId: userId,
     });
   }
@@ -55,9 +89,19 @@ class CharacterService {
     const char = await characterRepository.findById(id);
     if (!char) throw AppError.notFound('Nhân vật');
 
-    // Nghiệp vụ: chỉ creator mới được sửa
     if (char.creatorId?._id?.toString() !== userId.toString()) {
       throw AppError.forbidden(Errors.CHARACTER.UNAUTHORIZED_EDIT);
+    }
+
+    // Validate macro nếu có cập nhật systemPromptTemplate
+    if (updateData.systemPromptTemplate) {
+      const validation = macroService.validateMacros(updateData.systemPromptTemplate);
+      if (!validation.valid) {
+        throw AppError.badRequest(
+          `System Prompt chứa macro không hợp lệ: ${validation.unknownMacros.join(', ')}`,
+          'INVALID_MACROS'
+        );
+      }
     }
 
     return characterRepository.updateById(id, updateData);
@@ -73,110 +117,159 @@ class CharacterService {
     return true;
   }
 
-  // ─── Chat AI ──────────────────────────────────────────────────────────────
+  // ─── Lorebook (World Info) CRUD ───────────────────────────────────────────
 
-  async chat(characterId, userId, message, mode = 'normal') {
-    const char = await characterRepository.findById(characterId);
-    if (!char) throw AppError.notFound(Errors.CHAT.CHARACTER_NOT_FOUND);
-    if (char.isBanned) throw AppError.forbidden(Errors.CHARACTER.BANNED);
-
-    // Lấy hoặc tạo session (Repository lo)
-    const session = await chatRepository.findOrCreateSession(userId, char._id, mode);
-
-    // Nếu session mới và có firstMessage → thêm vào lịch sử
-    if (session.messages.length === 0 && char.firstMessage) {
-      session.messages.push({ role: 'assistant', content: char.firstMessage });
+  /**
+   * Lấy toàn bộ Lorebook entries của một nhân vật.
+   * @param {string} charId
+   * @param {string} userId - Chỉ creator mới xem được toàn bộ entries
+   */
+  async getLorebookEntries(charId, userId) {
+    const char = await characterRepository.findById(charId);
+    if (!char) throw AppError.notFound('Nhân vật');
+    if (char.creatorId?.toString() !== userId.toString()) {
+      throw AppError.forbidden('Chỉ creator mới có thể xem Lorebook');
     }
-
-    session.messages.push({ role: 'user', content: message });
-
-    // Gọi AI (nghiệp vụ quan trọng — giữ ở Service)
-    const systemPrompt = this._buildSystemPrompt(char, mode);
-    const aiReply      = await this._callGeminiAI(systemPrompt, session.messages, mode, char);
-
-    session.messages.push({ role: 'assistant', content: aiReply });
-
-    // Nghiệp vụ: giới hạn kích thước session
-    if (session.messages.length > CHAT_SESSION_MAX_MESSAGES) {
-      session.messages = session.messages.slice(-CHAT_SESSION_MAX_MESSAGES);
-    }
-
-    await chatRepository.saveSession(session);
-    await characterRepository.incrementChats(char._id);
-
-    return { reply: aiReply, sessionId: session._id };
+    return char.lorebook || [];
   }
 
-  async getChatHistory(characterId, userId, mode = 'normal') {
-    const session = await chatRepository.findSession(userId, characterId, mode);
-    return session ? session.messages : [];
-  }
-
-  // ─── Private AI Methods (Nghiệp vụ — ở lại Service) ─────────────────────
-
-  _buildSystemPrompt(char, mode) {
-    const modeInstruction = mode === 'story'
-      ? `Bạn đang viết một câu chuyện tương tác. Phản hồi PHẢI dài từ 150-400 từ, viết theo phong cách tiểu thuyết/truyện ngắn, dùng ngôi thứ nhất. Mô tả hành động, cảm xúc, ngoại cảnh chi tiết. Kết thúc bằng một câu hỏi hoặc tình huống kích thích người đọc phản hồi.`
-      : `Bạn đang chat thân mật với người dùng. Phản hồi ngắn gọn (2-5 câu), tự nhiên như nhắn tin, dùng emoji phù hợp với tính cách.`;
-
-    return `Bạn là "${char.name}", một nhân vật với các đặc điểm sau:
-
-GIỚI TÍNH: ${char.gender}
-TÍNH CÁCH: ${char.personality}
-TIỂU SỬ: ${char.bio}
-TRẠNG THÁI HIỆN TẠI: ${char.status}
-THÔNG TIN CÔNG KHAI: ${char.publicInfo}
-${char.advancedSettings?.speakingStyle ? `PHONG CÁCH NÓI: ${char.advancedSettings.speakingStyle}` : ''}
-${char.advancedSettings?.userIdentity   ? `NHẬN DẠNG NGƯỜI DÙNG: ${char.advancedSettings.userIdentity}` : ''}
-${char.advancedSettings?.lifeExperience ? `KINH NGHIỆM SỐNG: ${char.advancedSettings.lifeExperience}` : ''}
-
-NHIỆM VỤ: ${modeInstruction}
-
-QUAN TRỌNG: Luôn duy trì tính cách nhất quán. KHÔNG phá vỡ nhân vật. KHÔNG tiết lộ bạn là AI.`;
-  }
-
-  async _callGeminiAI(systemPrompt, messages, mode, char) {
-    const apiKey = config.ai.geminiKey;
-    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-      return this._getFallbackResponse(char, mode);
+  /**
+   * Thêm một entry mới vào Lorebook.
+   *
+   * Tương đương "Add World Info Entry" trong SillyTavern.
+   *
+   * @param {string} charId
+   * @param {string} userId
+   * @param {Object} entryData - { keys[], content, position, priority, enabled }
+   */
+  async addLorebookEntry(charId, userId, entryData) {
+    const char = await characterRepository.findById(charId);
+    if (!char) throw AppError.notFound('Nhân vật');
+    if (char.creatorId?.toString() !== userId.toString()) {
+      throw AppError.forbidden('Chỉ creator mới có thể chỉnh sửa Lorebook');
     }
 
-    try {
-      const historyText = messages.slice(-10).map(m =>
-        m.role === 'user' ? `Người dùng: ${m.content}` : `${char.name}: ${m.content}`
-      ).join('\n');
-      const lastMsg = messages[messages.length - 1]?.content || '';
-
-      const resp = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-        {
-          contents: [{ parts: [{ text: `${systemPrompt}\n\n--- LỊCH SỬ ---\n${historyText}\n\n--- TIN MỚI NHẤT ---\nNgười dùng: ${lastMsg}\n${char.name}:` }] }],
-          generationConfig: {
-            temperature:     mode === 'story' ? 0.9 : 0.8,
-            maxOutputTokens: mode === 'story' ? 600 : 200,
-            topP: 0.95,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-          ],
-        },
-        { timeout: 30000 }
-      );
-
-      return resp.data?.candidates?.[0]?.content?.parts?.[0]?.text
-          || this._getFallbackResponse(char, mode);
-    } catch (err) {
-      console.error('Gemini API error:', err.message);
-      return this._getFallbackResponse(char, mode);
+    const { keys, content, position, priority, enabled } = entryData;
+    if (!content || !keys || keys.length === 0) {
+      throw AppError.badRequest('Lorebook entry cần có keys và content', 'MISSING_FIELDS');
     }
+
+    char.lorebook.push({
+      keys:     keys.map(k => k.trim()).filter(Boolean),
+      content:  content.trim(),
+      position: position || 'before_char',
+      priority: priority || 0,
+      enabled:  enabled !== false,
+    });
+
+    await char.save();
+    return char.lorebook[char.lorebook.length - 1]; // Trả về entry vừa tạo
   }
 
-  _getFallbackResponse(char, mode) {
-    if (mode === 'story') {
-      return `${char.openingLine}\n\n*${char.name} nhìn bạn với ánh mắt sâu thẳm...*\n\nBạn sẽ làm gì tiếp theo?`;
+  /**
+   * Cập nhật một Lorebook entry theo index.
+   * @param {string} charId
+   * @param {string} userId
+   * @param {string} entryId - MongoDB ObjectId của entry
+   * @param {Object} updateData
+   */
+  async updateLorebookEntry(charId, userId, entryId, updateData) {
+    const char = await characterRepository.findById(charId);
+    if (!char) throw AppError.notFound('Nhân vật');
+    if (char.creatorId?.toString() !== userId.toString()) {
+      throw AppError.forbidden('Chỉ creator mới có thể chỉnh sửa Lorebook');
     }
-    return char.openingLine || `Chào bạn! Tôi là ${char.name}. Bạn muốn nói chuyện gì nào? 😊`;
+
+    const entry = char.lorebook.id(entryId);
+    if (!entry) throw AppError.notFound('Lorebook entry');
+
+    // Cập nhật từng field nếu có trong updateData
+    if (updateData.keys !== undefined)    entry.keys    = updateData.keys.map(k => k.trim());
+    if (updateData.content !== undefined) entry.content = updateData.content.trim();
+    if (updateData.position !== undefined) entry.position = updateData.position;
+    if (updateData.priority !== undefined) entry.priority = updateData.priority;
+    if (updateData.enabled !== undefined)  entry.enabled  = updateData.enabled;
+
+    await char.save();
+    return entry;
+  }
+
+  /**
+   * Xóa một Lorebook entry.
+   * @param {string} charId
+   * @param {string} userId
+   * @param {string} entryId
+   */
+  async deleteLorebookEntry(charId, userId, entryId) {
+    const char = await characterRepository.findById(charId);
+    if (!char) throw AppError.notFound('Nhân vật');
+    if (char.creatorId?.toString() !== userId.toString()) {
+      throw AppError.forbidden('Chỉ creator mới có thể chỉnh sửa Lorebook');
+    }
+
+    const entry = char.lorebook.id(entryId);
+    if (!entry) throw AppError.notFound('Lorebook entry');
+
+    entry.deleteOne();
+    await char.save();
+    return true;
+  }
+
+  // ─── Dialogue Examples CRUD ───────────────────────────────────────────────
+
+  /**
+   * Thêm một dialogue example vào Character Card.
+   * Tương đương "Add Dialogue Example" trong SillyTavern Character Card V2.
+   *
+   * @param {string} charId
+   * @param {string} userId
+   * @param {Object} example - { user: '...', assistant: '...' }
+   */
+  async addDialogueExample(charId, userId, example) {
+    const char = await characterRepository.findById(charId);
+    if (!char) throw AppError.notFound('Nhân vật');
+    if (char.creatorId?.toString() !== userId.toString()) {
+      throw AppError.forbidden('Chỉ creator mới có thể thêm dialogue example');
+    }
+
+    const { user, assistant } = example;
+    if (!user || !assistant) {
+      throw AppError.badRequest('Cần cung cấp cả user và assistant', 'MISSING_FIELDS');
+    }
+
+    char.dialogueExamples.push({ user: user.trim(), assistant: assistant.trim() });
+    await char.save();
+    return char.dialogueExamples[char.dialogueExamples.length - 1];
+  }
+
+  /**
+   * Xóa một dialogue example theo index.
+   */
+  async deleteDialogueExample(charId, userId, exampleIndex) {
+    const char = await characterRepository.findById(charId);
+    if (!char) throw AppError.notFound('Nhân vật');
+    if (char.creatorId?.toString() !== userId.toString()) {
+      throw AppError.forbidden('Chỉ creator mới có thể xóa dialogue example');
+    }
+
+    if (exampleIndex < 0 || exampleIndex >= char.dialogueExamples.length) {
+      throw AppError.badRequest('Index dialogue example không hợp lệ', 'INVALID_INDEX');
+    }
+
+    char.dialogueExamples.splice(exampleIndex, 1);
+    await char.save();
+    return true;
+  }
+
+  // ─── Tiện ích ─────────────────────────────────────────────────────────────
+
+  /**
+   * Kiểm tra và trả về danh sách macro hợp lệ.
+   * Hữu ích để hiển thị gợi ý cho Creator khi viết systemPromptTemplate.
+   */
+  getSupportedMacros() {
+    // Tạo một instance tạm để truy cập danh sách macro
+    return macroService.validateMacros('').supportedMacros;
   }
 }
 
