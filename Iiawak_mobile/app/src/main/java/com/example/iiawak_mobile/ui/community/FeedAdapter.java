@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.model.FeedPost;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -83,7 +84,10 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             // Avatar 
             if (authorAvatar != null) {
                 if (post.authorAvatar != null && !post.authorAvatar.isEmpty()) {
-                    new ImageLoader(authorAvatar).execute(post.authorAvatar);
+                    Glide.with(itemView.getContext())
+                            .load(post.authorAvatar)
+                            .placeholder(R.drawable.ic_nav_profile)
+                            .into(authorAvatar);
                 } else {
                     authorAvatar.setImageResource(R.drawable.ic_nav_profile);
                 }
@@ -126,32 +130,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
             if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
             return String.valueOf(n);
-        }
-    }
-
-    // ── AsyncTask Load Ảnh ──────────────────────────────────────────────────
-    @SuppressWarnings("deprecation")
-    private static class ImageLoader extends AsyncTask<String, Void, Bitmap> {
-        private final WeakReference<CircleImageView> ref;
-
-        ImageLoader(CircleImageView iv) { this.ref = new WeakReference<>(iv); }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            try {
-                HttpURLConnection conn = (HttpURLConnection) new URL(urls[0]).openConnection();
-                conn.connect();
-                InputStream is = conn.getInputStream();
-                return BitmapFactory.decodeStream(is);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bmp) {
-            CircleImageView iv = ref.get();
-            if (iv != null && bmp != null) iv.setImageBitmap(bmp);
         }
     }
 }

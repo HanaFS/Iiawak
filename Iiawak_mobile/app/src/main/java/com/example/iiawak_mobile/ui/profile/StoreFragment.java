@@ -43,7 +43,7 @@ public class StoreFragment extends Fragment {
         updateBalance();
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().onBackPressed();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
         });
 
         recyclerView = view.findViewById(R.id.recycler_store_packages);

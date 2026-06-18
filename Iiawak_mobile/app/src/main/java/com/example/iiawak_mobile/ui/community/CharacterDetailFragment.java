@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.bumptech.glide.Glide;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.remote.CharacterApiService;
 import com.example.iiawak_mobile.network.ApiClient;
@@ -135,7 +136,10 @@ public class CharacterDetailFragment extends Fragment {
         String avatarUrl = data.optString("avatar", "");
         if (ivAvatar != null) {
             if (!avatarUrl.isEmpty()) {
-                new ImageLoader(ivAvatar).execute(avatarUrl);
+                Glide.with(this)
+                        .load(avatarUrl)
+                        .placeholder(R.drawable.ic_diamond)
+                        .into(ivAvatar);
             } else {
                 ivAvatar.setImageResource(R.drawable.ic_diamond);
             }
@@ -174,31 +178,5 @@ public class CharacterDetailFragment extends Fragment {
         if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
         if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
         return String.valueOf(n);
-    }
-
-    // ── AsyncTask Load Ảnh ──────────────────────────────────────────────────
-    @SuppressWarnings("deprecation")
-    private static class ImageLoader extends android.os.AsyncTask<String, Void, android.graphics.Bitmap> {
-        private final java.lang.ref.WeakReference<de.hdodenhof.circleimageview.CircleImageView> ref;
-
-        ImageLoader(de.hdodenhof.circleimageview.CircleImageView iv) { this.ref = new java.lang.ref.WeakReference<>(iv); }
-
-        @Override
-        protected android.graphics.Bitmap doInBackground(String... urls) {
-            try {
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(urls[0]).openConnection();
-                conn.connect();
-                java.io.InputStream is = conn.getInputStream();
-                return android.graphics.BitmapFactory.decodeStream(is);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(android.graphics.Bitmap bmp) {
-            de.hdodenhof.circleimageview.CircleImageView iv = ref.get();
-            if (iv != null && bmp != null) iv.setImageBitmap(bmp);
-        }
     }
 }

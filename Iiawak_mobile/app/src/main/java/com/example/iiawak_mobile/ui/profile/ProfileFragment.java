@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.UserSession;
 import com.example.iiawak_mobile.data.remote.EconomyApiService;
@@ -376,32 +377,15 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    // ─── Load avatar từ URL (không cần Glide) ────────────────────────────────
+    // ─── Load avatar bằng Glide ─────────────────────────────────────────────
 
     private void loadAvatarFromUrl(String url) {
-        new android.os.AsyncTask<String, Void, android.graphics.Bitmap>() {
-            @Override
-            protected android.graphics.Bitmap doInBackground(String... urls) {
-                try {
-                    java.net.HttpURLConnection conn =
-                            (java.net.HttpURLConnection) new java.net.URL(urls[0]).openConnection();
-                    conn.setConnectTimeout(5000);
-                    conn.setReadTimeout(5000);
-                    conn.setDoInput(true);
-                    conn.connect();
-                    return android.graphics.BitmapFactory.decodeStream(conn.getInputStream());
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(android.graphics.Bitmap bitmap) {
-                if (profileAvatar != null && bitmap != null) {
-                    profileAvatar.setImageBitmap(bitmap);
-                }
-            }
-        }.execute(url);
+        if (profileAvatar != null && url != null && !url.isEmpty()) {
+            Glide.with(this)
+                    .load(url)
+                    .placeholder(R.drawable.ic_nav_profile)
+                    .into(profileAvatar);
+        }
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

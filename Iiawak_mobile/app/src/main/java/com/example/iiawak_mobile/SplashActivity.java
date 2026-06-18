@@ -3,6 +3,8 @@ package com.example.iiawak_mobile;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.app.ActivityOptions;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -38,15 +40,15 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         // Navigate sau delay
-        new Handler().postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
 
             // Truyền trạng thái đăng nhập để MainActivity set đúng startDestination
             boolean isLoggedIn = UserSession.getInstance(this).isLoggedIn();
             intent.putExtra("is_logged_in", isLoggedIn);
 
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, android.R.anim.fade_in, android.R.anim.fade_out);
+            startActivity(intent, options.toBundle());
             finish();
         }, SPLASH_DURATION);
     }

@@ -8,8 +8,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/Iiawak_mobile/app" />
+            <option value="$USER_HOME$/LẬP TRÌNH THIẾT BỊ DI ĐỘNG/Iiawak" />
+            <option value="$USER_HOME$/LẬP TRÌNH THIẾT BỊ DI ĐỘNG/Iiawak/Iiawak_mobile/app" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -93,7 +93,7 @@ public class CreateCharacterFragment extends Fragment {
         View btnBack = view.findViewById(R.id.btn_back);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> {
-                if (getActivity() != null) getActivity().onBackPressed();
+                requireActivity().getOnBackPressedDispatcher().onBackPressed();
             });
         }
 
@@ -174,7 +174,7 @@ public class CreateCharacterFragment extends Fragment {
                 @Override
                 public void onSuccess(JSONObject json) {
                     Toast.makeText(getContext(), "Tạo nhân vật thành công! ✅", Toast.LENGTH_SHORT).show();
-                    if (getActivity() != null) getActivity().onBackPressed();
+                    requireActivity().getOnBackPressedDispatcher().onBackPressed();
                 }
 
                 @Override

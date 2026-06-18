@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.model.CharacterCard;
 import java.io.InputStream;
@@ -86,10 +87,14 @@ public class ExploreCharacterAdapter extends RecyclerView.Adapter<ExploreCharact
             if (card.isAdult) h.tvBadge.setText("18+");
         }
 
-        // ── Avatar (load bất đồng bộ bằng AsyncTask) ─────────────────────────────────
+        // ── Avatar (load bằng Glide) ─────────────────────────────────
         if (h.ivAvatar != null) {
             if (card.avatar != null && !card.avatar.isEmpty()) {
-                new ImageLoaderTask(h.ivAvatar, R.color.brand_primary).execute(card.avatar);
+                Glide.with(h.itemView.getContext())
+                        .load(card.avatar)
+                        .placeholder(R.color.brand_primary)
+                        .centerCrop()
+                        .into(h.ivAvatar);
             } else {
                 h.ivAvatar.setImageResource(R.color.brand_primary);
             }
@@ -127,46 +132,6 @@ public class ExploreCharacterAdapter extends RecyclerView.Adapter<ExploreCharact
         if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
         if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
         return String.valueOf(n);
-    }
-
-    // ── Async Image Loader (không cần Glide) ────────────────────────────
-
-    @SuppressWarnings("deprecation")
-    private static class ImageLoaderTask extends AsyncTask<String, Void, Bitmap> {
-        private final WeakReference<ImageView> imgRef;
-        private final int fallbackColor;
-
-        ImageLoaderTask(ImageView imageView, int fallbackColor) {
-            this.imgRef       = new WeakReference<>(imageView);
-            this.fallbackColor = fallbackColor;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            try {
-                HttpURLConnection conn = (HttpURLConnection) new URL(urls[0]).openConnection();
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
-                conn.setDoInput(true);
-                conn.connect();
-                InputStream is = conn.getInputStream();
-                return BitmapFactory.decodeStream(is);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            ImageView iv = imgRef.get();
-            if (iv == null) return;
-            if (bitmap != null) {
-                iv.setImageBitmap(bitmap);
-                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            } else {
-                iv.setImageResource(fallbackColor);
-            }
-        }
     }
 
     // ── ViewHolder ────────────────────────────────────────────────────────────

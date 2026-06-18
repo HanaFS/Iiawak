@@ -53,7 +53,7 @@ public class WalletFragment extends Fragment {
         com.google.android.material.appbar.MaterialToolbar toolbar = view.findViewById(R.id.wallet_toolbar);
         if (toolbar != null) {
             toolbar.setNavigationOnClickListener(v -> {
-                if (getActivity() != null) getActivity().onBackPressed();
+                requireActivity().getOnBackPressedDispatcher().onBackPressed();
             });
         }
 

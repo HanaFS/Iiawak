@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.iiawak_mobile.R;
 import com.example.iiawak_mobile.data.model.ChatSession;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -101,41 +102,14 @@ public class ChatSessionAdapter extends RecyclerView.Adapter<ChatSessionAdapter.
             // Avatar
             if (avatar != null) {
                 if (session.avatarUrl != null && !session.avatarUrl.isEmpty()) {
-                    new AvatarLoader(avatar).execute(session.avatarUrl);
+                    Glide.with(itemView.getContext())
+                            .load(session.avatarUrl)
+                            .placeholder(R.drawable.ic_diamond)
+                            .into(avatar);
                 } else {
                     avatar.setImageResource(R.drawable.ic_diamond);
                 }
             }
-        }
-    }
-
-    // ── Async Avatar Loader ───────────────────────────────────────────────────
-
-    @SuppressWarnings("deprecation")
-    private static class AvatarLoader extends AsyncTask<String, Void, Bitmap> {
-        private final WeakReference<CircleImageView> ref;
-
-        AvatarLoader(CircleImageView iv) { this.ref = new WeakReference<>(iv); }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            try {
-                HttpURLConnection conn = (HttpURLConnection) new URL(urls[0]).openConnection();
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
-                conn.setDoInput(true);
-                conn.connect();
-                InputStream is = conn.getInputStream();
-                return BitmapFactory.decodeStream(is);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bmp) {
-            CircleImageView iv = ref.get();
-            if (iv != null && bmp != null) iv.setImageBitmap(bmp);
         }
     }
 }
