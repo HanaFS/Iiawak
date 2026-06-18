@@ -21,6 +21,7 @@ class AppError extends Error {
     this.statusCode = statusCode;
     this.code = code;
     this.isOperational = isOperational;
+    this.isAppError = true; // ✅ Flag để controllers nhận diện AppError
     this.details = details;
     
     // Giữ lại stack trace gốc

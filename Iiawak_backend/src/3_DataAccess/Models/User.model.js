@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   avatar:         { type: String, default: '' },
   bio:            { type: String, default: '' },
   kchBalance:     { type: Number, default: 0 },
-  checkedInDays:  [{ type: String }], // format YYYY-MM-DD
+  checkedInDays:  { type: [String], default: [] }, // format YYYY-MM-DD
   role:           { type: String, enum: ['user', 'admin'], default: 'user' },
   status:         { type: String, enum: ['active', 'banned'], default: 'active' },
   following:      [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

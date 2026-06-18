@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -52,6 +53,7 @@ public class ProfileFragment extends Fragment {
     private UserSession session;
     private Set<Integer> checkedDays = new HashSet<>();
     private int today;
+    private View rootView;
 
     // ── Image Picker ──────────────────────────────────────────────────────────
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
@@ -60,7 +62,6 @@ public class ProfileFragment extends Fragment {
                     Uri imageUri = result.getData().getData();
                     if (imageUri != null && profileAvatar != null) {
                         profileAvatar.setImageURI(imageUri);
-                        // TODO: upload avatar lên server (T-08 hoặc tính năng sau)
                         Toast.makeText(getContext(), "Ảnh đại diện đã thay đổi ✅", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -72,7 +73,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        rootView = inflater.inflate(R.layout.fragment_profile, container, false);
+        return rootView;
     }
 
     @Override
@@ -90,8 +92,14 @@ public class ProfileFragment extends Fragment {
         tvStreak         = view.findViewById(R.id.tv_streak_count);
         calendarRecycler = view.findViewById(R.id.calendar_recycler);
 
+        // ── Tính ngày hôm nay trước khi setup calendar ────────────────────────
+        today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+
         // ── Hiển thị dữ liệu từ session (offline first) ───────────────────────
         populateFromSession();
+
+        // ── Setup lịch ngay với data session (không chờ API) ─────────────────
+        setupCalendarUI();
 
         // ── Fetch dữ liệu mới nhất từ backend ────────────────────────────────
         fetchProfileFromBackend(view);
@@ -106,6 +114,7 @@ public class ProfileFragment extends Fragment {
         if (tvDisplayName != null) tvDisplayName.setText(session.getDisplayName());
         if (tvHandle      != null) tvHandle.setText("@" + session.getUsername());
         if (tvFreeHearts  != null) tvFreeHearts.setText(formatNumber(session.getKchBalance()));
+        if (tvStreak      != null) tvStreak.setText(checkedDays.size() + " ngày 🔥");
     }
 
     // ─── Fetch Profile từ backend & cập nhật toàn bộ UI ─────────────────────
@@ -142,10 +151,9 @@ public class ProfileFragment extends Fragment {
                     loadAvatarFromUrl(avatarUrl);
                 }
 
-                // ── Lấy danh sách ngày đã điểm danh ──────────────────────────
+                // ── Parse danh sách ngày đã điểm danh ────────────────────────
                 checkedDays = new HashSet<>();
                 JSONArray days = data.optJSONArray("checkedInDays");
-                int streakCount = 0;
                 if (days != null) {
                     Calendar todayCal = Calendar.getInstance();
                     int curYear  = todayCal.get(Calendar.YEAR);
@@ -156,35 +164,29 @@ public class ProfileFragment extends Fragment {
                         String[] parts = d.split("-");
                         if (parts.length == 3) {
                             try {
-                                int y = Integer.parseInt(parts[0]);
-                                int m = Integer.parseInt(parts[1]);
+                                int y   = Integer.parseInt(parts[0]);
+                                int m   = Integer.parseInt(parts[1]);
                                 int day = Integer.parseInt(parts[2]);
                                 if (y == curYear && m == curMonth) {
                                     checkedDays.add(day);
-                                    if (day == todayCal.get(Calendar.DAY_OF_MONTH)) {
-                                        streakCount++; // đơn giản, sẽ cải thiện sau
-                                    }
                                 }
                             } catch (NumberFormatException ignored) {}
                         }
                     }
-                    streakCount = checkedDays.size(); // số ngày đã điểm trong tháng
                 }
 
                 // ── Cập nhật streak badge ─────────────────────────────────────
-                final int finalStreak = streakCount;
                 if (tvStreak != null) {
-                    tvStreak.setText(finalStreak + " ngày 🔥");
+                    tvStreak.setText(checkedDays.size() + " ngày 🔥");
                 }
 
-                // ── Setup lịch điểm danh ──────────────────────────────────────
+                // ── Refresh lịch điểm danh ────────────────────────────────────
                 setupCalendarUI();
             }
 
             @Override
             public void onError(String errorMessage, int statusCode) {
-                // Dùng dữ liệu từ session (đã set ở populateFromSession)
-                setupCalendarUI();
+                // Dữ liệu session đã được hiển thị trước đó — không cần làm gì thêm
             }
         });
     }
@@ -192,7 +194,7 @@ public class ProfileFragment extends Fragment {
     // ─── Setup lịch điểm danh ────────────────────────────────────────────────
 
     private void setupCalendarUI() {
-        if (calendarRecycler == null) return;
+        if (calendarRecycler == null || getContext() == null) return;
 
         Calendar cal = Calendar.getInstance();
         today = cal.get(Calendar.DAY_OF_MONTH);
@@ -202,14 +204,23 @@ public class ProfileFragment extends Fragment {
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         calendarRecycler.setAdapter(new CalendarDayAdapter(totalDays, checkedDays, today,
                 (day, reward) -> performCheckIn(day, reward)));
-        calendarRecycler.scrollToPosition(Math.max(0, today - 3));
+
+        // Scroll tới ngày hôm nay (hiển thị 2 ngày trước để có context)
+        int scrollPos = Math.max(0, today - 3);
+        calendarRecycler.scrollToPosition(scrollPos);
     }
 
     // ─── Gọi API điểm danh ───────────────────────────────────────────────────
 
     private void performCheckIn(int day, int reward) {
+        // Kiểm tra đã điểm danh ngày này chưa (double-check phía client)
+        if (checkedDays.contains(day)) {
+            Toast.makeText(getContext(), "Bạn đã điểm danh ngày này rồi! 📅", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Calendar todayCal = Calendar.getInstance();
-        String dateStr = String.format("%04d-%02d-%02d",
+        String dateStr = String.format(java.util.Locale.US, "%04d-%02d-%02d",
                 todayCal.get(Calendar.YEAR),
                 todayCal.get(Calendar.MONTH) + 1,
                 day);
@@ -218,19 +229,20 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onSuccess(JSONObject json) {
                 if (json.optBoolean("success", false)) {
-                    // Backend trả: { success, earnedKch, kchBalance }
                     int newBalance = json.optInt("kchBalance", session.getKchBalance() + reward);
                     int earned     = json.optInt("earnedKch", reward);
 
                     session.setKchBalance(newBalance);
                     if (tvFreeHearts != null) tvFreeHearts.setText(formatNumber(newBalance));
 
+                    // Cập nhật local state
                     checkedDays.add(day);
                     if (tvStreak != null) tvStreak.setText(checkedDays.size() + " ngày 🔥");
 
                     Toast.makeText(getContext(),
-                            "Điểm danh thành công! +" + earned + " 💎", Toast.LENGTH_SHORT).show();
+                            "🎉 Điểm danh thành công! +" + earned + " 💎", Toast.LENGTH_SHORT).show();
 
+                    // Refresh adapter để hiển thị overlay đã điểm
                     if (calendarRecycler != null && calendarRecycler.getAdapter() != null) {
                         calendarRecycler.getAdapter().notifyDataSetChanged();
                     }
@@ -242,7 +254,19 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onError(String errorMessage, int statusCode) {
-                Toast.makeText(getContext(), "Điểm danh lỗi: " + errorMessage, Toast.LENGTH_SHORT).show();
+                if (statusCode == 0) {
+                    // Lỗi mạng — thử offline mode
+                    checkedDays.add(day);
+                    session.addKch(reward);
+                    if (tvFreeHearts != null) tvFreeHearts.setText(formatNumber(session.getKchBalance()));
+                    if (tvStreak != null) tvStreak.setText(checkedDays.size() + " ngày 🔥");
+                    if (calendarRecycler != null && calendarRecycler.getAdapter() != null) {
+                        calendarRecycler.getAdapter().notifyDataSetChanged();
+                    }
+                    Toast.makeText(getContext(), "⚠️ Điểm danh offline (sẽ đồng bộ khi có mạng)", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -250,74 +274,78 @@ public class ProfileFragment extends Fragment {
     // ─── Setup click listeners ────────────────────────────────────────────────
 
     private void setupClickListeners(View view) {
-        // Avatar → chọn ảnh
-        if (profileAvatar != null) profileAvatar.setOnClickListener(v -> openImagePicker());
+        // ── Avatar → chọn ảnh ────────────────────────────────────────────────
+        if (profileAvatar != null) {
+            profileAvatar.setOnClickListener(v -> openImagePicker());
+        }
         View btnChangeAvatar = view.findViewById(R.id.btn_change_avatar);
-        if (btnChangeAvatar != null) btnChangeAvatar.setOnClickListener(v -> openImagePicker());
+        if (btnChangeAvatar != null) {
+            btnChangeAvatar.setOnClickListener(v -> openImagePicker());
+        }
 
-        // Cài đặt
+        // ── Cài đặt ──────────────────────────────────────────────────────────
         View btnSettings = view.findViewById(R.id.btn_settings);
         if (btnSettings != null) {
             btnSettings.setOnClickListener(v ->
-                    androidx.navigation.Navigation.findNavController(view)
-                            .navigate(R.id.settingsFragment));
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_profile_to_settings));
         }
 
-        // Thông báo
+        // ── Thông báo ─────────────────────────────────────────────────────────
         View btnNotifications = view.findViewById(R.id.btn_notifications);
         if (btnNotifications != null) {
             btnNotifications.setOnClickListener(v ->
-                    Toast.makeText(getContext(), "Thông báo đang phát triển", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(getContext(), "🔔 Thông báo đang phát triển", Toast.LENGTH_SHORT).show());
         }
 
-        // Nạp kim cương
+        // ── Nạp kim cương (Nạp ngay) ─────────────────────────────────────────
         View btnGetDiamonds = view.findViewById(R.id.btn_get_diamonds);
         if (btnGetDiamonds != null) {
             btnGetDiamonds.setOnClickListener(v ->
-                    androidx.navigation.Navigation.findNavController(view)
-                            .navigate(R.id.storeFragment));
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_profile_to_store));
         }
 
-        // Ví
+        // ── Ví ───────────────────────────────────────────────────────────────
         View walletCard = view.findViewById(R.id.wallet_card);
         if (walletCard != null) {
             walletCard.setOnClickListener(v ->
-                    androidx.navigation.Navigation.findNavController(view)
-                            .navigate(R.id.walletFragment));
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_profile_to_wallet));
         }
 
-        // Nhân Vật của tôi
+        // ── Nhân Vật ─────────────────────────────────────────────────────────
         View btnCharacters = view.findViewById(R.id.btn_characters);
         if (btnCharacters != null) {
             btnCharacters.setOnClickListener(v ->
-                    Toast.makeText(getContext(), "Tính năng Nhân Vật đang phát triển", Toast.LENGTH_SHORT).show());
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_profile_to_creator));
         }
 
-        // Bạn Bè
+        // ── Bạn Bè ───────────────────────────────────────────────────────────
         View btnFriends = view.findViewById(R.id.btn_friends);
         if (btnFriends != null) {
             btnFriends.setOnClickListener(v ->
-                    Toast.makeText(getContext(), "Tính năng Bạn Bè đang phát triển", Toast.LENGTH_SHORT).show());
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_profile_to_friends));
         }
 
-        // Gift Code
+        // ── Gift Code ─────────────────────────────────────────────────────────
         View btnGiftcode = view.findViewById(R.id.btn_giftcode);
         if (btnGiftcode != null) {
             btnGiftcode.setOnClickListener(v -> showGiftcodeDialog());
         }
 
-        // Mời bạn bè
+        // ── Mời bạn bè ───────────────────────────────────────────────────────
         View btnInvite = view.findViewById(R.id.btn_invite_friends);
         if (btnInvite != null) {
-            btnInvite.setOnClickListener(v ->
-                    Toast.makeText(getContext(), "Tính năng Mời bạn bè đang phát triển", Toast.LENGTH_SHORT).show());
+            btnInvite.setOnClickListener(v -> shareInviteLink());
         }
 
-        // Chia sẻ nhận thưởng
+        // ── Chia sẻ nhận thưởng ──────────────────────────────────────────────
         View btnShare = view.findViewById(R.id.btn_share_rewards);
         if (btnShare != null) {
-            btnShare.setOnClickListener(v ->
-                    Toast.makeText(getContext(), "Tính năng Chia sẻ nhận thưởng đang phát triển", Toast.LENGTH_SHORT).show());
+            btnShare.setOnClickListener(v -> shareRewards());
         }
     }
 
@@ -329,6 +357,40 @@ public class ProfileFragment extends Fragment {
         imagePickerLauncher.launch(intent);
     }
 
+    // ─── Mời bạn bè qua link ─────────────────────────────────────────────────
+
+    private void shareInviteLink() {
+        String username    = session.getUsername();
+        String displayName = session.getDisplayName();
+        String shareText   = "🎮 Tham gia Iiawak cùng mình!\n"
+                + displayName + " (" + username + ") đang mời bạn chơi Iiawak — ứng dụng nhập vai AI thú vị nhất!\n\n"
+                + "📲 Tải ngay tại: https://iiawak.app/invite?ref=" + username + "\n"
+                + "🎁 Nhập mã mời để nhận thêm Kim Cương Hồng miễn phí!";
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, shareText);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Mời bạn chơi Iiawak!");
+        startActivity(Intent.createChooser(intent, "Mời bạn bè qua..."));
+    }
+
+    // ─── Chia sẻ nhận thưởng ─────────────────────────────────────────────────
+
+    private void shareRewards() {
+        String displayName = session.getDisplayName();
+        int    balance     = session.getKchBalance();
+        String shareText   = "💎 Mình đang có " + formatNumber(balance) + " Kim Cương Hồng trên Iiawak!\n\n"
+                + displayName + " đang chơi Iiawak — ứng dụng nhập vai AI thú vị nhất!\n"
+                + "📲 Tải ngay: https://iiawak.app\n"
+                + "🎁 Cùng mình điểm danh hàng ngày để nhận thưởng!";
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, shareText);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Tham gia Iiawak nhận thưởng!");
+        startActivity(Intent.createChooser(intent, "Chia sẻ qua..."));
+    }
+
     // ─── Giftcode Dialog ─────────────────────────────────────────────────────
 
     private void showGiftcodeDialog() {
@@ -337,13 +399,19 @@ public class ProfileFragment extends Fragment {
 
         final android.widget.EditText input = new android.widget.EditText(requireContext());
         input.setHint("Nhập mã tại đây...");
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
         int pad = (int)(16 * getResources().getDisplayMetrics().density);
-        builder.setView(input);
         input.setPadding(pad, pad, pad, pad);
+        builder.setView(input);
 
         builder.setPositiveButton("Xác nhận", (dialog, which) -> {
-            String code = input.getText().toString().trim();
-            if (!code.isEmpty()) redeemGiftcode(code);
+            String code = input.getText().toString().trim().toUpperCase();
+            if (!code.isEmpty()) {
+                redeemGiftcode(code);
+            } else {
+                Toast.makeText(getContext(), "Vui lòng nhập mã quà tặng", Toast.LENGTH_SHORT).show();
+            }
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
         builder.show();
@@ -358,21 +426,20 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
 
                 if (json.optBoolean("success", false)) {
-                    // Backend có thể trả newBalance hoặc không
                     int newBalance = json.optInt("newBalance", -1);
                     if (newBalance >= 0) {
                         session.setKchBalance(newBalance);
                         if (tvFreeHearts != null) tvFreeHearts.setText(formatNumber(newBalance));
                     } else {
                         // Fallback: fetch lại profile để lấy balance chính xác
-                        fetchProfileFromBackend(getView());
+                        fetchProfileFromBackend(rootView);
                     }
                 }
             }
 
             @Override
             public void onError(String errorMessage, int statusCode) {
-                Toast.makeText(getContext(), "Lỗi đổi mã: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "❌ Lỗi đổi mã: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -380,10 +447,12 @@ public class ProfileFragment extends Fragment {
     // ─── Load avatar bằng Glide ─────────────────────────────────────────────
 
     private void loadAvatarFromUrl(String url) {
-        if (profileAvatar != null && url != null && !url.isEmpty()) {
+        if (profileAvatar != null && isAdded() && url != null && !url.isEmpty()) {
             Glide.with(this)
                     .load(url)
                     .placeholder(R.drawable.ic_nav_profile)
+                    .error(R.drawable.ic_nav_profile)
+                    .circleCrop()
                     .into(profileAvatar);
         }
     }

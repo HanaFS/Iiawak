@@ -14,15 +14,20 @@ public class EconomyApiService {
         ApiClient.get(context, "/economy/packages", callback);
     }
 
-    /** Đổi Giftcode */
+    /** Đổi Giftcode — backend dùng req.user.id từ JWT, không cần gửi username */
     public static void redeemGiftcode(Context context, String code, String username, ApiClient.ApiCallback callback) {
         try {
             JSONObject body = new JSONObject();
             body.put("code", code);
-            body.put("username", username);
+            // username chỉ để tham khảo, backend lấy userId từ token
             ApiClient.post(context, "/giftcodes/redeem", body, callback);
         } catch (Exception e) {
             callback.onError("Lỗi tạo request: " + e.getMessage(), 0);
         }
+    }
+
+    /** Lấy lịch sử giao dịch của user hiện tại */
+    public static void getTransactions(Context context, ApiClient.ApiCallback callback) {
+        ApiClient.get(context, "/user/transactions", callback);
     }
 }

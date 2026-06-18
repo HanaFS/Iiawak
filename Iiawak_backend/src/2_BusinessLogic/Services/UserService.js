@@ -33,21 +33,27 @@ class UserService {
    * Nghiệp vụ: mỗi ngày chỉ được điểm danh 1 lần.
    */
   async checkin(userId, date, reward) {
-    // findById trả về object đã loại password — nhưng cần save() nên cần raw document
-    const user = await userRepository.findByEmail('__bypass__').catch(() => null);
-    // Dùng raw findById từ Model để có thể save
     const User = require('../../3_DataAccess/Models/User.model');
-    const rawUser = await User.findById(userId);
-    if (!rawUser) throw AppError.notFound('Người dùng');
+    const earnedKch = parseInt(reward) || 50;
 
-    if (rawUser.checkedInDays.includes(date)) {
+    // Sử dụng atomic update để đảm bảo vừa thêm ngày vừa cộng tiền, tránh lưu đè hoặc Mongoose không nhận ra mảng thay đổi
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId, checkedInDays: { $ne: date } },
+      {
+        $push: { checkedInDays: date },
+        $inc: { kchBalance: earnedKch }
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      // Nếu null, tức là user không tồn tại hoặc đã điểm danh ngày này rồi
+      const rawUser = await User.findById(userId);
+      if (!rawUser) throw AppError.notFound('Người dùng');
       throw AppError.badRequest(Errors.USER.ALREADY_CHECKED_IN, 'ALREADY_CHECKED_IN');
     }
 
-    const earnedKch = parseInt(reward) || 50;
-    rawUser.checkedInDays.push(date);
-    rawUser.kchBalance += earnedKch;
-    await userRepository.saveUser(rawUser);
+    const rawUser = updatedUser;
 
     // Ghi giao dịch
     await userRepository.createTransaction({

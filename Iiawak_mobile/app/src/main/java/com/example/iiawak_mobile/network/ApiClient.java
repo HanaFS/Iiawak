@@ -112,6 +112,7 @@ public class ApiClient {
         conn.setRequestMethod(method);
         conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
         conn.setReadTimeout(READ_TIMEOUT_MS);
+        conn.setUseCaches(false); // Ngăn ngừa cache dữ liệu cũ
         conn.setRequestProperty("Accept", "application/json");
 
         // Đính kèm JWT token nếu có

@@ -9,22 +9,14 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:overScrollMode="never">
+        android:overScrollMode="never"
+        android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingBottom="100dp">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/profile_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/bg_card"
-        app:navigationIcon="@drawable/ic_nav_back"
-        app:title="Profile"
-        app:titleTextColor="@color/text_primary" />
 
         <!-- ══════════════════════════════════════
              HERO HEADER with glow background
@@ -57,7 +49,7 @@
                 android:paddingBottom="20dp"
                 android:paddingHorizontal="20dp">
 
-                <!-- Top action row -->
+                <!-- Top action row: Notification + Settings -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -65,26 +57,26 @@
                     android:gravity="end">
 
                     <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_notifications"
-                    style="@style/Widget.Iiawak.Button.Text"
-                    android:layout_width="46dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="46dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:text="🔔"
-                    android:textSize="20sp" />
+                        android:id="@+id/btn_notifications"
+                        style="@style/Widget.Iiawak.Button.Text"
+                        android:layout_width="46dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="46dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="🔔"
+                        android:textSize="20sp" />
 
                     <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_settings"
-                    style="@style/Widget.Iiawak.Button.Text"
-                    android:layout_width="46dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="46dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:text="⚙"
-                    android:textSize="20sp" />
+                        android:id="@+id/btn_settings"
+                        style="@style/Widget.Iiawak.Button.Text"
+                        android:layout_width="46dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="46dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="⚙"
+                        android:textSize="20sp" />
                 </LinearLayout>
 
                 <!-- Avatar + User Info row -->
@@ -175,7 +167,7 @@
         </FrameLayout>
 
         <!-- ══════════════════════════════════════
-             STATS CARD
+             STATS CARD (Following / Followers / Chinh phục)
              ══════════════════════════════════════ -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -206,7 +198,7 @@
                         android:id="@+id/profile_following_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="24"
+                        android:text="0"
                         android:textColor="@color/white"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -238,7 +230,7 @@
                         android:id="@+id/profile_followers_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="128"
+                        android:text="0"
                         android:textColor="@color/white"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -270,7 +262,7 @@
                         android:id="@+id/profile_conquest_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="7"
+                        android:text="0"
                         android:textColor="@color/brand_gold"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -342,7 +334,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="1,250"
+                            android:text="0"
                             android:textColor="@color/white"
                             android:textSize="30sp"
                             android:textStyle="bold" />
@@ -356,7 +348,7 @@
                     android:layout_marginVertical="20dp"
                     android:background="@color/surface_divider" />
 
-                <!-- Top-up action -->
+                <!-- Top-up action button -->
                 <LinearLayout
                     android:id="@+id/btn_get_diamonds"
                     android:layout_width="0dp"
@@ -366,7 +358,9 @@
                     android:orientation="vertical"
                     android:layout_margin="12dp"
                     android:background="@drawable/bg_button_gradient"
-                    android:elevation="4dp">
+                    android:elevation="4dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -431,11 +425,20 @@
                         android:background="@drawable/bg_streak_active"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="4dp"
-                        android:text="5 ngày 🔥"
+                        android:text="0 ngày 🔥"
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
+                <!-- Hướng dẫn nhỏ -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="Bấm vào ô ngày hôm nay để điểm danh nhận 💎"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="11sp" />
 
                 <!-- Calendar days recycler -->
                 <androidx.recyclerview.widget.RecyclerView
@@ -449,7 +452,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- ══════════════════════════════════════
-             QUICK ACTION BUTTONS
+             QUICK ACTION BUTTONS (Nhân Vật / Bạn Bè)
              ══════════════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -521,7 +524,9 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="12dp"
-                    android:background="?attr/selectableItemBackground">
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="0dp"
@@ -554,7 +559,9 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="12dp"
-                    android:background="?attr/selectableItemBackground">
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="0dp"
@@ -587,7 +594,9 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="12dp"
-                    android:background="?attr/selectableItemBackground">
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="0dp"
@@ -609,6 +618,6 @@
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
-</ScrollView>
+    </ScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -21,6 +21,7 @@ public class UserSession {
     private static final String KEY_IS_CREATOR      = "is_creator";
     private static final String KEY_APP_LOCK_PIN    = "app_lock_pin";
     private static final String KEY_APP_LOCK_ENABLED = "app_lock_enabled";
+    private static final String KEY_AVATAR          = "avatar_url";
 
     private static UserSession instance;
     private final SharedPreferences prefs;
@@ -169,6 +170,14 @@ public class UserSession {
 
     public void setUsername(String username) {
         prefs.edit().putString(KEY_USERNAME, username).apply();
+    }
+
+    public String getAvatarUrl() {
+        return prefs.getString(KEY_AVATAR, "");
+    }
+
+    public void setAvatarUrl(String url) {
+        prefs.edit().putString(KEY_AVATAR, url).apply();
     }
 
     public void setCreator(boolean isCreator) {

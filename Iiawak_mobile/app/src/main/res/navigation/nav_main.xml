@@ -142,7 +142,7 @@
         <action
             android:id="@+id/action_profile_to_wallet"
             app:destination="@id/walletFragment" />
-        <!-- Mở Cửa hàng mua sắm vật phẩm -->
+        <!-- Mở Cửa hàng mua sắm / Nạp kim cương -->
         <action
             android:id="@+id/action_profile_to_store"
             app:destination="@id/storeFragment" />
@@ -150,6 +150,14 @@
         <action
             android:id="@+id/action_profile_to_earn_hearts"
             app:destination="@id/earnHeartsFragment" />
+        <!-- Mở trang Nhân Vật (Creator Dashboard) -->
+        <action
+            android:id="@+id/action_profile_to_creator"
+            app:destination="@id/creatorFragment" />
+        <!-- Mở tab Bạn bè -->
+        <action
+            android:id="@+id/action_profile_to_friends"
+            app:destination="@id/friendsFragment" />
     </fragment>
 
     <!-- =================== DETAIL SCREENS (CÁC MÀN HÌNH CHI TIẾT) =================== -->
@@ -274,5 +282,10 @@
         android:id="@+id/appLockFragment"
         android:name="com.example.iiawak_mobile.ui.profile.AppLockFragment"
         android:label="Khóa ứng dụng" />
+
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.FriendsFragment"
+        android:label="Bạn Bè" />
 
 </navigation>
