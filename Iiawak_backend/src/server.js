@@ -6,16 +6,16 @@ const { Server } = require('socket.io');
 const helmet     = require('helmet');
 const compression = require('compression');
 
-const db      = require('./data-access/Database/connection');
-const redis   = require('./data-access/Cache/redisClient');
-const Message = require('./data-access/Models/Message.model');
-const logger  = require('./core/Logger/logger');
-const requestLogger = require('./presentation/Middlewares/requestLogger.middleware');
-const webSocketManager = require('./presentation/Middlewares/websocket.middleware');
-const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./presentation/Middlewares/rateLimiter.middleware');
-const { sanitizeMiddleware, preventInjectionMiddleware } = require('./presentation/Middlewares/requestValidator.middleware');
-const errorHandler = require('./core/Exceptions/ErrorHandler');
-const errorMiddleware = require('./presentation/Middlewares/error.middleware');
+const db      = require('./database/connection');
+const redis   = require('./cache/redisClient');
+const Message = require('./models/Message.model');
+const logger  = require('./logger/logger');
+const requestLogger = require('./middlewares/requestLogger.middleware');
+const webSocketManager = require('./middlewares/websocket.middleware');
+const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./middlewares/rateLimiter.middleware');
+const { sanitizeMiddleware, preventInjectionMiddleware } = require('./middlewares/requestValidator.middleware');
+const errorHandler = require('./exceptions/ErrorHandler');
+const errorMiddleware = require('./middlewares/error.middleware');
 
 // ─── Process Level Error Catching (Node Best Practices) ───────────────────────
 process.on('uncaughtException', (error) => {
@@ -163,7 +163,7 @@ app.get('/health', (req, res) => {
 });
 
 // ─── Routes with API versioning (/api/v1/) ──────────────────────────────────
-app.use('/api', require('./Presentation/Routes/index.js'));
+app.use('/api', require('./routes/index.js'));
 
 // ─── Legacy routes (mobile compatibility) ────────────────────────────────────
 app.get('/', (req, res) => {
