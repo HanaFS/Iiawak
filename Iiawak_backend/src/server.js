@@ -6,16 +6,16 @@ const { Server } = require('socket.io');
 const helmet     = require('helmet');
 const compression = require('compression');
 
-const db      = require('./3_DataAccess/Database/connection');
-const redis   = require('./3_DataAccess/Cache/redisClient');
-const Message = require('./3_DataAccess/Models/Message.model');
-const logger  = require('./4_Core/Logger/logger');
-const requestLogger = require('./1_Presentation/Middlewares/requestLogger.middleware');
-const webSocketManager = require('./1_Presentation/Middlewares/websocket.middleware');
-const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./1_Presentation/Middlewares/rateLimiter.middleware');
-const { sanitizeMiddleware, preventInjectionMiddleware } = require('./1_Presentation/Middlewares/requestValidator.middleware');
-const errorHandler = require('./4_Core/Exceptions/ErrorHandler');
-const errorMiddleware = require('./1_Presentation/Middlewares/error.middleware');
+const db      = require('./data-access/Database/connection');
+const redis   = require('./data-access/Cache/redisClient');
+const Message = require('./data-access/Models/Message.model');
+const logger  = require('./core/Logger/logger');
+const requestLogger = require('./presentation/Middlewares/requestLogger.middleware');
+const webSocketManager = require('./presentation/Middlewares/websocket.middleware');
+const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./presentation/Middlewares/rateLimiter.middleware');
+const { sanitizeMiddleware, preventInjectionMiddleware } = require('./presentation/Middlewares/requestValidator.middleware');
+const errorHandler = require('./core/Exceptions/ErrorHandler');
+const errorMiddleware = require('./presentation/Middlewares/error.middleware');
 
 // ─── Process Level Error Catching (Node Best Practices) ───────────────────────
 process.on('uncaughtException', (error) => {
@@ -163,41 +163,7 @@ app.get('/health', (req, res) => {
 });
 
 // ─── Routes with API versioning (/api/v1/) ──────────────────────────────────
-// Auth routes (stricter rate limit)
-app.use('/api/auth',       authLimiter, require('./routes/auth'));
-
-// User routes (with API limiter)
-app.use('/api/user',       apiLimiter, require('./routes/user'));
-
-// Search routes (search-specific limiter)
-// app.use('/api/search',     searchLimiter, require('./routes/search'));
-
-// Character routes
-app.use('/api/characters', require('./routes/characters'));
-
-// Community routes
-app.use('/api/community',  require('./routes/community'));
-
-// Upload routes (stricter upload limiter)
-app.use('/api/upload',     uploadLimiter, require('./routes/upload'));
-
-// Economy routes
-app.use('/api/economy',    require('./routes/economy'));
-
-// Payment routes (payment-specific limiter)
-app.use('/api/payment',    paymentLimiter, require('./routes/payment'));
-
-// Giftcode routes
-app.use('/api/giftcodes',  require('./routes/giftcodes'));
-
-// Social routes
-app.use('/api/social',     require('./routes/social'));
-
-// Chat routes
-app.use('/api/chat',       require('./routes/chat'));
-
-// Admin routes (stricter limit)
-app.use('/api/admin',      apiLimiter, require('./routes/admin'));
+app.use('/api', require('./Presentation/Routes/index.js'));
 
 // ─── Legacy routes (mobile compatibility) ────────────────────────────────────
 app.get('/', (req, res) => {

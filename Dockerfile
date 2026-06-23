@@ -6,11 +6,11 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY Iiawak_backend/package*.json ./Iiawak_backend/
+COPY backend/package*.json ./backend/
 
 # Install dependencies
 RUN npm ci --omit=dev && \
-    cd Iiawak_backend && \
+    cd backend && \
     npm ci --omit=dev
 
 # Stage 2: Runtime
@@ -27,7 +27,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Copy dependencies from builder
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/Iiawak_backend/node_modules ./Iiawak_backend/node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/backend/node_modules ./backend/node_modules
 
 # Copy app code
 COPY --chown=nodejs:nodejs . .
@@ -49,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start server
-CMD ["node", "Iiawak_backend/src/server.js"]
+CMD ["node", "backend/src/server.js"]

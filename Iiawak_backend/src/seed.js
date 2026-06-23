@@ -6,12 +6,12 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const config = require('./config');
 
-// Import models từ 3_DataAccess
-const User = require('./3_DataAccess/Models/User.model');
-const Character = require('./3_DataAccess/Models/Character.model');
-const TopupPackage = require('./3_DataAccess/Models/TopupPackage.model');
-const Giftcode = require('./3_DataAccess/Models/Giftcode.model');
-const Post = require('./3_DataAccess/Models/Post.model');
+// Import models từ data-access
+const User = require('./data-access/Models/User.model');
+const Character = require('./data-access/Models/Character.model');
+const TopupPackage = require('./data-access/Models/TopupPackage.model');
+const Giftcode = require('./data-access/Models/Giftcode.model');
+const Post = require('./data-access/Models/Post.model');
 
 const MONGO_URI = config.db.uri || 'mongodb://127.0.0.1:27017/iiawak';
 

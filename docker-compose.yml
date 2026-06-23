@@ -90,7 +90,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./Iiawak_backend:/app/Iiawak_backend
+      - ./backend:/app/backend
       - ./logs:/app/logs
     networks:
       - iiawak-network
