@@ -5,7 +5,7 @@
  */
 
 const jwt = require('jsonwebtoken');
-const logger = require('../../core/Logger/logger');
+const logger = require('../Logger/logger');
 
 class WebSocketManager {
   constructor() {

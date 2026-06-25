@@ -46,15 +46,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="💬 Cuộc trò chuyện"
-                        android:textColor="@color/brand_primary_light"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Tin nhắn"
                         android:textColor="@color/text_primary"
                         android:textSize="26sp"
@@ -62,19 +53,6 @@
                         android:letterSpacing="-0.02" />
                 </LinearLayout>
 
-                <!-- Edit / compose button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_compose"
-                    android:layout_width="48dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="✏"
-                    android:textSize="20sp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:background="@drawable/bg_card_glass"
-                    app:backgroundTint="@null"
-                    app:cornerRadius="14dp" />
             </LinearLayout>
 
             <!-- ── Search Bar ── -->

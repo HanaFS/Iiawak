@@ -43,7 +43,7 @@ public class StoreFragment extends Fragment {
         updateBalance();
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
-            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+            androidx.navigation.Navigation.findNavController(requireView()).navigateUp();
         });
 
         recyclerView = view.findViewById(R.id.recycler_store_packages);
@@ -62,6 +62,12 @@ public class StoreFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateBalance();
+    }
+
     private void buyPackage(StorePackage pkg) {
         // Logic mô phỏng thanh toán
         Toast.makeText(getContext(), "Đang xử lý thanh toán cho: " + pkg.name, Toast.LENGTH_SHORT).show();
@@ -70,7 +76,7 @@ public class StoreFragment extends Fragment {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             session.addFreeHearts(pkg.kch);
             updateBalance();
-            Toast.makeText(getContext(), "Nạp thành công +" + pkg.kch + " 💎", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), com.example.iiawak_mobile.utils.UIUtils.withDiamond(getContext(), "Nạp thành công +" + pkg.kch + " 💎"), Toast.LENGTH_LONG).show();
         }, 1000);
     }
 

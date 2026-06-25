@@ -111,6 +111,26 @@ public class ChatFragment extends Fragment {
                     androidx.navigation.Navigation.findNavController(view).navigateUp());
         }
 
+        // Tùy chọn chat -> Bản đồ ký ức
+        View btnOptions = view.findViewById(R.id.btn_chat_options);
+        if (btnOptions != null) {
+            btnOptions.setOnClickListener(v -> {
+                try {
+                    androidx.navigation.Navigation.findNavController(view).navigate(R.id.action_chat_to_memory_map);
+                } catch (Exception e) {}
+            });
+        }
+
+        // Thanh thiện cảm -> Chinh phục
+        View affectionMeter = view.findViewById(R.id.affection_meter);
+        if (affectionMeter != null) {
+            affectionMeter.setOnClickListener(v -> {
+                try {
+                    androidx.navigation.Navigation.findNavController(view).navigate(R.id.action_chat_to_conquest);
+                } catch (Exception e) {}
+            });
+        }
+
         // RP suggestions
         if (!chatMode.equals("dm")) {
             setupRpSuggestions(view);

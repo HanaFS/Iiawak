@@ -45,7 +45,7 @@ public class FriendsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar_friends);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> androidx.navigation.Navigation.findNavController(requireView()).navigateUp());
 
         recyclerFriends = view.findViewById(R.id.recycler_friends);
         progressBar = view.findViewById(R.id.progress_friends);

@@ -15,10 +15,11 @@ public class UserApiService {
     }
 
     /** Cập nhật profile */
-    public static void updateProfile(Context context, String displayName, String bio, String avatar, ApiClient.ApiCallback callback) {
+    public static void updateProfile(Context context, String displayName, String username, String bio, String avatar, ApiClient.ApiCallback callback) {
         try {
             JSONObject body = new JSONObject();
             if (displayName != null) body.put("displayName", displayName);
+            if (username != null) body.put("username", username);
             if (bio != null) body.put("bio", bio);
             if (avatar != null) body.put("avatar", avatar);
             ApiClient.put(context, "/user/profile", body, callback);

@@ -1,5 +1,5 @@
 'use strict';
-const { GiftcodeService } = require('../../business-logic/Services/EconomyService');
+const { GiftcodeService } = require('../Services/EconomyService');
 
 /**
  * GiftcodeController — Gác cổng cho /api/giftcodes/*

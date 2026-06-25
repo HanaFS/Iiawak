@@ -1,9 +1,9 @@
 'use strict';
-const userRepository = require('../../data-access/Repositories/UserRepository');
-const AppError       = require('../../core/Exceptions/AppError');
-const Errors         = require('../../core/Constants/errorMessages');
-const formatUtil     = require('../../core/Utils/formatUtil');
-const { TransactionType } = require('../../core/Constants/appConstants');
+const userRepository = require('../Repositories/UserRepository');
+const AppError       = require('../Exceptions/AppError');
+const Errors         = require('../Constants/errorMessages');
+const formatUtil     = require('../Utils/formatUtil');
+const { TransactionType } = require('../Constants/appConstants');
 
 /**
  * UserService — Nghiệp vụ quản lý Profile, Check-in, và Giao dịch.
@@ -17,9 +17,10 @@ class UserService {
     return user;
   }
 
-  async updateProfile(userId, { displayName, bio, avatar }) {
+  async updateProfile(userId, { displayName, username, bio, avatar }) {
     const updateData = {};
     if (displayName !== undefined) updateData.displayName = displayName;
+    if (username    !== undefined) updateData.username    = username;
     if (bio         !== undefined) updateData.bio         = bio;
     if (avatar      !== undefined) updateData.avatar      = avatar;
 
@@ -32,24 +33,44 @@ class UserService {
    * Điểm danh hàng ngày — tặng KCH.
    * Nghiệp vụ: mỗi ngày chỉ được điểm danh 1 lần.
    */
-  async checkin(userId, date, reward) {
-    const User = require('../../data-access/Models/User.model');
-    const earnedKch = parseInt(reward) || 50;
+  async checkin(userId, clientDate, reward) {
+    const User = require('../Models/User.model');
+    const logger = require('../Logger/logger');
 
-    // Sử dụng atomic update để đảm bảo vừa thêm ngày vừa cộng tiền, tránh lưu đè hoặc Mongoose không nhận ra mảng thay đổi
+    // Giới hạn phần thưởng tối đa để tránh bị lạm dụng API (max 200 KCH)
+    const earnedKch = Math.min(parseInt(reward) || 50, 200);
+
+    // Chuẩn hóa ngày về định dạng YYYY-MM-DD
+    let dateStr;
+    if (clientDate && typeof clientDate === 'string' && clientDate.length >= 10) {
+      // Đảm bảo chỉ lấy 10 ký tự đầu (YYYY-MM-DD) kể cả khi client gửi ISO string
+      dateStr = clientDate.substring(0, 10);
+    } else {
+      dateStr = new Date().toISOString().split('T')[0];
+    }
+
+    logger.info(`[Checkin] User ${userId} attempting checkin for date ${dateStr}`);
+
+    // Sử dụng atomic update với điều kiện $ne (not equal) để đảm bảo tính duy nhất
+    // Lưu ý: checkedInDays phải chứa chuỗi chính xác "YYYY-MM-DD"
     const updatedUser = await User.findOneAndUpdate(
-      { _id: userId, checkedInDays: { $ne: date } },
       {
-        $push: { checkedInDays: date },
+        _id: userId,
+        checkedInDays: { $nin: [dateStr] } // Đảm bảo ngày này chưa tồn tại trong mảng
+      },
+      {
+        $addToSet: { checkedInDays: dateStr }, // Sử $addToSet thay cho $push để double-check
         $inc: { kchBalance: earnedKch }
       },
       { new: true }
     );
 
     if (!updatedUser) {
-      // Nếu null, tức là user không tồn tại hoặc đã điểm danh ngày này rồi
+      logger.warn(`[Checkin] User ${userId} already checked in for ${dateStr} or not found`);
       const rawUser = await User.findById(userId);
       if (!rawUser) throw AppError.notFound('Người dùng');
+
+      // Nếu ngày đã tồn tại trong mảng, ném lỗi Bad Request
       throw AppError.badRequest(Errors.USER.ALREADY_CHECKED_IN, 'ALREADY_CHECKED_IN');
     }
 
@@ -78,7 +99,7 @@ class UserService {
   }
 
   async changePassword(userId, oldPassword, newPassword) {
-    const User    = require('../../data-access/Models/User.model');
+    const User    = require('../Models/User.model');
     const rawUser = await User.findById(userId);
     if (!rawUser) throw AppError.notFound('Người dùng');
 

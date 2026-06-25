@@ -2,7 +2,7 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
-const logger = require('../../core/Logger/logger');
+const logger = require('../Logger/logger');
 
 /**
  * EmailService — Gửi email thông báo

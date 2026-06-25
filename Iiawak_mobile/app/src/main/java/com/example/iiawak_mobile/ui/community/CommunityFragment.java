@@ -43,12 +43,30 @@ public class CommunityFragment extends Fragment {
 
         // Hearts balance display
         View heartsCard = view.findViewById(R.id.hearts_balance_card);
+        android.widget.TextView tvHeartsCount = view.findViewById(R.id.tv_hearts_count);
+        if (tvHeartsCount != null) {
+            com.example.iiawak_mobile.data.UserSession session = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext());
+            tvHeartsCount.setText(java.text.NumberFormat.getInstance(java.util.Locale.US).format(session.getKchBalance()));
+        }
+        
         if (heartsCard != null) {
             heartsCard.setOnClickListener(v -> {
                 // Navigate to wallet
                 androidx.navigation.Navigation.findNavController(view)
                         .navigate(R.id.walletFragment);
             });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() != null) {
+            android.widget.TextView tvHeartsCount = getView().findViewById(R.id.tv_hearts_count);
+            if (tvHeartsCount != null) {
+                com.example.iiawak_mobile.data.UserSession session = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext());
+                tvHeartsCount.setText(java.text.NumberFormat.getInstance(java.util.Locale.US).format(session.getKchBalance()));
+            }
         }
     }
 }

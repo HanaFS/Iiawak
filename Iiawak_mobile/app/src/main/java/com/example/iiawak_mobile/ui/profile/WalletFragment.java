@@ -53,44 +53,38 @@ public class WalletFragment extends Fragment {
         com.google.android.material.appbar.MaterialToolbar toolbar = view.findViewById(R.id.wallet_toolbar);
         if (toolbar != null) {
             toolbar.setNavigationOnClickListener(v -> {
-                requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                androidx.navigation.Navigation.findNavController(requireView()).navigateUp();
             });
         }
-
         fetchTransactions();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (tvTotalBalance != null && getContext() != null) {
+            int balance = UserSession.getInstance(getContext()).getKchBalance();
+            tvTotalBalance.setText(String.valueOf(balance));
+        }
     }
 
     private void fetchTransactions() {
         setLoading(true);
-        UserApiService.getTransactions(getContext(), new ApiClient.ApiCallback() {
-            @Override
-            public void onSuccess(JSONObject json) {
-                setLoading(false);
-                if (!json.optBoolean("success", false)) {
-                    setEmpty(true);
-                    return;
-                }
-
-                JSONArray data = json.optJSONArray("data");
-                if (data == null || data.length() == 0) {
-                    setEmpty(true);
-                    return;
-                }
-
-                setEmpty(false);
-                recycler.setLayoutManager(new LinearLayoutManager(getContext()));
-                recycler.setAdapter(new TransactionAdapter(data));
-            }
-
-            @Override
-            public void onError(String errorMessage, int statusCode) {
-                setLoading(false);
+        // Load local mockup data
+        new android.os.Handler().postDelayed(() -> {
+            if (getContext() == null) return;
+            setLoading(false);
+            
+            JSONArray data = UserSession.getInstance(getContext()).getTransactions();
+            if (data == null || data.length() == 0) {
                 setEmpty(true);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Không thể tải lịch sử giao dịch", Toast.LENGTH_SHORT).show();
-                }
+                return;
             }
-        });
+
+            setEmpty(false);
+            recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+            recycler.setAdapter(new TransactionAdapter(data));
+        }, 300); // 300ms fake delay
     }
 
     private void setLoading(boolean loading) {
@@ -132,8 +126,9 @@ public class WalletFragment extends Fragment {
 
                 // amount
                 int amount = tx.optInt("amount", 0);
-                String amountStr = (amount > 0 ? "+" : "") + amount + " 💎";
-                h.tvAmount.setText(amountStr);
+                String formattedAmount = java.text.NumberFormat.getInstance(java.util.Locale.US).format(amount);
+                String amountStr = (amount > 0 ? "+" : "") + formattedAmount + " 💎";
+                h.tvAmount.setText(com.example.iiawak_mobile.utils.UIUtils.withDiamond(h.itemView.getContext(), amountStr));
 
                 if (amount > 0) {
                     h.tvAmount.setTextColor(0xFF4CAF50); // Xanh lá
@@ -141,8 +136,8 @@ public class WalletFragment extends Fragment {
                     h.tvAmount.setTextColor(0xFFF44336); // Đỏ
                 }
 
-                // createdAt
-                String dateStr = tx.optString("createdAt", "");
+                // createdAt or date
+                String dateStr = tx.optString("createdAt", tx.optString("date", ""));
                 h.tvTime.setText(formatDate(dateStr));
 
             } catch (Exception e) {

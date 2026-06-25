@@ -138,10 +138,10 @@ public class CharacterDetailFragment extends Fragment {
             if (!avatarUrl.isEmpty()) {
                 Glide.with(this)
                         .load(avatarUrl)
-                        .placeholder(R.drawable.ic_diamond)
+                        .placeholder(R.drawable.ic_pink_diamond)
                         .into(ivAvatar);
             } else {
-                ivAvatar.setImageResource(R.drawable.ic_diamond);
+                ivAvatar.setImageResource(R.drawable.ic_pink_diamond);
             }
         }
 

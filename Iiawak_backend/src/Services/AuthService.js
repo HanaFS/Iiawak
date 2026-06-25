@@ -1,8 +1,8 @@
 'use strict';
-const userRepository = require('../../data-access/Repositories/UserRepository');
-const jwtUtil        = require('../../core/Utils/jwtUtil');
-const AppError       = require('../../core/Exceptions/AppError');
-const Errors         = require('../../core/Constants/errorMessages');
+const userRepository = require('../Repositories/UserRepository');
+const jwtUtil        = require('../Utils/jwtUtil');
+const AppError       = require('../Exceptions/AppError');
+const Errors         = require('../Constants/errorMessages');
 
 /**
  * AuthService — Xử lý nghiệp vụ Đăng ký / Đăng nhập.

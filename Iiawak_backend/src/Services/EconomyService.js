@@ -1,10 +1,10 @@
 'use strict';
-const economyRepository  = require('../../data-access/Repositories/EconomyRepository');
-const userRepository     = require('../../data-access/Repositories/UserRepository');
-const AppError           = require('../../core/Exceptions/AppError');
-const Errors             = require('../../core/Constants/errorMessages');
-const formatUtil         = require('../../core/Utils/formatUtil');
-const { TransactionType } = require('../../core/Constants/appConstants');
+const economyRepository  = require('../Repositories/EconomyRepository');
+const userRepository     = require('../Repositories/UserRepository');
+const AppError           = require('../Exceptions/AppError');
+const Errors             = require('../Constants/errorMessages');
+const formatUtil         = require('../Utils/formatUtil');
+const { TransactionType } = require('../Constants/appConstants');
 
 /**
  * EconomyService — Nghiệp vụ Gói nạp KCH.
@@ -53,7 +53,7 @@ class GiftcodeService {
     await economyRepository.saveGiftcode(giftcode);
 
     // Cập nhật balance (dùng thẳng Model để save — không có updateById cho partial number)
-    const User = require('../../data-access/Models/User.model');
+    const User = require('../Models/User.model');
     await User.findByIdAndUpdate(userId, { $inc: { kchBalance: giftcode.rewardKch } });
 
     await userRepository.createTransaction({

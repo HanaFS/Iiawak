@@ -35,29 +35,31 @@ import java.util.Set;
  * ProfileFragment — Trang cá nhân của người dùng.
  *
  * Dữ liệu từ backend:
- *  - GET /api/user/profile  → { success, data: UserDTO }
- *  - POST /api/user/checkin → { success, earnedKch, kchBalance }
- *  - POST /api/economy/redeem-giftcode → { success, message, newBalance? }
+ * - GET /api/user/profile → { success, data: UserDTO }
+ * - POST /api/user/checkin → { success, earnedKch, kchBalance }
+ * - POST /api/economy/redeem-giftcode → { success, message, newBalance? }
  *
  * UserDTO: { id, username, email, displayName, avatar, bio, kchBalance, role,
- *            isCreator, checkedInDays[], following[], followers[], createdAt }
+ * isCreator, checkedInDays[], following[], followers[], createdAt }
  */
 public class ProfileFragment extends Fragment {
 
     // ── Views ─────────────────────────────────────────────────────────────────
-    private CircleImageView profileAvatar;
-    private TextView        tvDisplayName, tvHandle, tvFreeHearts;
-    private TextView        tvFollowing, tvFollowers, tvStreak;
-    private RecyclerView    calendarRecycler;
+    private com.google.android.material.imageview.ShapeableImageView profileAvatar;
+    private TextView tvDisplayName, tvHandle, tvFreeHearts;
+    private TextView tvFollowing, tvFollowers, tvStreak, tvConquest;
+    private RecyclerView calendarRecycler;
+    private TextView tvLevel;
 
     private UserSession session;
-    private Set<Integer> checkedDays = new HashSet<>();
+    private final Set<Integer> checkedDays = new HashSet<>();
     private int today;
     private View rootView;
+    private boolean isCheckingIn = false;
 
     // ── Image Picker ──────────────────────────────────────────────────────────
-    private final ActivityResultLauncher<Intent> imagePickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Uri imageUri = result.getData().getData();
                     if (imageUri != null && profileAvatar != null) {
@@ -72,7 +74,7 @@ public class ProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         return rootView;
     }
@@ -83,13 +85,15 @@ public class ProfileFragment extends Fragment {
         session = UserSession.getInstance(requireContext());
 
         // ── Bind views ────────────────────────────────────────────────────────
-        profileAvatar    = view.findViewById(R.id.profile_avatar);
-        tvDisplayName    = view.findViewById(R.id.profile_display_name);
-        tvHandle         = view.findViewById(R.id.profile_handle);
-        tvFreeHearts     = view.findViewById(R.id.profile_free_hearts);
-        tvFollowing      = view.findViewById(R.id.profile_following_count);
-        tvFollowers      = view.findViewById(R.id.profile_followers_count);
-        tvStreak         = view.findViewById(R.id.tv_streak_count);
+        profileAvatar = view.findViewById(R.id.profile_avatar);
+        tvDisplayName = view.findViewById(R.id.profile_display_name);
+        tvHandle = view.findViewById(R.id.profile_handle);
+        tvFreeHearts = view.findViewById(R.id.profile_free_hearts);
+        tvFollowing = view.findViewById(R.id.profile_following_count);
+        tvFollowers = view.findViewById(R.id.profile_followers_count);
+        tvStreak = view.findViewById(R.id.tv_streak_count);
+        tvConquest = view.findViewById(R.id.profile_conquest_count);
+        tvLevel = view.findViewById(R.id.profile_level);
         calendarRecycler = view.findViewById(R.id.calendar_recycler);
 
         // ── Tính ngày hôm nay trước khi setup calendar ────────────────────────
@@ -108,13 +112,49 @@ public class ProfileFragment extends Fragment {
         setupClickListeners(view);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Update data when returning to this fragment
+        populateFromSession();
+    }
+
     // ─── Hiển thị dữ liệu từ UserSession (hiển thị ngay, không chờ API) ──────
 
     private void populateFromSession() {
-        if (tvDisplayName != null) tvDisplayName.setText(session.getDisplayName());
-        if (tvHandle      != null) tvHandle.setText("@" + session.getUsername());
-        if (tvFreeHearts  != null) tvFreeHearts.setText(formatNumber(session.getKchBalance()));
-        if (tvStreak      != null) tvStreak.setText(checkedDays.size() + " ngày 🔥");
+        if (tvDisplayName != null)
+            tvDisplayName.setText(session.getDisplayName());
+        if (tvHandle != null)
+            tvHandle.setText("@" + session.getUsername());
+        if (tvFreeHearts != null)
+            tvFreeHearts.setText(formatNumber(session.getKchBalance()));
+
+        // Load offline checked days
+        Set<String> offlineDays = session.getCheckedInDays();
+        Calendar todayCal = Calendar.getInstance();
+        int curYear = todayCal.get(Calendar.YEAR);
+        int curMonth = todayCal.get(Calendar.MONTH) + 1;
+
+        checkedDays.clear(); // Clear existing to avoid duplicates if re-populated
+        for (String d : offlineDays) {
+            // Robust parsing: extract YYYY-MM-DD
+            String cleanDate = d.length() >= 10 ? d.substring(0, 10) : d;
+            String[] parts = cleanDate.split("-");
+            if (parts.length == 3) {
+                try {
+                    int y = Integer.parseInt(parts[0]);
+                    int m = Integer.parseInt(parts[1]);
+                    int day = Integer.parseInt(parts[2]);
+                    if (y == curYear && m == curMonth) {
+                        checkedDays.add(day);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        if (tvStreak != null)
+            tvStreak.setText(session.getCheckInStreak() + " ngày");
     }
 
     // ─── Fetch Profile từ backend & cập nhật toàn bộ UI ─────────────────────
@@ -123,28 +163,40 @@ public class ProfileFragment extends Fragment {
         UserApiService.getProfile(getContext(), new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject json) {
-                if (!json.optBoolean("success", false)) return;
+                if (!json.optBoolean("success", false))
+                    return;
 
                 JSONObject data = json.optJSONObject("data");
-                if (data == null) return;
+                if (data == null)
+                    return;
 
                 // ── Cập nhật session với dữ liệu mới nhất ────────────────────
                 String displayName = data.optString("displayName", session.getDisplayName());
-                String username    = data.optString("username",    session.getUsername());
-                String avatarUrl   = data.optString("avatar",      "");
-                int    kchBalance  = data.optInt("kchBalance",     session.getKchBalance());
-                int    following   = getArrayLength(data, "following");
-                int    followers   = getArrayLength(data, "followers");
+                String username = data.optString("username", session.getUsername());
+                String avatarUrl = data.optString("avatar", "");
+                int kchBalance = data.optInt("kchBalance", session.getKchBalance());
+                int following = getArrayLength(data, "following");
+                int followers = getArrayLength(data, "followers");
+                int strikeCount = data.optInt("strikeCount", 0);
 
                 session.updateDisplayName(displayName);
                 session.setKchBalance(kchBalance);
 
                 // ── Cập nhật giao diện ────────────────────────────────────────
-                if (tvDisplayName != null) tvDisplayName.setText(displayName);
-                if (tvHandle      != null) tvHandle.setText("@" + username);
-                if (tvFreeHearts  != null) tvFreeHearts.setText(formatNumber(kchBalance));
-                if (tvFollowing   != null) tvFollowing.setText(formatNumber(following));
-                if (tvFollowers   != null) tvFollowers.setText(formatNumber(followers));
+                if (tvDisplayName != null)
+                    tvDisplayName.setText(displayName);
+                if (tvHandle != null)
+                    tvHandle.setText("@" + username);
+                if (tvFreeHearts != null)
+                    tvFreeHearts.setText(formatNumber(kchBalance));
+                if (tvFollowing != null)
+                    tvFollowing.setText(formatNumber(following));
+                if (tvFollowers != null)
+                    tvFollowers.setText(formatNumber(followers));
+                if (tvConquest != null)
+                    tvConquest.setText(formatNumber(strikeCount));
+                if (tvLevel != null)
+                    tvLevel.setText("Lv." + (1 + strikeCount / 5) + " Người chơi");
 
                 // ── Load avatar từ URL ────────────────────────────────────────
                 if (profileAvatar != null && !avatarUrl.isEmpty()) {
@@ -152,32 +204,40 @@ public class ProfileFragment extends Fragment {
                 }
 
                 // ── Parse danh sách ngày đã điểm danh ────────────────────────
-                checkedDays = new HashSet<>();
-                JSONArray days = data.optJSONArray("checkedInDays");
-                if (days != null) {
-                    Calendar todayCal = Calendar.getInstance();
-                    int curYear  = todayCal.get(Calendar.YEAR);
-                    int curMonth = todayCal.get(Calendar.MONTH) + 1;
-
-                    for (int i = 0; i < days.length(); i++) {
-                        String d = days.optString(i); // "2026-06-11"
-                        String[] parts = d.split("-");
-                        if (parts.length == 3) {
-                            try {
-                                int y   = Integer.parseInt(parts[0]);
-                                int m   = Integer.parseInt(parts[1]);
-                                int day = Integer.parseInt(parts[2]);
-                                if (y == curYear && m == curMonth) {
-                                    checkedDays.add(day);
-                                }
-                            } catch (NumberFormatException ignored) {}
-                        }
+                Set<String> allDaysSet = new HashSet<>(session.getCheckedInDays());
+                JSONArray daysArr = data.optJSONArray("checkedInDays");
+                if (daysArr != null) {
+                    for (int i = 0; i < daysArr.length(); i++) {
+                        allDaysSet.add(daysArr.optString(i));
                     }
+                }
+                session.setCheckedInDays(allDaysSet);
+
+                // Update local list for UI from the session's streak
+                String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                        .format(new java.util.Date());
+                String lastCheckIn = session.getLastCheckInDate();
+                int streak = session.getCheckInStreak();
+
+                // Reset streak if missed a day (simplified: just checking if not today and not
+                // yesterday)
+                // For mockup purposes, we just trust the current streak logic:
+                if (!currentDate.equals(lastCheckIn)) {
+                    // Ready for next check in
+                    if (streak >= 7) {
+                        streak = 0;
+                        session.setCheckInStreak(0);
+                    }
+                }
+
+                checkedDays.clear();
+                for (int i = 1; i <= streak; i++) {
+                    checkedDays.add(i);
                 }
 
                 // ── Cập nhật streak badge ─────────────────────────────────────
                 if (tvStreak != null) {
-                    tvStreak.setText(checkedDays.size() + " ngày 🔥");
+                    tvStreak.setText(session.getCheckInStreak() + " ngày");
                 }
 
                 // ── Refresh lịch điểm danh ────────────────────────────────────
@@ -194,31 +254,45 @@ public class ProfileFragment extends Fragment {
     // ─── Setup lịch điểm danh ────────────────────────────────────────────────
 
     private void setupCalendarUI() {
-        if (calendarRecycler == null || getContext() == null) return;
+        if (calendarRecycler == null || getContext() == null)
+            return;
 
-        Calendar cal = Calendar.getInstance();
-        today = cal.get(Calendar.DAY_OF_MONTH);
-        int totalDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        String lastCheckIn = session.getLastCheckInDate();
+        int streak = session.getCheckInStreak();
+
+        if (currentDate.equals(lastCheckIn)) {
+            today = streak; // already checked in today
+        } else {
+            today = streak + 1;
+        }
+
+        int totalDays = 7;
 
         calendarRecycler.setLayoutManager(
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         calendarRecycler.setAdapter(new CalendarDayAdapter(totalDays, checkedDays, today,
                 (day, reward) -> performCheckIn(day, reward)));
 
-        // Scroll tới ngày hôm nay (hiển thị 2 ngày trước để có context)
-        int scrollPos = Math.max(0, today - 3);
+        // Scroll tới ngày hôm nay
+        int scrollPos = Math.max(0, today - 2);
         calendarRecycler.scrollToPosition(scrollPos);
     }
 
     // ─── Gọi API điểm danh ───────────────────────────────────────────────────
 
     private void performCheckIn(int day, int reward) {
+        if (isCheckingIn)
+            return;
+
         // Kiểm tra đã điểm danh ngày này chưa (double-check phía client)
         if (checkedDays.contains(day)) {
             Toast.makeText(getContext(), "Bạn đã điểm danh ngày này rồi! 📅", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        isCheckingIn = true;
         Calendar todayCal = Calendar.getInstance();
         String dateStr = String.format(java.util.Locale.US, "%04d-%02d-%02d",
                 todayCal.get(Calendar.YEAR),
@@ -228,19 +302,33 @@ public class ProfileFragment extends Fragment {
         UserApiService.checkIn(getContext(), dateStr, reward, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject json) {
+                isCheckingIn = false;
                 if (json.optBoolean("success", false)) {
                     int newBalance = json.optInt("kchBalance", session.getKchBalance() + reward);
-                    int earned     = json.optInt("earnedKch", reward);
+                    int earned = json.optInt("earnedKch", reward);
 
                     session.setKchBalance(newBalance);
-                    if (tvFreeHearts != null) tvFreeHearts.setText(formatNumber(newBalance));
+                    if (tvFreeHearts != null)
+                        tvFreeHearts.setText(formatNumber(newBalance));
 
-                    // Cập nhật local state
+                    // Cập nhật local state & session cache
                     checkedDays.add(day);
-                    if (tvStreak != null) tvStreak.setText(checkedDays.size() + " ngày 🔥");
+                    session.addCheckedInDay(dateStr);
+
+                    int newStreak = session.getCheckInStreak() + 1;
+                    session.setCheckInStreak(newStreak);
+                    session.setLastCheckInDate(dateStr);
+
+                    // Thêm vào lịch sử giao dịch
+                    String txDateStr = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                            java.util.Locale.US).format(new java.util.Date());
+                    session.addTransaction("Điểm danh ngày " + newStreak, reward, txDateStr);
+
+                    if (tvStreak != null)
+                        tvStreak.setText(session.getCheckInStreak() + " ngày");
 
                     Toast.makeText(getContext(),
-                            "🎉 Điểm danh thành công! +" + earned + " 💎", Toast.LENGTH_SHORT).show();
+                            com.example.iiawak_mobile.utils.UIUtils.withDiamond(getContext(), " Điểm danh thành công! +" + earned + " 💎"), Toast.LENGTH_SHORT).show();
 
                     // Refresh adapter để hiển thị overlay đã điểm
                     if (calendarRecycler != null && calendarRecycler.getAdapter() != null) {
@@ -252,18 +340,22 @@ public class ProfileFragment extends Fragment {
                 }
             }
 
-            @Override
             public void onError(String errorMessage, int statusCode) {
+                isCheckingIn = false;
                 if (statusCode == 0) {
                     // Lỗi mạng — thử offline mode
                     checkedDays.add(day);
+                    session.addCheckedInDay(dateStr); // Lưu lại vào session để không bị click nhiều lần
                     session.addKch(reward);
-                    if (tvFreeHearts != null) tvFreeHearts.setText(formatNumber(session.getKchBalance()));
-                    if (tvStreak != null) tvStreak.setText(checkedDays.size() + " ngày 🔥");
+                    if (tvFreeHearts != null)
+                        tvFreeHearts.setText(formatNumber(session.getKchBalance()));
+                    if (tvStreak != null)
+                        tvStreak.setText(session.getCheckInStreak() + " ngày");
                     if (calendarRecycler != null && calendarRecycler.getAdapter() != null) {
                         calendarRecycler.getAdapter().notifyDataSetChanged();
                     }
-                    Toast.makeText(getContext(), "⚠️ Điểm danh offline (sẽ đồng bộ khi có mạng)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "⚠️ Điểm danh offline (sẽ đồng bộ khi có mạng)", Toast.LENGTH_SHORT)
+                            .show();
                 } else {
                     Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_SHORT).show();
                 }
@@ -278,56 +370,56 @@ public class ProfileFragment extends Fragment {
         if (profileAvatar != null) {
             profileAvatar.setOnClickListener(v -> openImagePicker());
         }
-        View btnChangeAvatar = view.findViewById(R.id.btn_change_avatar);
-        if (btnChangeAvatar != null) {
-            btnChangeAvatar.setOnClickListener(v -> openImagePicker());
-        }
 
         // ── Cài đặt ──────────────────────────────────────────────────────────
         View btnSettings = view.findViewById(R.id.btn_settings);
         if (btnSettings != null) {
-            btnSettings.setOnClickListener(v ->
-                    Navigation.findNavController(view)
-                            .navigate(R.id.action_profile_to_settings));
+            btnSettings.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_settings));
         }
 
         // ── Thông báo ─────────────────────────────────────────────────────────
         View btnNotifications = view.findViewById(R.id.btn_notifications);
         if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v ->
-                    Toast.makeText(getContext(), "🔔 Thông báo đang phát triển", Toast.LENGTH_SHORT).show());
+            btnNotifications.setOnClickListener(
+                    v -> Toast.makeText(getContext(), " Thông báo đang phát triển", Toast.LENGTH_SHORT).show());
         }
 
         // ── Nạp kim cương (Nạp ngay) ─────────────────────────────────────────
         View btnGetDiamonds = view.findViewById(R.id.btn_get_diamonds);
         if (btnGetDiamonds != null) {
-            btnGetDiamonds.setOnClickListener(v ->
-                    Navigation.findNavController(view)
-                            .navigate(R.id.action_profile_to_store));
+            btnGetDiamonds.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_store));
         }
 
         // ── Ví ───────────────────────────────────────────────────────────────
         View walletCard = view.findViewById(R.id.wallet_card);
         if (walletCard != null) {
-            walletCard.setOnClickListener(v ->
-                    Navigation.findNavController(view)
-                            .navigate(R.id.action_profile_to_wallet));
+            walletCard.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_wallet));
         }
+
+
 
         // ── Nhân Vật ─────────────────────────────────────────────────────────
         View btnCharacters = view.findViewById(R.id.btn_characters);
         if (btnCharacters != null) {
-            btnCharacters.setOnClickListener(v ->
-                    Navigation.findNavController(view)
-                            .navigate(R.id.action_profile_to_creator));
+            btnCharacters.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_creator));
+        }
+
+        // ── Ví Nhà Sáng Tạo ──────────────────────────────────────────────────
+        View btnCreatorWallet = view.findViewById(R.id.btn_creator_wallet);
+        if (btnCreatorWallet != null) {
+            btnCreatorWallet.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_creator));
         }
 
         // ── Bạn Bè ───────────────────────────────────────────────────────────
         View btnFriends = view.findViewById(R.id.btn_friends);
         if (btnFriends != null) {
-            btnFriends.setOnClickListener(v ->
-                    Navigation.findNavController(view)
-                            .navigate(R.id.action_profile_to_friends));
+            btnFriends.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_friends));
         }
 
         // ── Gift Code ─────────────────────────────────────────────────────────
@@ -360,12 +452,12 @@ public class ProfileFragment extends Fragment {
     // ─── Mời bạn bè qua link ─────────────────────────────────────────────────
 
     private void shareInviteLink() {
-        String username    = session.getUsername();
+        String username = session.getUsername();
         String displayName = session.getDisplayName();
-        String shareText   = "🎮 Tham gia Iiawak cùng mình!\n"
+        String shareText = "🎮 Tham gia Iiawak cùng mình!\n"
                 + displayName + " (" + username + ") đang mời bạn chơi Iiawak — ứng dụng nhập vai AI thú vị nhất!\n\n"
-                + "📲 Tải ngay tại: https://iiawak.app/invite?ref=" + username + "\n"
-                + "🎁 Nhập mã mời để nhận thêm Kim Cương Hồng miễn phí!";
+                + " Tải ngay tại: https://iiawak.app/invite?ref=" + username + "\n"
+                + " Nhập mã mời để nhận thêm Kim Cương Hồng miễn phí!";
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -378,11 +470,11 @@ public class ProfileFragment extends Fragment {
 
     private void shareRewards() {
         String displayName = session.getDisplayName();
-        int    balance     = session.getKchBalance();
-        String shareText   = "💎 Mình đang có " + formatNumber(balance) + " Kim Cương Hồng trên Iiawak!\n\n"
+        int balance = session.getKchBalance();
+        String shareText = "💎 Mình đang có " + formatNumber(balance) + " Kim Cương Hồng trên Iiawak!\n\n"
                 + displayName + " đang chơi Iiawak — ứng dụng nhập vai AI thú vị nhất!\n"
-                + "📲 Tải ngay: https://iiawak.app\n"
-                + "🎁 Cùng mình điểm danh hàng ngày để nhận thưởng!";
+                + " Tải ngay: https://iiawak.app\n"
+                + " Cùng mình điểm danh hàng ngày để nhận thưởng!";
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -395,13 +487,13 @@ public class ProfileFragment extends Fragment {
 
     private void showGiftcodeDialog() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
-        builder.setTitle("🎁 Nhập Mã Quà Tặng");
+        builder.setTitle(" Nhập Mã Quà Tặng");
 
         final android.widget.EditText input = new android.widget.EditText(requireContext());
         input.setHint("Nhập mã tại đây...");
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
                 | android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-        int pad = (int)(16 * getResources().getDisplayMetrics().density);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
         input.setPadding(pad, pad, pad, pad);
         builder.setView(input);
 
@@ -429,7 +521,8 @@ public class ProfileFragment extends Fragment {
                     int newBalance = json.optInt("newBalance", -1);
                     if (newBalance >= 0) {
                         session.setKchBalance(newBalance);
-                        if (tvFreeHearts != null) tvFreeHearts.setText(formatNumber(newBalance));
+                        if (tvFreeHearts != null)
+                            tvFreeHearts.setText(formatNumber(newBalance));
                     } else {
                         // Fallback: fetch lại profile để lấy balance chính xác
                         fetchProfileFromBackend(rootView);
@@ -439,7 +532,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onError(String errorMessage, int statusCode) {
-                Toast.makeText(getContext(), "❌ Lỗi đổi mã: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), " Lỗi đổi mã: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -460,9 +553,7 @@ public class ProfileFragment extends Fragment {
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private String formatNumber(int n) {
-        if (n >= 1_000_000) return String.format("%.1fM", n / 1_000_000f);
-        if (n >= 1_000)     return String.format("%.1fK", n / 1_000f);
-        return String.valueOf(n);
+        return java.text.NumberFormat.getInstance(java.util.Locale.US).format(n);
     }
 
     private int getArrayLength(JSONObject obj, String key) {

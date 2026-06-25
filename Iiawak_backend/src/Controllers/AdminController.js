@@ -1,7 +1,7 @@
 'use strict';
-const AdminService = require('../../business-logic/Services/AdminService');
-const NotificationService = require('../../business-logic/Services/NotificationService');
-const AppError     = require('../../core/Exceptions/AppError');
+const AdminService = require('../Services/AdminService');
+const NotificationService = require('../Services/NotificationService');
+const AppError     = require('../Exceptions/AppError');
 
 /**
  * AdminController — Gác cổng cho /api/admin/*

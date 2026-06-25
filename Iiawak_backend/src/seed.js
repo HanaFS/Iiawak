@@ -7,11 +7,11 @@ const mongoose = require('mongoose');
 const config = require('./config');
 
 // Import models từ data-access
-const User = require('./data-access/Models/User.model');
-const Character = require('./data-access/Models/Character.model');
-const TopupPackage = require('./data-access/Models/TopupPackage.model');
-const Giftcode = require('./data-access/Models/Giftcode.model');
-const Post = require('./data-access/Models/Post.model');
+const User = require(./Models/User.model');
+const Character = require(./Models/Character.model');
+const TopupPackage = require(./Models/TopupPackage.model');
+const Giftcode = require(./Models/Giftcode.model');
+const Post = require(./Models/Post.model');
 
 const MONGO_URI = config.db.uri || 'mongodb://127.0.0.1:27017/iiawak';
 

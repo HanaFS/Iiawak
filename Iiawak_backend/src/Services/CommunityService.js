@@ -1,7 +1,7 @@
 'use strict';
-const communityRepository = require('../../data-access/Repositories/CommunityRepository');
-const AppError            = require('../../core/Exceptions/AppError');
-const Errors              = require('../../core/Constants/errorMessages');
+const communityRepository = require('../Repositories/CommunityRepository');
+const AppError            = require('../Exceptions/AppError');
+const Errors              = require('../Constants/errorMessages');
 
 /**
  * CommunityService — Nghiệp vụ bài đăng cộng đồng.

@@ -93,7 +93,7 @@ public class CreateCharacterFragment extends Fragment {
         View btnBack = view.findViewById(R.id.btn_back);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> {
-                requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                androidx.navigation.Navigation.findNavController(requireView()).navigateUp();
             });
         }
 
@@ -115,7 +115,29 @@ public class CreateCharacterFragment extends Fragment {
             });
         }
 
+        formatRequiredLabels(view);
+
         return view;
+    }
+
+    private void formatRequiredLabels(View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                formatRequiredLabels(vg.getChildAt(i));
+            }
+        } else if (view instanceof TextView && !(view instanceof EditText)) {
+            TextView tv = (TextView) view;
+            String text = tv.getText().toString();
+            if (text.trim().endsWith("*") && !text.contains("Vui lòng")) {
+                int starIndex = text.lastIndexOf('*');
+                android.text.SpannableString spannable = new android.text.SpannableString(text);
+                spannable.setSpan(new android.text.style.ForegroundColorSpan(
+                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brand_primary)),
+                        starIndex, starIndex + 1, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tv.setText(spannable);
+            }
+        }
     }
 
     private void saveCharacter() {
@@ -132,7 +154,7 @@ public class CreateCharacterFragment extends Fragment {
         String npcName = etNpcName != null ? etNpcName.getText().toString().trim() : "";
 
         // Validate các trường bắt buộc
-        if (name.isEmpty() || slogan.isEmpty() || publicInfo.isEmpty() || personality.isEmpty() ||
+        if (name.isEmpty() || tags.isEmpty() || slogan.isEmpty() || publicInfo.isEmpty() || personality.isEmpty() ||
                 openingLine.isEmpty() || bio.isEmpty() || firstMsg.isEmpty() || status.isEmpty()) {
             Toast.makeText(getContext(), "Vui lòng điền đầy đủ các thông tin bắt buộc (*)", Toast.LENGTH_SHORT).show();
             return;
@@ -174,7 +196,7 @@ public class CreateCharacterFragment extends Fragment {
                 @Override
                 public void onSuccess(JSONObject json) {
                     Toast.makeText(getContext(), "Tạo nhân vật thành công! ✅", Toast.LENGTH_SHORT).show();
-                    requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                    androidx.navigation.Navigation.findNavController(requireView()).navigateUp();
                 }
 
                 @Override

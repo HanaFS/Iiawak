@@ -1,5 +1,5 @@
 'use strict';
-const logger = require('../../core/Logger/logger');
+const logger = require('../Logger/logger');
 
 /**
  * Request Logger Middleware

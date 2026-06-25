@@ -1,5 +1,5 @@
 'use strict';
-const characterService = require('../../business-logic/Services/CharacterService');
+const characterService = require('../Services/CharacterService');
 
 /**
  * CharacterController — Gác cổng cho Character endpoints.

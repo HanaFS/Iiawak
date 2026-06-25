@@ -2,622 +2,735 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://tools.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_splash_gradient">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:overScrollMode="never"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:overScrollMode="never">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="100dp">
-
-        <!-- ══════════════════════════════════════
-             HERO HEADER with glow background
-             ══════════════════════════════════════ -->
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="120dp">
 
-            <!-- Top pink glow -->
-            <View
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_gravity="top|end"
-                android:background="@drawable/bg_glow_pink"
-                android:alpha="0.3" />
-
-            <!-- Purple glow bottom left -->
-            <View
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_gravity="bottom|start"
-                android:background="@drawable/bg_glow_blue"
-                android:alpha="0.2" />
-
-            <LinearLayout
+            <!-- ==================== HEADER HERO ==================== -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="52dp"
-                android:paddingBottom="20dp"
-                android:paddingHorizontal="20dp">
+                android:layout_height="wrap_content">
 
-                <!-- Top action row: Notification + Settings -->
+                <!-- Ambient glow layers -->
+                <View
+                    android:layout_width="260dp"
+                    android:layout_height="260dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="-40dp"
+                    android:layout_marginEnd="-60dp"
+                    android:alpha="0.18"
+                    android:background="@drawable/bg_glow_pink" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="top|start"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginStart="-60dp"
+                    android:alpha="0.12"
+                    android:background="@drawable/bg_glow_blue" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="end">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingTop="52dp"
+                    android:paddingBottom="28dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_notifications"
-                        style="@style/Widget.Iiawak.Button.Text"
-                        android:layout_width="46dp"
+                    <!-- Top bar: notification + settings -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="46dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:text="🔔"
-                        android:textSize="20sp" />
+                        android:gravity="end"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_settings"
-                        style="@style/Widget.Iiawak.Button.Text"
-                        android:layout_width="46dp"
-                        android:layout_height="wrap_content"
-                        android:minHeight="46dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:text="⚙"
-                        android:textSize="20sp" />
-                </LinearLayout>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_notifications"
+                            style="@style/Widget.Material3.Button.IconButton"
+                            android:layout_width="46dp"
+                            android:layout_height="46dp"
+                            android:background="@drawable/ic_notification_pixel"
+                            android:contentDescription="@string/settings_notifications"
+                            app:backgroundTint="@null"
+                            app:backgroundTintMode="screen" />
 
-                <!-- Avatar + User Info row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="8dp">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_settings"
+                            style="@style/Widget.Material3.Button.IconButton"
+                            android:layout_width="46dp"
+                            android:layout_height="46dp"
+                            android:layout_marginStart="16dp"
+                            android:background="@drawable/ic_settings_pixel"
+                            android:contentDescription="@string/settings_title"
+                            app:backgroundTint="@null"
+                            app:backgroundTintMode="screen" />
+                    </LinearLayout>
 
-                    <!-- Avatar with glow ring -->
+                    <!-- Avatar with ring glow -->
                     <FrameLayout
-                        android:layout_width="114dp"
-                        android:layout_height="114dp">
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="20dp">
 
-                        <!-- Outer glow -->
+                        <!-- Outer glow ring -->
                         <View
-                            android:layout_width="114dp"
-                            android:layout_height="114dp"
-                            android:background="@drawable/bg_glow_pink"
-                            android:alpha="0.45" />
-
-                        <!-- Avatar image -->
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/profile_avatar"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
+                            android:layout_width="124dp"
+                            android:layout_height="124dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_nav_profile"
-                            app:civ_border_color="@color/brand_primary"
-                            app:civ_border_width="3dp" />
+                            android:alpha="0.35"
+                            android:background="@drawable/bg_avatar_ring" />
 
-                        <!-- Camera badge -->
-                        <TextView
-                            android:id="@+id/btn_change_avatar"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/profile_avatar"
+                            android:layout_width="108dp"
+                            android:layout_height="108dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/nav_profile"
+                            android:src="@drawable/ic_nav_profile"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.CircleImage"
+                            app:strokeColor="@color/brand_primary"
+                            app:strokeWidth="2.5dp" />
+
+                        <!-- Online indicator dot -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
                             android:layout_gravity="bottom|end"
-                            android:background="@drawable/bg_button_gradient"
-                            android:gravity="center"
-                            android:text="📷"
-                            android:textSize="14sp" />
+                            android:layout_margin="6dp"
+                            app:cardBackgroundColor="@color/status_online"
+                            app:cardCornerRadius="9dp"
+                            app:cardElevation="2dp"
+                            app:strokeColor="@color/white"
+                            app:strokeWidth="1.5dp" />
                     </FrameLayout>
 
-                    <!-- Name + handle + level -->
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <!-- Name & handle -->
+                    <TextView
+                        android:id="@+id/profile_display_name"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="14dp"
+                        android:letterSpacing="-0.015"
+                        android:textColor="@color/text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        tools:text="Nguyễn Văn An" />
 
-                        <TextView
-                            android:id="@+id/profile_display_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Tên người dùng"
-                            android:textColor="@color/text_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="-0.01" />
+                    <TextView
+                        android:id="@+id/profile_handle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="4dp"
+                        android:letterSpacing="0.01"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="14sp"
+                        tools:text="@string/app_name" />
 
-                        <TextView
-                            android:id="@+id/profile_handle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/app_name"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="13sp" />
+                    <!-- Level badge — pill with shimmer background -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
 
-                        <!-- Level badge -->
                         <TextView
                             android:id="@+id/profile_level"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_button_gradient"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="4dp"
-                            android:text="⭐ Lv. 12  Người chơi"
+                            android:letterSpacing="0.02"
                             android:textColor="@color/white"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/bg_button_gradient"
+                            tools:text="Lv.12  Người chơi" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
                 </LinearLayout>
-            </LinearLayout>
-        </FrameLayout>
+            </FrameLayout>
 
-        <!-- ══════════════════════════════════════
-             STATS CARD (Following / Followers / Chinh phục)
-             ══════════════════════════════════════ -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="4dp"
-            app:cardBackgroundColor="@color/bg_card"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/surface_border"
-            app:strokeWidth="1dp">
-
+            <!-- ==================== STATS ROW — 3 individual mini-cards ==================== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingVertical="16dp">
+                android:paddingHorizontal="16dp">
 
-                <!-- Following -->
-                <LinearLayout
+                <!-- Đang theo dõi -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/profile_following_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang theo dõi"
-                        android:textColor="@color/text_tertiary"
-                        android:textSize="11sp"
-                        android:gravity="center" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="36dp"
-                    android:background="@color/surface_divider"
-                    android:layout_gravity="center_vertical" />
-
-                <!-- Followers -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/profile_followers_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Người theo dõi"
-                        android:textColor="@color/text_tertiary"
-                        android:textSize="11sp"
-                        android:gravity="center" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="36dp"
-                    android:background="@color/surface_divider"
-                    android:layout_gravity="center_vertical" />
-
-                <!-- Conquest -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/profile_conquest_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/brand_gold"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chinh phục ⭐"
-                        android:textColor="@color/text_tertiary"
-                        android:textSize="11sp"
-                        android:gravity="center" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- ══════════════════════════════════════
-             WALLET CARD (Diamond balance)
-             ══════════════════════════════════════ -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/wallet_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            app:cardBackgroundColor="#00000000"
-            app:cardCornerRadius="22dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_wallet_card"
-                android:orientation="horizontal">
-
-                <!-- Balance side -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="💎 Kim Cương Hồng"
-                        android:textColor="@color/text_pink"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.04" />
+                    android:layout_marginEnd="6dp"
+                    app:cardBackgroundColor="@color/bg_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/surface_border"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="6dp">
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/ic_pink_diamond"
-                            android:contentDescription="Diamond" />
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="18dp"
+                        android:paddingHorizontal="8dp">
 
                         <TextView
-                            android:id="@+id/profile_free_hearts"
+                            android:id="@+id/profile_following_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="0"
-                            android:textColor="@color/white"
-                            android:textSize="30sp"
-                            android:textStyle="bold" />
+                            android:textColor="@color/text_primary"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            tools:text="128" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/profile_following"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11.5sp" />
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <!-- Divider -->
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginVertical="20dp"
-                    android:background="@color/surface_divider" />
+                <!-- Người theo dõi -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="3dp"
+                    app:cardBackgroundColor="@color/bg_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/surface_border"
+                    app:strokeWidth="1dp">
 
-                <!-- Top-up action button -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="18dp"
+                        android:paddingHorizontal="8dp">
+
+                        <TextView
+                            android:id="@+id/profile_followers_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            tools:text="1.5K" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/profile_followers"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11.5sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Chinh phục — gold accent -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    app:cardBackgroundColor="@color/bg_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/glow_gold_30"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="18dp"
+                        android:paddingHorizontal="8dp">
+
+                        <TextView
+                            android:id="@+id/profile_conquest_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/brand_gold"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            tools:text="42" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/profile_conquests"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11.5sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- ==================== WALLET CARD ==================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/wallet_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="6dp"
+                app:strokeWidth="0dp">
+
                 <LinearLayout
-                    android:id="@+id/btn_get_diamonds"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_wallet_card"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
+
+                    <!-- Left: icon + balance -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="6dp">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_pink_diamond"
+                                android:contentDescription="@string/content_desc_diamond" />
+
+                            <TextView
+                                android:id="@+id/profile_free_hearts"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:textColor="@color/white"
+                                android:textSize="30sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="-0.02"
+                                tools:text="1,250" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Right: CTA button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_get_diamonds"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="46dp"
+                        android:background="@drawable/bg_button_gradient"
+                        android:text="@string/profile_topup_now"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="22dp"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="23dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ==================== STREAK CARD ==================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/streak_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/bg_card"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/glow_gold_30"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="20dp">
+
+                    <!-- Header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Label -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/profile_weekly_checkin"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Streak pill -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <TextView
+                                android:id="@+id/tv_streak_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_streak_active"
+                                android:paddingHorizontal="16dp"
+                                android:paddingVertical="6dp"
+                                android:textColor="@color/white"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.02"
+                                />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+
+                    <!-- Calendar recycler -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/calendar_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:clipToPadding="false"
+                        android:orientation="horizontal"
+                        android:overScrollMode="never" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ==================== QUICK ACTIONS — 3 equal cards ==================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:layout_margin="12dp"
-                    android:background="@drawable/bg_button_gradient"
-                    android:elevation="4dp"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:layout_marginEnd="6dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="➕"
-                        android:textSize="28sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Nạp ngay"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_characters"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_card_character"
+                        android:text="@string/profile_characters"
                         android:textColor="@color/white"
                         android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        android:textStyle="bold"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="18dp"
+                        app:icon="@drawable/ic_nav_creator"
+                        app:iconGravity="textTop"
+                        app:iconPadding="4dp"
+                        app:iconTint="@color/brand_primary_light"
+                        app:iconSize="20dp" />
+                </com.google.android.material.card.MaterialCardView>
 
-        <!-- ══════════════════════════════════════
-             STREAK / CHECK-IN CARD
-             ══════════════════════════════════════ -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/streak_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            app:cardBackgroundColor="@color/bg_card"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/glow_gold_30"
-            app:strokeWidth="1dp">
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="3dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Header row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="14dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🔥 Điểm danh tuần"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_streak_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_streak_active"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:text="0 ngày 🔥"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_creator_wallet"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_card_glass"
+                        android:text="Ví"
                         android:textColor="@color/white"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="18dp"
+                        app:icon="@drawable/ic_pink_diamond"
+                        app:iconGravity="textTop"
+                        app:iconPadding="4dp"
+                        app:iconTint="@null"
+                        app:iconSize="20dp" />
+                </com.google.android.material.card.MaterialCardView>
 
-                <!-- Hướng dẫn nhỏ -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:text="Bấm vào ô ngày hôm nay để điểm danh nhận 💎"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="11sp" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp">
 
-                <!-- Calendar days recycler -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/calendar_recycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:clipToPadding="false"
-                    android:overScrollMode="never" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_friends"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_card_glass"
+                        android:text="@string/profile_friends"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="18dp"
+                        app:icon="@drawable/ic_friends"
+                        app:iconGravity="textTop"
+                        app:iconPadding="4dp"
+                        app:iconTint="@color/brand_secondary_light"
+                        app:iconSize="20dp" />
+                </com.google.android.material.card.MaterialCardView>
+
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- ══════════════════════════════════════
-             QUICK ACTION BUTTONS (Nhân Vật / Bạn Bè)
-             ══════════════════════════════════════ -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_characters"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:text="Nhân Vật"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                app:cornerRadius="18dp"
-                app:backgroundTint="@null"
-                android:background="@drawable/bg_card_character"
-                app:icon="@drawable/ic_nav_creator"
-                app:iconTint="@color/brand_primary_light"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_friends"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:text="Bạn Bè"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                app:cornerRadius="18dp"
-                app:backgroundTint="@null"
-                android:background="@drawable/bg_card_glass"
-                app:icon="@drawable/ic_nav_community"
-                app:iconTint="@color/brand_secondary_light"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp" />
-        </LinearLayout>
-
-        <!-- ══════════════════════════════════════
-             FEATURE LIST CARD
-             ══════════════════════════════════════ -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            app:cardBackgroundColor="@color/bg_card"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/surface_border"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
+            <!-- ==================== MENU CARD — redesigned rows ==================== -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/bg_card"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp">
 
-                <!-- Gift Code Row -->
                 <LinearLayout
-                    android:id="@+id/btn_giftcode"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingVertical="8dp">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🎁  Nhập mã quà tặng"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
+                    <!-- Row: Nhập mã quà tặng -->
+                    <LinearLayout
+                        android:id="@+id/btn_giftcode"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="›"
-                        android:textColor="@color/brand_primary"
-                        android:textSize="22sp" />
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_chip_tag">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_pink_diamond" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/profile_redeem_gift"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/profile_redeem_gift_desc"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@android:drawable/ic_media_play"
+                            app:tint="@color/text_tertiary"
+                            android:alpha="0.5" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:background="@color/surface_divider" />
+
+                    <!-- Row: Mời bạn bè -->
+                    <LinearLayout
+                        android:id="@+id/btn_invite_friends"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_chip_tag">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_friends"
+                                app:tint="@color/brand_secondary" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/profile_invite_friends"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/profile_invite_friends_desc"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@android:drawable/ic_media_play"
+                            app:tint="@color/text_tertiary"
+                            android:alpha="0.5" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:background="@color/surface_divider" />
+
+                    <!-- Row: Chia sẻ nhận thưởng -->
+                    <LinearLayout
+                        android:id="@+id/btn_share_rewards"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_chip_tag">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@android:drawable/ic_menu_share"
+                                app:tint="@color/brand_gold" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/profile_share_reward"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/profile_share_reward_desc"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@android:drawable/ic_media_play"
+                            app:tint="@color/text_tertiary"
+                            android:alpha="0.5" />
+                    </LinearLayout>
+
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/surface_divider"
-                    android:layout_marginHorizontal="12dp" />
-
-                <!-- Invite Friends Row -->
-                <LinearLayout
-                    android:id="@+id/btn_invite_friends"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🤝  Mời bạn bè"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="›"
-                        android:textColor="@color/brand_primary"
-                        android:textSize="22sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/surface_divider"
-                    android:layout_marginHorizontal="12dp" />
-
-                <!-- Share Rewards Row -->
-                <LinearLayout
-                    android:id="@+id/btn_share_rewards"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="📤  Chia sẻ nhận thưởng"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="›"
-                        android:textColor="@color/brand_primary"
-                        android:textSize="22sp" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-    </LinearLayout>
-    </ScrollView>
-
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

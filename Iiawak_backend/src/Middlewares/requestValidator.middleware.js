@@ -4,8 +4,8 @@
  */
 
 const { body, query, param, validationResult } = require('express-validator');
-const logger = require('../../core/Logger/logger');
-const AppError = require('../../core/Exceptions/AppError');
+const logger = require('../Logger/logger');
+const AppError = require('../Exceptions/AppError');
 
 /**
  * Validation error handler

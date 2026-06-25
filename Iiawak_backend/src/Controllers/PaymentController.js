@@ -1,6 +1,6 @@
 'use strict';
-const VNPayService = require('../../business-logic/Services/VNPayService');
-const AppError = require('../../core/Exceptions/AppError');
+const VNPayService = require('../Services/VNPayService');
+const AppError = require('../Exceptions/AppError');
 
 /**
  * PaymentController — Gác cổng cho /api/payment/*

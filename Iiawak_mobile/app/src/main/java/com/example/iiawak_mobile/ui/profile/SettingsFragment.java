@@ -76,6 +76,14 @@ public class SettingsFragment extends Fragment {
             rowContent.setOnClickListener(v -> showContentLevelDialog());
         }
 
+        // Khóa ứng dụng
+        View rowAppLock = view.findViewById(R.id.row_app_lock);
+        if (rowAppLock != null) {
+            rowAppLock.setOnClickListener(v ->
+                    androidx.navigation.Navigation.findNavController(view)
+                            .navigate(R.id.appLockFragment));
+        }
+
         // Gửi phản hồi / Liên hệ
         View rowFeedback = view.findViewById(R.id.row_feedback);
         if (rowFeedback != null) {

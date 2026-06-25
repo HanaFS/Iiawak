@@ -2,11 +2,11 @@
 const crypto = require('crypto');
 const querystring = require('querystring');
 const config = require('../../config');
-const economyRepository = require('../../data-access/Repositories/EconomyRepository');
-const userRepository = require('../../data-access/Repositories/UserRepository');
-const AppError = require('../../core/Exceptions/AppError');
-const formatUtil = require('../../core/Utils/formatUtil');
-const { TransactionType } = require('../../core/Constants/appConstants');
+const economyRepository = require('../Repositories/EconomyRepository');
+const userRepository = require('../Repositories/UserRepository');
+const AppError = require('../Exceptions/AppError');
+const formatUtil = require('../Utils/formatUtil');
+const { TransactionType } = require('../Constants/appConstants');
 
 /**
  * VNPayService — Xử lý tích hợp với VNPay
@@ -185,7 +185,7 @@ class VNPayService {
     });
 
     // Cộng KCH vào user balance
-    const User = require('../../data-access/Models/User.model');
+    const User = require('../Models/User.model');
     await User.findByIdAndUpdate(transaction.userId, {
       $inc: { kchBalance: transaction.amountKch },
     });
@@ -241,7 +241,7 @@ class VNPayService {
     });
 
     // Trừ KCH khỏi user balance
-    const User = require('../../data-access/Models/User.model');
+    const User = require('../Models/User.model');
     await User.findByIdAndUpdate(transaction.userId, {
       $inc: { kchBalance: -transaction.amountKch },
     });

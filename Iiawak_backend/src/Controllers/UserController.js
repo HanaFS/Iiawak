@@ -1,5 +1,5 @@
 'use strict';
-const userService = require('../../business-logic/Services/UserService');
+const userService = require('../Services/UserService');
 const UserDTO     = require('../DTOs/user.dto');
 
 /**

@@ -1,5 +1,5 @@
 'use strict';
-const communityService = require('../../business-logic/Services/CommunityService');
+const communityService = require('../Services/CommunityService');
 const CommunityDTO     = require('../DTOs/community.dto');
 
 /**

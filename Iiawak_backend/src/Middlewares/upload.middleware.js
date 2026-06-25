@@ -1,6 +1,6 @@
 'use strict';
 const multer  = require('multer');
-const AppError = require('../../core/Exceptions/AppError');
+const AppError = require('../Exceptions/AppError');
 
 /**
  * upload.middleware.js — Middleware xử lý multipart/form-data.

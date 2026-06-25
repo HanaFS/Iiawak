@@ -1,5 +1,5 @@
 'use strict';
-const ChatService = require('../../business-logic/Services/ChatService');
+const ChatService = require('../Services/ChatService');
 
 /**
  * ChatController — Gác cổng cho /api/chat/*

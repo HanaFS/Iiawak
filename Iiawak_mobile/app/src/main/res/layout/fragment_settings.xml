@@ -17,16 +17,12 @@
         android:paddingTop="48dp"
         android:paddingBottom="8dp">
 
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/btn_back_settings"
-            style="@style/Widget.Iiawak.Button.Text"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:text="←"
-            android:textSize="20sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_back"
             android:contentDescription="@string/content_desc_back" />
 
         <TextView
@@ -150,8 +146,11 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="20dp"
                 android:background="?android:attr/selectableItemBackground">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="🔔" android:textSize="18sp" android:layout_marginEnd="14dp" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="14dp"
+                    android:src="@drawable/ic_notification_pixel" />
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:text="@string/settings_notifications"
                     android:textColor="@color/text_primary" android:textSize="15sp" />

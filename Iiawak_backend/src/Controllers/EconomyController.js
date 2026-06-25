@@ -1,5 +1,5 @@
 'use strict';
-const { EconomyService } = require('../../business-logic/Services/EconomyService');
+const { EconomyService } = require('../Services/EconomyService');
 
 /**
  * EconomyController — Gác cổng cho /api/economy/*

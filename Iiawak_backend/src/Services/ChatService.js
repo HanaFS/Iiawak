@@ -1,14 +1,14 @@
 'use strict';
 
-const ChatSession      = require('../../data-access/Models/ChatSession.model');
-const Character        = require('../../data-access/Models/Character.model');
-const Message          = require('../../data-access/Models/Message.model');
-const User             = require('../../data-access/Models/User.model');
+const ChatSession      = require('../Models/ChatSession.model');
+const Character        = require('../Models/Character.model');
+const Message          = require('../Models/Message.model');
+const User             = require('../Models/User.model');
 const aiService        = require('./AiService');
 const memoryService    = require('./MemoryService');
 const macroService     = require('./MacroService');
 const lorebookService  = require('./LorebookService');
-const AppError         = require('../../core/Exceptions/AppError');
+const AppError         = require('../Exceptions/AppError');
 
 /**
  * ChatService — Nghiệp vụ chat (AI sessions + Direct messages).

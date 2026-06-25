@@ -1,7 +1,7 @@
 'use strict';
-const characterRepository = require('../../data-access/Repositories/CharacterRepository');
-const AppError            = require('../../core/Exceptions/AppError');
-const Errors              = require('../../core/Constants/errorMessages');
+const characterRepository = require('../Repositories/CharacterRepository');
+const AppError            = require('../Exceptions/AppError');
+const Errors              = require('../Constants/errorMessages');
 const macroService        = require('./MacroService');
 
 /**

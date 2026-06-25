@@ -5,10 +5,12 @@
  */
 const UserDTO = {
 
-  validateUpdateProfile({ displayName, bio, avatar }) {
+  validateUpdateProfile({ displayName, username, bio, avatar }) {
     const errors = [];
     if (displayName !== undefined && displayName.trim().length < 2)
       errors.push('Tên hiển thị phải có ít nhất 2 ký tự');
+    if (username !== undefined && username.trim().length < 3)
+      errors.push('Tên người dùng phải có ít nhất 3 ký tự');
     if (bio !== undefined && bio.length > 500)
       errors.push('Bio tối đa 500 ký tự');
     return { valid: errors.length === 0, errors };
@@ -37,6 +39,7 @@ const UserDTO = {
       checkedInDays: user.checkedInDays,
       following:     user.following,
       followers:     user.followers,
+      strikeCount:   user.strikeCount || 0,
       createdAt:     user.createdAt,
     };
   },

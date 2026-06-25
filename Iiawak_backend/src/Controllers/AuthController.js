@@ -1,7 +1,7 @@
 'use strict';
-const authService = require('../../business-logic/Services/AuthService');
+const authService = require('../Services/AuthService');
 const AuthDTO     = require('../DTOs/auth.dto');
-const AppError    = require('../../core/Exceptions/AppError');
+const AppError    = require('../Exceptions/AppError');
 
 /**
  * AuthController — Gác cổng cho Auth endpoints.
