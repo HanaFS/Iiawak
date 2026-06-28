@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Ticket, Plus, Search, Trash2, Copy, Check, X, Gift, Globe, User, Sparkles, Clock, Hash, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import { giftcodeApi } from '../api/giftcodeApi';
 import './GiftCodes.css';
 
 /* ── Pink Diamond icon ── */
@@ -19,13 +20,7 @@ function KCH({ size = 15 }) {
   );
 }
 
-/* ── Mock data ── */
-const INIT_CODES = [
-  { id:'GC001', code:'IIAWAK2026',  rewardQty:500,  scope:'server', noLimit:false, startDate:'2026-05-01', endDate:'2026-06-01', unlimitedQty:false, total:999,  used:128, uid:'', active:true },
-  { id:'GC002', code:'NEWUSER50',   rewardQty:50,   scope:'new',    noLimit:false, startDate:'2026-05-01', endDate:'2026-05-31', unlimitedQty:false, total:200,  used:43,  uid:'', active:true },
-  { id:'GC003', code:'VIP-GIFT',    rewardQty:200,  scope:'user',   noLimit:true,  startDate:'', endDate:'', unlimitedQty:true,  total:1,    used:1,   uid:'A1B2C3D4E5F6', active:false },
-  { id:'GC004', code:'SUMMER500',   rewardQty:500,  scope:'server', noLimit:false, startDate:'2026-04-01', endDate:'2026-04-30', unlimitedQty:false, total:500,  used:500, uid:'', active:false },
-];
+
 
 const EMPTY_FORM = { code:'', rewardQty:'', scope:'server', uid:'', unlimitedQty:false, total:100, noLimit:false, startDate:'', endDate:'' };
 
@@ -56,29 +51,62 @@ function MiniStat({ icon, value, label, color }) {
 }
 
 export default function GiftCodes() {
-  const [codes, setCodes] = useState(INIT_CODES);
-  const [search, setSearch] = useState('');
+  const [codes, setCodes] = React.useState([]);
   const [filter, setFilter] = useState('all'); // all | active | inactive
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [copied, setCopied] = useState('');
   const [deleteId, setDeleteId] = useState(null);
+  const [search, setSearch] = useState('');
 
   const stats = useMemo(() => ({
     total:    codes.length,
-    active:   codes.filter(c => c.active && (c.noLimit || new Date(c.endDate) >= new Date())).length,
-    used:     codes.reduce((a, c) => a + c.used, 0),
-    rewarded: codes.reduce((a, c) => a + c.used * c.rewardQty, 0),
+    active:   codes.filter(c => c.active && (c.noLimit || (c.endDate && new Date(c.endDate) >= new Date()))).length,
+    used:     codes.reduce((a, c) => a + (c.used || 0), 0),
+    rewarded: codes.reduce((a, c) => a + ((c.used || 0) * (c.rewardQty || 0)), 0),
   }), [codes]);
 
   const filtered = useMemo(() => codes.filter(c => {
     const q = search.toLowerCase();
-    const matchQ = !q || c.code.toLowerCase().includes(q) || c.uid.toLowerCase().includes(q);
-    const isActive = c.active && (c.noLimit || new Date(c.endDate) >= new Date());
+    const uidString = c.uid || '';
+    const codeString = c.code || '';
+    const matchQ = !q || codeString.toLowerCase().includes(q) || uidString.toLowerCase().includes(q);
+    const isActive = c.active && (c.noLimit || (c.endDate && new Date(c.endDate) >= new Date()));
     if (filter === 'active' && !isActive) return false;
     if (filter === 'inactive' && isActive) return false;
     return matchQ;
   }), [codes, search, filter]);
+
+  React.useEffect(() => {
+    fetchCodes();
+  }, []);
+
+  const fetchCodes = async () => {
+    try {
+      const res = await giftcodeApi.getAll();
+      if (res.data) {
+        // Map backend fields to UI fields
+        const mapped = res.data.map(c => ({
+          ...c,
+          id: c._id || c.id,
+          code: c.code || '',
+          rewardQty: c.rewardKch || 0,
+          total: c.maxUses || 1,
+          used: c.usedCount || 0,
+          uid: c.uid || '',
+          scope: c.scope || 'server',
+          active: c.active !== undefined ? c.active : true,
+          noLimit: c.noLimit || false,
+          unlimitedQty: c.unlimitedQty || false,
+          startDate: c.startDate ? c.startDate.substring(0, 10) : '',
+          endDate: c.endDate ? c.endDate.substring(0, 10) : '',
+        }));
+        setCodes(mapped);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code);
@@ -86,30 +114,42 @@ export default function GiftCodes() {
     setTimeout(() => setCopied(''), 2000);
   };
 
-  const handleDelete = (id) => {
-    setCodes(p => p.filter(c => c.id !== id));
-    setDeleteId(null);
+  const handleDelete = async (id) => {
+    try {
+      await giftcodeApi.delete(id);
+      setCodes(p => p.filter(c => c.id !== id));
+      setDeleteId(null);
+    } catch (err) {
+      alert(err.message || 'Lỗi xoá mã');
+    }
   };
 
-  const handleToggle = (id) => {
-    setCodes(p => p.map(c => c.id === id ? {...c, active: !c.active} : c));
+  const handleToggle = async (id) => {
+    try {
+      await giftcodeApi.toggle(id);
+      setCodes(p => p.map(c => c.id === id ? {...c, active: !c.active} : c));
+    } catch (err) {
+      alert(err.message || 'Lỗi cập nhật trạng thái');
+    }
   };
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     if (!form.code.trim() || !form.rewardQty) return;
-    const newCode = {
-      ...form,
-      id: 'GC' + Date.now(),
-      code: form.code.toUpperCase().trim(),
-      rewardQty: +form.rewardQty,
-      total: form.unlimitedQty ? 999999 : +form.total,
-      used: 0,
-      active: true,
-    };
-    setCodes(p => [newCode, ...p]);
-    setForm(EMPTY_FORM);
-    setShowForm(false);
+    try {
+      const newCodePayload = {
+        ...form,
+        code: form.code.toUpperCase().trim(),
+        rewardQty: +form.rewardQty,
+        total: form.unlimitedQty ? 999999 : +form.total,
+      };
+      await giftcodeApi.create(newCodePayload);
+      fetchCodes();
+      setForm(EMPTY_FORM);
+      setShowForm(false);
+    } catch (err) {
+      alert(err.message || 'Lỗi tạo mã');
+    }
   };
 
   const fmt = n => n?.toLocaleString('vi-VN');

@@ -30,6 +30,35 @@ class GiftcodeController {
       res.status(500).json({ success: false, message: err.message });
     }
   }
+
+  async getGiftcodes(req, res) {
+    try {
+      const giftcodes = await GiftcodeService.getGiftcodes();
+      res.json({ success: true, data: giftcodes });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  }
+
+  async deleteGiftcode(req, res) {
+    try {
+      const { id } = req.params;
+      await GiftcodeService.deleteGiftcode(id);
+      res.json({ success: true, message: 'Đã xóa mã quà tặng' });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  }
+
+  async toggleGiftcode(req, res) {
+    try {
+      const { id } = req.params;
+      const updated = await GiftcodeService.toggleGiftcode(id);
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  }
 }
 
 module.exports = new GiftcodeController();

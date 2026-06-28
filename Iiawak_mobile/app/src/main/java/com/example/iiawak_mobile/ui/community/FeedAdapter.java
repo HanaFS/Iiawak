@@ -31,6 +31,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         void onFireClick(String postId);
         void onCommentClick(FeedPost post);
         void onPostOptionsClick(FeedPost post, View anchorView);
+        void onAuthorClick(String authorId);
     }
 
     private final List<FeedPost>          posts;

@@ -156,7 +156,7 @@ function ProfileModal({ user, users, onClose, onToggleStatus, onAddStrikeClick, 
     const clean = editingUsername.trim();
     if (!clean) { setUsernameError('Username không được trống!'); return; }
     if (users.some(u => u.username.toLowerCase() === clean.toLowerCase() && u.id !== user.id)) {
-      setUsernameError('Username đã có người dùng! 😿'); return;
+      setUsernameError('Username đã có người dùng!'); return;
     }
     onSaveUsername(user.id, clean);
     setUsernameError('');
@@ -567,7 +567,7 @@ const UserManagement = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="um-empty">Không tìm thấy người dùng phù hợp 😿</td>
+                  <td colSpan={7} className="um-empty">Không tìm thấy người dùng phù hợp</td>
                 </tr>
               ) : filtered.map(user => (
                 <tr key={user.id} className="um-row">

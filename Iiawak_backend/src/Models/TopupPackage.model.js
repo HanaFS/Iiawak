@@ -5,6 +5,7 @@ const topupPackageSchema = new mongoose.Schema({
   kch:       { type: Number, required: true },
   bonus:     { type: Number, default: 0 },
   icon:      { type: String, default: '💎' },
+  playStoreProductId: { type: String, default: '' },
   isActive:  { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });

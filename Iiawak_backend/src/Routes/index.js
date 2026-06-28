@@ -13,5 +13,7 @@ router.use('/payment', require('./payment'));
 router.use('/social', require('./social'));
 router.use('/upload', require('./upload'));
 router.use('/characters', require('./characters'));
+router.use('/transactions', require('./transaction'));
+router.use('/config', require('./config'));
 
 module.exports = router;

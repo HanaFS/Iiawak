@@ -40,6 +40,18 @@ class EconomyRepository {
     return giftcode.save();
   }
 
+  async findAllGiftcodes() {
+    return Giftcode.find().sort({ createdAt: -1 });
+  }
+
+  async updateGiftcode(id, data) {
+    return Giftcode.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async deleteGiftcode(id) {
+    return Giftcode.findByIdAndDelete(id);
+  }
+
   async createGiftcode(data) {
     const gc = new Giftcode(data);
     return gc.save();
