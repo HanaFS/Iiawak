@@ -17,6 +17,15 @@ const userSchema = new mongoose.Schema({
   strikeCount:    { type: Number, default: 0 },
   appLockEnabled: { type: Boolean, default: false },
   appLockPin:     { type: String, default: '' },
+
+  // ── Bảo mật đăng nhập Admin ──────────────────────────────────────────────
+  // Số lần nhập sai mật khẩu (reset về 0 khi đăng nhập thành công)
+  loginAttempts:  { type: Number, default: 0 },
+  // Trạng thái khoá tài khoản:
+  //   'No'  → Bình thường, có thể đăng nhập
+  //   'Yes' → Bị khoá vĩnh viễn, chỉ vào MongoDB đổi lại 'No' để mở khoá
+  adminLocked:    { type: String, enum: ['Yes', 'No'], default: 'No' },
+
   createdAt:      { type: Date, default: Date.now },
 });
 

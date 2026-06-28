@@ -1,32 +1,20 @@
 'use strict';
 
-const axios = require('axios');
-const config = require('../../config');
+const { GoogleGenAI } = require('@google/genai');
+const config = require('../config');
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CẤU HÌNH GEMINI
-// Tham khảo: SillyTavern — src/endpoints/backends/chat-completions.js
-// Hàm sendMakerSuiteRequest() xây dựng payload cho Google AI API.
+// CẤU HÌNH GEMINI — dùng SDK mới @google/genai với cơ chế ai.chats.create()
+// SDK tự động quản lý lịch sử hội thoại gửi/nhận, không cần tự duy trì mảng
 // ─────────────────────────────────────────────────────────────────────────────
-const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-// Danh sách model hỗ trợ, thêm vào đây khi cần nâng cấp
 const GEMINI_MODELS = {
   FLASH:   'gemini-1.5-flash',
   PRO:     'gemini-1.5-pro',
   FLASH_2: 'gemini-2.0-flash',
 };
 
-// Cài đặt mặc định cho generation (tương đương generationConfig của SillyTavern)
-const DEFAULT_GENERATION_CONFIG = {
-  temperature:     0.9,   // Độ sáng tạo (0 = nghiêm túc, 1 = sáng tạo)
-  topK:            40,    // Số token ứng cử viên hàng đầu để lấy mẫu
-  topP:            0.95,  // Nucleus sampling
-  maxOutputTokens: 1024,  // Giới hạn độ dài phản hồi
-};
-
-// Cài đặt an toàn nội dung (tương đương GEMINI_SAFETY trong SillyTavern)
-// BLOCK_NONE = tắt bộ lọc (dùng cho app roleplay)
+// Cài đặt an toàn: BLOCK_NONE để phù hợp với app roleplay
 const SAFETY_SETTINGS = [
   { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
   { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
@@ -35,247 +23,179 @@ const SAFETY_SETTINGS = [
 ];
 
 /**
- * AiService — Giao tiếp với Gemini API.
+ * AiService — Giao tiếp với Gemini API qua SDK @google/genai mới.
  *
- * Lấy cảm hứng từ SillyTavern's sendMakerSuiteRequest():
- *   - buildPayload()       ↔  convertGooglePrompt() + generationConfig builder
- *   - generateResponse()   ↔  sendMakerSuiteRequest() (non-streaming)
- *   - streamResponse()     ↔  sendMakerSuiteRequest() với stream=true + forwardFetchResponse()
+ * Thay đổi chính so với phiên bản cũ (dùng axios + generateContent):
+ *   - Dùng ai.chats.create() → SDK TỰ ĐỘNG quản lý lịch sử hội thoại
+ *   - Không cần tự build/sanitize mảng history trước khi gọi
+ *   - Lịch sử được khởi tạo từ session.messages trong MongoDB
+ *   - Mỗi lần gọi sendMessageToAi sẽ tạo một Chat instance mới với history đầy đủ
  */
 class AiService {
   constructor() {
-    this.apiKey  = config.ai.geminiKey;
-    this.model   = config.ai.geminiModel || GEMINI_MODELS.FLASH;
+    this.apiKey = config.ai.geminiKey;
+    this.model  = config.ai.geminiModel || GEMINI_MODELS.FLASH_2;
+    // Khởi tạo client một lần duy nhất
+    this._ai = null;
   }
 
-  // ─── HÀM PRIVATE: XÂY DỰNG PAYLOAD ──────────────────────────────────────────
-
-  /**
-   * [CORE] Xây dựng payload chuẩn để gửi lên Gemini API.
-   *
-   * Tương đương convertGooglePrompt() + payload builder trong SillyTavern.
-   * SillyTavern tách system_instruction ra khỏi contents[], Gemini yêu cầu điều này.
-   *
-   * Cấu trúc payload Gemini:
-   * {
-   *   system_instruction: { parts: [{ text: "..." }] },   ← System Prompt (character persona)
-   *   contents: [                                          ← Lịch sử chat
-   *     { role: "user",  parts: [{ text: "..." }] },
-   *     { role: "model", parts: [{ text: "..." }] },
-   *     { role: "user",  parts: [{ text: "tin nhắn mới" }] }  ← Luôn kết thúc bằng user
-   *   ],
-   *   generationConfig: { temperature, topK, topP, maxOutputTokens },
-   *   safetySettings: [...]
-   * }
-   *
-   * @param {string} systemInstruction - Persona/Character prompt
-   * @param {Array}  history           - [{role: 'user'|'model', parts: [{text}]}]
-   * @param {string} userMessage       - Tin nhắn mới nhất của user
-   * @param {Object} options           - Override generation config
-   * @returns {Object} Payload hoàn chỉnh
-   */
-  _buildPayload(systemInstruction, history, userMessage, options = {}) {
-    // Đảm bảo history tuân thủ quy tắc alternating user/model của Gemini
-    // SillyTavern cũng làm điều này trong convertGooglePrompt()
-    const sanitizedHistory = this._sanitizeHistory(history);
-
-    return {
-      system_instruction: {
-        parts: [{ text: systemInstruction }],
-      },
-      contents: [
-        ...sanitizedHistory,
-        // Tin nhắn mới nhất của user luôn ở cuối
-        { role: 'user', parts: [{ text: userMessage }] },
-      ],
-      generationConfig: {
-        ...DEFAULT_GENERATION_CONFIG,
-        ...options.generationConfig, // Cho phép override từ bên ngoài
-      },
-      safetySettings: SAFETY_SETTINGS,
-    };
+  /** Lazy-init GoogleGenAI client */
+  _getClient() {
+    if (!this._ai) {
+      this._ai = new GoogleGenAI({ apiKey: this.apiKey });
+    }
+    return this._ai;
   }
 
   /**
-   * Làm sạch history: đảm bảo luân phiên user/model.
-   * Gemini trả lỗi nếu có 2 tin nhắn cùng role liên tiếp.
+   * Chuẩn hóa mảng session.messages (MongoDB format) thành history format của SDK.
    *
-   * @param {Array} history
-   * @returns {Array}
+   * MongoDB lưu: { role: 'user'|'assistant', content: '...' }
+   * SDK cần:     { role: 'user'|'model',     parts: [{ text: '...' }] }
+   *
+   * SDK cũng yêu cầu history phải xen kẽ user/model đúng quy tắc.
+   * Nếu có 2 tin nhắn cùng role liền kề → gộp lại.
+   *
+   * @param {Array} messages - session.messages từ MongoDB
+   * @returns {Array} history đã chuẩn hóa theo SDK format
    */
-  _sanitizeHistory(history) {
-    if (!history || history.length === 0) return [];
+  _buildHistoryFromSession(messages) {
+    if (!messages || messages.length === 0) return [];
 
     const cleaned = [];
-    for (const msg of history) {
-      // Chuẩn hóa role: 'assistant' → 'model' (SillyTavern cũng làm bước này)
+    for (const msg of messages) {
+      // Chuẩn hóa role: 'assistant' → 'model'
       const role = msg.role === 'assistant' ? 'model' : msg.role;
-      const lastMsg = cleaned[cleaned.length - 1];
+      const text = msg.content || '';
 
-      if (lastMsg && lastMsg.role === role) {
-        // Gộp nội dung thay vì tạo 2 tin cùng role
-        lastMsg.parts[0].text += '\n' + (msg.parts?.[0]?.text || msg.content || '');
+      const last = cleaned[cleaned.length - 1];
+      if (last && last.role === role) {
+        // Gộp nội dung thay vì tạo 2 turn cùng role (Gemini không cho phép)
+        last.parts[0].text += '\n' + text;
       } else {
-        cleaned.push({
-          role,
-          parts: [{ text: msg.parts?.[0]?.text || msg.content || '' }],
-        });
+        cleaned.push({ role, parts: [{ text }] });
       }
     }
     return cleaned;
   }
 
   /**
-   * Lấy URL endpoint đầy đủ cho model và action (generateContent / streamGenerateContent).
-   * @param {string} action
-   * @returns {string}
-   */
-  _getEndpointUrl(action = 'generateContent') {
-    return `${GEMINI_BASE_URL}/${this.model}:${action}?key=${this.apiKey}`;
-  }
-
-  // ─── API CÔNG KHAI ────────────────────────────────────────────────────────────
-
-  /**
-   * Gửi prompt đến Gemini và nhận TOÀN BỘ phản hồi (non-streaming).
-   * Tương đương sendMakerSuiteRequest() với stream=false trong SillyTavern.
+   * [CORE] Gửi tin nhắn đến Gemini và nhận phản hồi đầy đủ (non-streaming).
    *
-   * @param {string} systemInstruction - Persona/Character prompt đã được build sẵn
-   * @param {Array}  history           - Lịch sử chat đã format
+   * Sử dụng ai.chats.create() thay vì gọi thẳng generateContent:
+   *   - history: Lịch sử từ DB được nạp vào Chat instance
+   *   - chat.sendMessage(userMessage): SDK tự append vào history và gửi lên Gemini
+   *
+   * @param {string} systemInstruction - System prompt (character persona)
+   * @param {Array}  sessionMessages   - Mảng session.messages từ MongoDB
    * @param {string} userMessage       - Tin nhắn mới của user
-   * @param {Object} options           - Tùy chọn thêm (generationConfig override, v.v.)
-   * @returns {Promise<string>} Nội dung phản hồi
+   * @param {Object} options           - Override generation config
+   * @returns {Promise<string>}        - Nội dung phản hồi của AI
    */
-  async generateResponse(systemInstruction, history, userMessage, options = {}) {
+  async generateResponse(systemInstruction, sessionMessages, userMessage, options = {}) {
     if (!this.apiKey || this.apiKey === 'your_gemini_api_key_here') {
       return '[Hệ thống] Gemini API Key chưa được cấu hình.';
     }
 
-    const payload = this._buildPayload(systemInstruction, history, userMessage, options);
+    const ai      = this._getClient();
+    const history = this._buildHistoryFromSession(sessionMessages);
 
     try {
-      const response = await axios.post(this._getEndpointUrl('generateContent'), payload);
+      // Tạo Chat instance với system instruction và history đã có
+      const chat = ai.chats.create({
+        model: this.model,
+        config: {
+          systemInstruction,
+          temperature:     options.temperature     ?? 0.9,
+          topK:            options.topK            ?? 40,
+          topP:            options.topP            ?? 0.95,
+          maxOutputTokens: options.maxOutputTokens ?? 1024,
+          safetySettings:  SAFETY_SETTINGS,
+        },
+        history,  // SDK tự quản lý lịch sử từ đây
+      });
 
-      // Gemini trả về: response.data.candidates[0].content.parts[0].text
-      const candidate = response.data?.candidates?.[0];
+      // Gửi tin nhắn mới — SDK tự thêm vào history bên trong
+      const response = await chat.sendMessage({ message: userMessage });
+      const text = response.text;
 
-      if (!candidate?.content?.parts?.[0]?.text) {
-        // Kiểm tra finish reason để đưa ra lỗi có nghĩa
-        const finishReason = candidate?.finishReason;
-        if (finishReason === 'SAFETY') {
-          return '[Nội dung bị chặn bởi bộ lọc an toàn]';
-        }
+      if (!text) {
         return 'Nhân vật đang suy nghĩ... Hãy thử lại sau nhé.';
       }
-
-      return candidate.content.parts[0].text;
+      return text;
 
     } catch (err) {
-      console.error('❌ Gemini API Error:', err.response?.data || err.message);
+      console.error('❌ Gemini SDK Error (generateResponse):', err.message);
       throw new Error('Có lỗi xảy ra khi kết nối với trí tuệ nhân vật.');
     }
   }
 
   /**
-   * Gửi prompt đến Gemini và STREAM phản hồi về client theo thời gian thực.
-   * Tương đương forwardFetchResponse() trong SillyTavern — pipe SSE stream.
+   * Gửi tin nhắn và STREAM phản hồi về client qua Server-Sent Events.
    *
-   * Cách dùng ở Controller:
-   *   await aiService.streamResponse(systemInstruction, history, userMessage, res);
-   *
-   * Client nhận theo format Server-Sent Events (SSE):
-   *   data: {"text": "Xin chào"}
-   *   data: {"text": " bạn"}
-   *   data: [DONE]
+   * Dùng chat.sendMessageStream() thay cho streamGenerateContent:
+   *   - Nhận AsyncIterable<GenerateContentResponse>
+   *   - Pipe từng chunk về client theo format SSE
    *
    * @param {string}   systemInstruction
-   * @param {Array}    history
+   * @param {Array}    sessionMessages   - session.messages từ DB
    * @param {string}   userMessage
-   * @param {Object}   res    - Express Response object (để pipe stream vào)
+   * @param {Object}   res              - Express Response (để pipe SSE)
    * @param {Object}   options
+   * @returns {Promise<string>}          - fullText tích lũy (để lưu DB)
    */
-  async streamResponse(systemInstruction, history, userMessage, res, options = {}) {
+  async streamResponse(systemInstruction, sessionMessages, userMessage, res, options = {}) {
     if (!this.apiKey || this.apiKey === 'your_gemini_api_key_here') {
       res.write('data: {"error": "API Key chưa cấu hình"}\n\n');
       res.end();
-      return;
+      return '';
     }
 
-    const payload = this._buildPayload(systemInstruction, history, userMessage, options);
+    const ai      = this._getClient();
+    const history = this._buildHistoryFromSession(sessionMessages);
 
-    // Thiết lập headers cho SSE (Server-Sent Events)
-    res.setHeader('Content-Type',  'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection',    'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // Tắt nginx buffer
+    // Thiết lập headers SSE
+    res.setHeader('Content-Type',      'text/event-stream');
+    res.setHeader('Cache-Control',     'no-cache');
+    res.setHeader('Connection',        'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
 
     try {
-      // Dùng axios với responseType 'stream' để nhận dữ liệu theo từng chunk
-      const streamResp = await axios.post(
-        this._getEndpointUrl('streamGenerateContent'),
-        payload,
-        { responseType: 'stream' }
-      );
+      const chat = ai.chats.create({
+        model: this.model,
+        config: {
+          systemInstruction,
+          temperature:     options.temperature     ?? 0.9,
+          topK:            options.topK            ?? 40,
+          topP:            options.topP            ?? 0.95,
+          maxOutputTokens: options.maxOutputTokens ?? 1024,
+          safetySettings:  SAFETY_SETTINGS,
+        },
+        history,
+      });
 
-      let buffer = '';
-      let fullText = ''; // Tích lũy toàn bộ để lưu vào DB sau
+      // sendMessageStream trả về AsyncIterable
+      const stream = await chat.sendMessageStream({ message: userMessage });
 
-      streamResp.data.on('data', (chunk) => {
-        buffer += chunk.toString();
+      let fullText = '';
 
-        // Gemini stream trả về nhiều JSON objects, mỗi cái trên 1 dòng
-        const lines = buffer.split('\n');
-        buffer = lines.pop(); // Giữ lại dòng chưa hoàn chỉnh
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed === '[' || trimmed === ']' || trimmed === ',') continue;
-
-          // Loại bỏ prefix "data: " nếu có
-          const jsonStr = trimmed.startsWith('data:') ? trimmed.slice(5).trim() : trimmed;
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              fullText += text;
-              // Đẩy từng chunk về client theo format SSE
-              res.write(`data: ${JSON.stringify({ text })}\n\n`);
-            }
-          } catch {
-            // Bỏ qua JSON không hợp lệ (chunk chưa hoàn chỉnh)
-          }
+      for await (const chunk of stream) {
+        const chunkText = chunk.text;
+        if (chunkText) {
+          fullText += chunkText;
+          res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
         }
-      });
+      }
 
-      streamResp.data.on('end', () => {
-        res.write('data: [DONE]\n\n');
-        res.end();
-        // Trả về fullText để caller có thể lưu vào DB
-        // (Xem cách dùng trong ChatService.sendMessageToAiStream())
-        streamResp.data.emit('fullText', fullText);
-      });
-
-      streamResp.data.on('error', (err) => {
-        console.error('❌ Gemini Stream Error:', err.message);
-        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
-        res.end();
-      });
-
-      // Hủy request nếu client ngắt kết nối (tương đương AbortController của SillyTavern)
-      res.on('close', () => {
-        streamResp.data.destroy();
-      });
-
-      // Trả về Promise resolve khi stream kết thúc kèm fullText
-      return new Promise((resolve) => {
-        streamResp.data.on('fullText', resolve);
-        streamResp.data.on('error', () => resolve(''));
-      });
+      res.write('data: [DONE]\n\n');
+      res.end();
+      return fullText;
 
     } catch (err) {
-      console.error('❌ Gemini Stream Init Error:', err.response?.data || err.message);
-      res.write(`data: ${JSON.stringify({ error: 'Lỗi kết nối AI' })}\n\n`);
+      console.error('❌ Gemini SDK Stream Error:', err.message);
+      if (!res.headersSent) {
+        res.write(`data: ${JSON.stringify({ error: 'Lỗi kết nối AI' })}\n\n`);
+      }
       res.end();
       return '';
     }

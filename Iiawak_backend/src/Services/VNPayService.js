@@ -1,7 +1,7 @@
 'use strict';
 const crypto = require('crypto');
 const querystring = require('querystring');
-const config = require('../../config');
+const config = require('../config');
 const economyRepository = require('../Repositories/EconomyRepository');
 const userRepository = require('../Repositories/UserRepository');
 const AppError = require('../Exceptions/AppError');

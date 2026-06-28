@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Chat List – Bot AI | Bạn bè tabs with improved header & search -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,16 +7,16 @@
     android:orientation="vertical"
     android:background="@drawable/bg_splash_gradient">
 
-    <!-- ── Hero Header ── -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Glow blob top-right -->
         <View
             android:layout_width="180dp"
             android:layout_height="180dp"
             android:layout_gravity="top|end"
+            android:layout_marginTop="-40dp"
+            android:layout_marginEnd="-40dp"
             android:background="@drawable/bg_glow_pink"
             android:alpha="0.25" />
 
@@ -29,7 +28,6 @@
             android:paddingTop="56dp"
             android:paddingBottom="14dp">
 
-            <!-- Title row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,7 +53,6 @@
 
             </LinearLayout>
 
-            <!-- ── Search Bar ── -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Iiawak.TextInputLayout"
                 android:layout_width="match_parent"
@@ -75,24 +72,17 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- ── Tab Layout: Bot AI | Bạn bè ── -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/chat_tabs"
+        style="@style/Widget.Iiawak.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@color/bg_secondary"
-        app:tabSelectedTextColor="@color/brand_primary"
-        app:tabTextColor="@color/text_tertiary"
-        app:tabIndicatorColor="@color/brand_primary"
-        app:tabIndicatorHeight="3dp"
-        app:tabIndicatorGravity="bottom"
-        app:tabRippleColor="@color/glow_pink_30"
         app:tabMode="fixed"
         app:tabGravity="fill"
+        app:tabMaxWidth="0dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="8dp" />
 
-    <!-- ── ViewPager2 + FAB ── -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -101,9 +91,10 @@
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/chat_viewpager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp" />
 
-        <!-- FAB: Tạo nhân vật mới -->
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab_create_character"
             android:layout_width="wrap_content"
@@ -111,8 +102,8 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:text="+ Tạo nhân vật"
+            android:layout_marginBottom="100dp"
+            android:text="Tạo nhân vật"
             android:textColor="@color/white"
             android:textSize="13sp"
             android:textStyle="bold"

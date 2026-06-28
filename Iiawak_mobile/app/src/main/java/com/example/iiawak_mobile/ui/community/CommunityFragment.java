@@ -34,10 +34,16 @@ public class CommunityFragment extends Fragment {
 
         // Link TabLayout with ViewPager2
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText("🔥 Thịnh hành");
-            } else {
-                tab.setText("💫 Đang theo dõi");
+            switch (position) {
+                case 0:
+                    tab.setText("Thịnh hành");
+                    break;
+                case 1:
+                    tab.setText("Theo dõi");
+                    break;
+                case 2:
+                    tab.setText("Bạn bè");
+                    break;
             }
         }).attach();
 
@@ -54,6 +60,15 @@ public class CommunityFragment extends Fragment {
                 // Navigate to wallet
                 androidx.navigation.Navigation.findNavController(view)
                         .navigate(R.id.walletFragment);
+            });
+        }
+        
+        // Setup FAB "Tạo bài viết"
+        View fabCreatePost = view.findViewById(R.id.fab_create_post);
+        if (fabCreatePost != null) {
+            fabCreatePost.setOnClickListener(v -> {
+                androidx.navigation.Navigation.findNavController(view)
+                        .navigate(R.id.action_community_to_create_post);
             });
         }
     }

@@ -14,6 +14,11 @@ class UserRepository {
     return User.findById(id).select('-password');
   }
 
+  // Chỉ dùng cho đổi mật khẩu — trả về cả password hash để so sánh
+  async findByIdWithPassword(id) {
+    return User.findById(id);
+  }
+
   async findByIdWithSocial(id) {
     return User.findById(id)
       .select('-password')
@@ -31,6 +36,14 @@ class UserRepository {
 
   async findByEmailOrUsername(email, username) {
     return User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
+  }
+
+  // Tìm bằng username HOẶC email — kèm password hash (dùng cho login)
+  async findByIdentifier(identifier) {
+    const lower = identifier.toLowerCase();
+    return User.findOne({
+      $or: [{ username: identifier }, { email: lower }]
+    });
   }
 
   async findSuggestedFriends(excludeIds) {

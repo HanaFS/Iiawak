@@ -16,6 +16,7 @@ public class FeedPost {
     public int    fireCount;       // số "Lửa" (like)
     public int    commentCount;
     public boolean firedByMe;      // người dùng hiện tại đã like chưa
+    public boolean isHidden;       // bài đang bị ẩn
 
     /** Constructor đầy đủ từ API response */
     public FeedPost(String postId, String authorId, String authorName,
@@ -23,16 +24,28 @@ public class FeedPost {
                     String characterName, String characterTagId,
                     String timeAgo, int fireCount, int commentCount,
                     boolean firedByMe) {
-        this.postId        = postId;
-        this.authorId      = authorId;
-        this.authorName    = authorName;
-        this.authorAvatar  = authorAvatar;
-        this.content       = content;
-        this.characterName = characterName;
+        this.postId         = postId;
+        this.authorId       = authorId;
+        this.authorName     = authorName;
+        this.authorAvatar   = authorAvatar;
+        this.content        = content;
+        this.characterName  = characterName;
         this.characterTagId = characterTagId;
-        this.timeAgo       = timeAgo;
-        this.fireCount     = fireCount;
-        this.commentCount  = commentCount;
-        this.firedByMe     = firedByMe;
+        this.timeAgo        = timeAgo;
+        this.fireCount      = fireCount;
+        this.commentCount   = commentCount;
+        this.firedByMe      = firedByMe;
+        this.isHidden       = false;
+    }
+
+    /** Constructor thêm isHidden (dùng cho ManagePostsFragment) */
+    public FeedPost(String postId, String authorId, String authorName,
+                    String authorAvatar, String content,
+                    String characterName, String characterTagId,
+                    String timeAgo, int fireCount, int commentCount,
+                    boolean firedByMe, boolean isHidden) {
+        this(postId, authorId, authorName, authorAvatar, content,
+             characterName, characterTagId, timeAgo, fireCount, commentCount, firedByMe);
+        this.isHidden = isHidden;
     }
 }

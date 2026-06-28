@@ -7,11 +7,11 @@ const mongoose = require('mongoose');
 const config = require('./config');
 
 // Import models từ data-access
-const User = require(./Models/User.model');
-const Character = require(./Models/Character.model');
-const TopupPackage = require(./Models/TopupPackage.model');
-const Giftcode = require(./Models/Giftcode.model');
-const Post = require(./Models/Post.model');
+const User = require('./Models/User.model');
+const Character = require('./Models/Character.model');
+const TopupPackage = require('./Models/TopupPackage.model');
+const Giftcode = require('./Models/Giftcode.model');
+const Post = require('./Models/Post.model');
 
 const MONGO_URI = config.db.uri || 'mongodb://127.0.0.1:27017/iiawak';
 
@@ -20,7 +20,7 @@ async function seed() {
 
   try {
     await mongoose.connect(MONGO_URI);
-    console.log('✅ Đã kết nối MongoDB');
+    console.log('Đã kết nối MongoDB');
 
     // ── Xóa dữ liệu cũ ──────────────────────────────────────────────────────
     await Promise.all([
@@ -34,12 +34,14 @@ async function seed() {
 
     // ── Tạo Admin ────────────────────────────────────────────────────────────
     const admin = await User.create({
-      username: 'admin',
-      email: 'admin@iiawak.com',
-      password: 'Admin@2026',
-      displayName: 'Quản Trị Viên',
+      username: 'hongocgiahan',
+      email: 'hongocgiahan@iiawak.com',
+      password: '24102005',
+      displayName: 'Hồ Ngọc Giahan',
       role: 'admin',
-      kchBalance: 99999
+      kchBalance: 99999,
+      loginAttempts: 0,
+      adminLocked: 'No',   // 'No' = bình thường | 'Yes' = bị khoá (đổi trong MongoDB để mở khoá)
     });
     console.log('👑 Đã tạo Admin:', admin.email);
 
@@ -166,7 +168,7 @@ async function seed() {
 
     console.log('\n🎉 Seed hoàn thành!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('  Admin:  admin@iiawak.com / Admin@2026');
+    console.log('  Admin:  hongocgiahan@iiawak.com / 24102005');
     console.log('  User 1: han@iiawak.com   / User@2026');
     console.log('  User 2: tuan@iiawak.com  / User@2026');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');

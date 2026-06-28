@@ -3,6 +3,7 @@
     "nodemon": "^3.1.14"
   },
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "node_characterai": "^1.2.8",
     "puppeteer": "^25.1.0"
   }

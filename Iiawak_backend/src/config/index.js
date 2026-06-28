@@ -9,6 +9,9 @@ const config = {
   db: {
     uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/iiawak',
   },
+  redis: {
+    uri: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+  },
   jwt: {
     secret: process.env.JWT_SECRET || 'iiawak_super_secret_key_2026',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',

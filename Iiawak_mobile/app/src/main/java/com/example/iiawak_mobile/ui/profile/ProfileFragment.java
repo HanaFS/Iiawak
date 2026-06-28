@@ -216,23 +216,25 @@ public class ProfileFragment extends Fragment {
                 // Update local list for UI from the session's streak
                 String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
                         .format(new java.util.Date());
-                String lastCheckIn = session.getLastCheckInDate();
-                int streak = session.getCheckInStreak();
 
-                // Reset streak if missed a day (simplified: just checking if not today and not
-                // yesterday)
-                // For mockup purposes, we just trust the current streak logic:
-                if (!currentDate.equals(lastCheckIn)) {
-                    // Ready for next check in
-                    if (streak >= 7) {
-                        streak = 0;
-                        session.setCheckInStreak(0);
-                    }
-                }
-
+                // Tính toán lại lastCheckIn và streak dựa trên backend data nếu có
+                int currentStreak = session.getCheckInStreak();
+                
+                // Cập nhật checkedDays để vẽ UI dựa trên dữ liệu backend trả về
                 checkedDays.clear();
-                for (int i = 1; i <= streak; i++) {
-                    checkedDays.add(i);
+                // Nếu backend trả về ngày hôm nay đã checkin, ta ép UI hiển thị đúng
+                if (allDaysSet.contains(currentDate)) {
+                    session.setLastCheckInDate(currentDate);
+                    // Dùng currentStreak hoặc tối thiểu 1
+                    int streakToDisplay = currentStreak > 0 ? currentStreak : 1;
+                    for (int i = 1; i <= streakToDisplay; i++) {
+                        checkedDays.add(i);
+                    }
+                } else {
+                    // Chưa điểm danh hôm nay
+                    for (int i = 1; i <= currentStreak; i++) {
+                        checkedDays.add(i);
+                    }
                 }
 
                 // ── Cập nhật streak badge ─────────────────────────────────────
@@ -262,10 +264,11 @@ public class ProfileFragment extends Fragment {
         String lastCheckIn = session.getLastCheckInDate();
         int streak = session.getCheckInStreak();
 
-        if (currentDate.equals(lastCheckIn)) {
-            today = streak; // already checked in today
+        // Fix logic tính today cho CalendarDayAdapter
+        if (session.getCheckedInDays().contains(currentDate)) {
+            today = Math.max(1, streak); // đã điểm danh hôm nay
         } else {
-            today = streak + 1;
+            today = streak + 1; // chưa điểm danh, trỏ tới ngày tiếp theo
         }
 
         int totalDays = 7;
@@ -286,20 +289,18 @@ public class ProfileFragment extends Fragment {
         if (isCheckingIn)
             return;
 
-        // Kiểm tra đã điểm danh ngày này chưa (double-check phía client)
-        if (checkedDays.contains(day)) {
-            Toast.makeText(getContext(), "Bạn đã điểm danh ngày này rồi! 📅", Toast.LENGTH_SHORT).show();
+        String currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+
+        // Kiểm tra xem backend/session đã có ghi nhận điểm danh ngày hôm nay chưa
+        if (session.getCheckedInDays().contains(currentDate)) {
+            Toast.makeText(getContext(), "Bạn đã điểm danh hôm nay rồi! 📅", Toast.LENGTH_SHORT).show();
             return;
         }
 
         isCheckingIn = true;
-        Calendar todayCal = Calendar.getInstance();
-        String dateStr = String.format(java.util.Locale.US, "%04d-%02d-%02d",
-                todayCal.get(Calendar.YEAR),
-                todayCal.get(Calendar.MONTH) + 1,
-                day);
 
-        UserApiService.checkIn(getContext(), dateStr, reward, new ApiClient.ApiCallback() {
+        UserApiService.checkIn(getContext(), currentDate, reward, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject json) {
                 isCheckingIn = false;
@@ -313,11 +314,11 @@ public class ProfileFragment extends Fragment {
 
                     // Cập nhật local state & session cache
                     checkedDays.add(day);
-                    session.addCheckedInDay(dateStr);
+                    session.addCheckedInDay(currentDate);
 
                     int newStreak = session.getCheckInStreak() + 1;
                     session.setCheckInStreak(newStreak);
-                    session.setLastCheckInDate(dateStr);
+                    session.setLastCheckInDate(currentDate);
 
                     // Thêm vào lịch sử giao dịch
                     String txDateStr = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
@@ -345,7 +346,7 @@ public class ProfileFragment extends Fragment {
                 if (statusCode == 0) {
                     // Lỗi mạng — thử offline mode
                     checkedDays.add(day);
-                    session.addCheckedInDay(dateStr); // Lưu lại vào session để không bị click nhiều lần
+                    session.addCheckedInDay(currentDate); // Lưu lại vào session để không bị click nhiều lần
                     session.addKch(reward);
                     if (tvFreeHearts != null)
                         tvFreeHearts.setText(formatNumber(session.getKchBalance()));
@@ -438,6 +439,13 @@ public class ProfileFragment extends Fragment {
         View btnShare = view.findViewById(R.id.btn_share_rewards);
         if (btnShare != null) {
             btnShare.setOnClickListener(v -> shareRewards());
+        }
+
+        // ── Quản lý bài viết ─────────────────────────────────────────────────
+        View btnManagePosts = view.findViewById(R.id.btn_manage_posts);
+        if (btnManagePosts != null) {
+            btnManagePosts.setOnClickListener(v -> Navigation.findNavController(view)
+                    .navigate(R.id.action_profile_to_manage_posts));
         }
     }
 

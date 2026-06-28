@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Iiawak_Project"
+rootProject.name = "Iiawak"
 include(":app")
 project(":app").projectDir = file("Iiawak_mobile/app")

@@ -71,7 +71,7 @@ public class WalletFragment extends Fragment {
     private void fetchTransactions() {
         setLoading(true);
         // Load local mockup data
-        new android.os.Handler().postDelayed(() -> {
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             if (getContext() == null) return;
             setLoading(false);
             

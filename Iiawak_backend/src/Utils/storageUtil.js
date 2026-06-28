@@ -11,7 +11,7 @@ const { v2: cloudinary } = require('cloudinary');
  *   CLOUDINARY_API_SECRET=your_api_secret
  */
 
-const config = require('../../config');
+const config = require('../config');
 
 // Cấu hình Cloudinary một lần khi module được load
 cloudinary.config({

@@ -40,14 +40,36 @@
                 android:orientation="vertical"
                 android:layout_marginStart="12dp">
 
-                <TextView
-                    android:id="@+id/feed_author_name"
+                <!-- Hàng tên + badge ẩn -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Người dùng"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/feed_author_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Người dùng"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <!-- Badge "Bài viết đã ẩn" — chỉ hiện khi isHidden=true -->
+                    <TextView
+                        android:id="@+id/tv_hidden_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_chip_tag"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:text="🙈 Đã ẩn"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/feed_time"
@@ -59,12 +81,14 @@
             </LinearLayout>
 
             <!-- More options -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="···"
-                android:textColor="@color/text_secondary"
-                android:textSize="18sp" />
+            <ImageButton
+                android:id="@+id/btn_post_options"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more"
+                app:tint="@color/text_secondary"
+                android:contentDescription="Tùy chọn" />
         </LinearLayout>
 
         <!-- Content Text -->
@@ -160,12 +184,11 @@
                 android:paddingVertical="6dp"
                 android:gravity="center_vertical">
 
-                <TextView
+                <ImageView
                     android:id="@+id/feed_fire_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🔥"
-                    android:textSize="16sp" />
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_heart" />
 
                 <TextView
                     android:id="@+id/feed_reaction_count"
@@ -191,16 +214,6 @@
                 android:text="💬 0"
                 android:textSize="13sp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_share"
-                style="@style/Widget.Iiawak.Button.Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="36dp"
-                android:text="↗ Chia sẻ"
-                android:textSize="13sp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
         </LinearLayout>
     </LinearLayout>
 

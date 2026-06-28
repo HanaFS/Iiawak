@@ -156,11 +156,11 @@ public class ExploreFragment extends Fragment {
                         for (int i = 0; i < data.length(); i++) {
                             JSONObject obj = data.getJSONObject(i);
 
-                            // Lấy tên creator từ populated object
-                            String creatorName = "Iiawak";
+                            // Lấy tên creator từ DTO hoặc populated object
+                            String creatorName = obj.optString("creatorName", "Iiawak");
                             JSONObject creatorObj = obj.optJSONObject("creatorId");
                             if (creatorObj != null) {
-                                creatorName = creatorObj.optString("displayName", "Iiawak");
+                                creatorName = creatorObj.optString("displayName", creatorName);
                             }
 
                             // Tags → hiển thị tag đầu tiên làm thể loại
@@ -170,7 +170,7 @@ public class ExploreFragment extends Fragment {
                                     : obj.optString("gender", "");
 
                             characters.add(new CharacterCard(
-                                    obj.optString("_id",       ""),
+                                    obj.optString("id",       ""),
                                     obj.optString("name",      ""),
                                     obj.optString("avatar",    ""),
                                     obj.optString("slogan",    ""),

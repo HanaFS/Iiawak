@@ -1,6 +1,6 @@
 'use strict';
 const CharacterAI = require('node_characterai');
-const config      = require('../../config');
+const config      = require('../config');
 const logger      = require('../Logger/logger');
 const AppError    = require('../Exceptions/AppError');
 

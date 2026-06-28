@@ -86,6 +86,14 @@
         <action
             android:id="@+id/action_community_to_character_detail"
             app:destination="@id/characterDetailFragment" />
+        <!-- Mở giao diện tạo bài viết mới -->
+        <action
+            android:id="@+id/action_community_to_create_post"
+            app:destination="@id/createPostFragment" />
+        <!-- Mở chỉnh sửa bài viết -->
+        <action
+            android:id="@+id/action_community_to_edit_post"
+            app:destination="@id/editPostFragment" />
     </fragment>
 
     <!-- Tab Khám phá: Tìm kiếm và lọc nhân vật theo thẻ -->
@@ -158,6 +166,10 @@
         <action
             android:id="@+id/action_profile_to_friends"
             app:destination="@id/friendsFragment" />
+        <!-- Mở quản lý bài viết -->
+        <action
+            android:id="@+id/action_profile_to_manage_posts"
+            app:destination="@id/managePostsFragment" />
     </fragment>
 
     <!-- =================== DETAIL SCREENS (CÁC MÀN HÌNH CHI TIẾT) =================== -->
@@ -267,6 +279,18 @@
             app:popUpToInclusive="true" />
     </fragment>
 
+    <!-- Màn hình tạo bài viết cộng đồng -->
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.example.iiawak_mobile.ui.community.CreatePostFragment"
+        android:label="Tạo bài viết">
+        <action
+            android:id="@+id/action_create_post_to_community"
+            app:destination="@id/communityFragment"
+            app:popUpTo="@id/communityFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
     <!-- Các màn hình tiện ích khác thuộc về Profile -->
     <fragment
         android:id="@+id/editProfileFragment"
@@ -287,5 +311,33 @@
         android:id="@+id/friendsFragment"
         android:name="com.example.iiawak_mobile.ui.profile.FriendsFragment"
         android:label="Bạn Bè" />
+
+    <fragment
+        android:id="@+id/managePostsFragment"
+        android:name="com.example.iiawak_mobile.ui.community.ManagePostsFragment"
+        android:label="Quản lý Bài viết">
+        <!-- Mở chỉnh sửa bài viết từ trang quản lý -->
+        <action
+            android:id="@+id/action_manage_posts_to_edit_post"
+            app:destination="@id/editPostFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editPostFragment"
+        android:name="com.example.iiawak_mobile.ui.community.EditPostFragment"
+        android:label="Chỉnh sửa bài viết">
+        <argument
+            android:name="postId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="content"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="isHidden"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
 
 </navigation>

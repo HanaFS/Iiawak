@@ -4,8 +4,9 @@
  * Manages user sessions and connection recovery
  */
 
-const jwt = require('jsonwebtoken');
+const jwtUtil = require('../Utils/jwtUtil');
 const logger = require('../Logger/logger');
+const Errors = require('../Constants/errorMessages');
 
 class WebSocketManager {
   constructor() {
@@ -22,18 +23,18 @@ class WebSocketManager {
 
     if (!token) {
       logger.warn(`[WebSocket] Connection attempt without token: ${socket.id}`);
-      return next(new Error('Authentication error: Token required'));
+      return next(new Error(Errors.AUTH.TOKEN_MISSING));
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwtUtil.verify(token);
       socket.userId = decoded.id;
       socket.username = decoded.username;
       logger.info(`[WebSocket] User authenticated: ${socket.userId} (socket: ${socket.id})`);
       next();
     } catch (error) {
       logger.warn(`[WebSocket] Invalid token: ${error.message}`);
-      next(new Error('Authentication error: Invalid token'));
+      next(new Error(Errors.AUTH.TOKEN_INVALID));
     }
   }
 

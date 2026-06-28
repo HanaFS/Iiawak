@@ -154,32 +154,28 @@ public class LoginFragment extends Fragment {
             @Override
             public void onError(String errorMessage, int statusCode) {
                 setLoading(false);
-                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                if (statusCode == 403 && errorMessage.toLowerCase().contains("bị khóa")) {
+                    showBannedDialog(email);
+                } else {
+                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
+    private void showBannedDialog(String identifier) {
+        if (getContext() == null) return;
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext())
+                .setTitle("Tài khoản bị khoá")
+                .setMessage("Tài khoản của bạn đã bị khoá.\n\nNếu bạn muốn khiếu nại gỡ khoá, hãy gửi email cho Admin để được xem xét.\n\n📧 Email: admin@iiawak.com\n📝 Nhớ gửi kèm Username và Tên của bạn nhé!")
+                .setPositiveButton("Đã hiểu", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
     private void mockGoogleLogin(View view) {
-        setLoading(true);
-        // Giả lập xử lý đăng nhập Google
-        view.postDelayed(() -> {
-            if (getContext() == null) return;
-            setLoading(false);
-
-            // Hiện tại chúng ta giả lập một tài khoản Google thành công
-            // Trong thực tế, bạn sẽ gọi GoogleSignInClient và gửi idToken lên server
-            String mockToken = "google_token_" + System.currentTimeMillis();
-            String mockUserId = "google_user_id";
-            
-            UserSession.getInstance(requireContext())
-                    .login(mockToken, mockUserId, "google_user", "Google User", "google@gmail.com", "user", 0);
-
-            Toast.makeText(getContext(), "Đăng nhập Google thành công! 🎉",
-                    Toast.LENGTH_SHORT).show();
-
-            // Chuyển hướng vào màn hình chính sau khi login thành công
-            Navigation.findNavController(view).navigate(R.id.action_login_to_main);
-        }, 1500);
+        Toast.makeText(getContext(),
+                "Đăng nhập Google chưa được hỗ trợ.\nVui lòng dùng Email & Mật khẩu.",
+                Toast.LENGTH_LONG).show();
     }
 
     private void setLoading(boolean loading) {

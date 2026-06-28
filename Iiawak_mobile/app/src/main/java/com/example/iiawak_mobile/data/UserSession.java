@@ -147,7 +147,7 @@ public class UserSession {
     }
 
     public int getCreatorBalance() {
-        return prefs.getInt(KEY_CREATOR_BALANCE, 3450); // Default to 3450 for mockup
+        return prefs.getInt(KEY_CREATOR_BALANCE, 0); // Default to 0
     }
 
     public void setCreatorBalance(int amount) {

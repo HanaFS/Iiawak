@@ -35,6 +35,7 @@ const CommunityDTO = {
       fireCount:    post.fireCount,
       commentCount: post.commentCount,
       firedByMe:    post.firedByMe || false,
+      isHidden:     post.isHidden  || false,
       createdAt:    post.createdAt,
     };
   },

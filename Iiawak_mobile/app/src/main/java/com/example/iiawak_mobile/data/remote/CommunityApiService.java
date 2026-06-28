@@ -55,4 +55,41 @@ public class CommunityApiService {
             callback.onError("Lỗi tạo request: " + e.getMessage(), 0);
         }
     }
+
+    /** Xóa bài đăng */
+    public static void deletePost(Context context, String postId, ApiClient.ApiCallback callback) {
+        ApiClient.delete(context, "/community/posts/" + postId, callback);
+    }
+
+    /** Ẩn bài đăng */
+    public static void hidePost(Context context, String postId, ApiClient.ApiCallback callback) {
+        ApiClient.put(context, "/community/posts/" + postId + "/hide", null, callback);
+    }
+
+    /** Bỏ ẩn bài đăng */
+    public static void unhidePost(Context context, String postId, ApiClient.ApiCallback callback) {
+        ApiClient.put(context, "/community/posts/" + postId + "/unhide", null, callback);
+    }
+
+    /** Cập nhật bài đăng */
+    public static void updatePost(Context context, String postId, String content, ApiClient.ApiCallback callback) {
+        try {
+            JSONObject body = new JSONObject();
+            body.put("content", content);
+            ApiClient.put(context, "/community/posts/" + postId, body, callback);
+        } catch (Exception e) {
+            callback.onError("Lỗi tạo request: " + e.getMessage(), 0);
+        }
+    }
+
+    /** Xóa bình luận */
+    public static void deleteComment(Context context, String postId, String commentId, ApiClient.ApiCallback callback) {
+        ApiClient.delete(context, "/community/posts/" + postId + "/comments/" + commentId, callback);
+    }
+
+    /** Lấy bài đăng của tôi */
+    public static void getMyPosts(Context context, int limit, int skip, ApiClient.ApiCallback callback) {
+        String endpoint = "/community/posts/me?limit=" + limit + "&skip=" + skip;
+        ApiClient.get(context, endpoint, callback);
+    }
 }

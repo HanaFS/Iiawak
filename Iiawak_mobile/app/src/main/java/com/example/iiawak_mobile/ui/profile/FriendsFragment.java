@@ -90,7 +90,7 @@ public class FriendsFragment extends Fragment {
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject obj = data.getJSONObject(i);
                                 friendList.add(new FriendModel(
-                                        obj.optString("_id"),
+                                        obj.optString("id", obj.optString("_id", "")),
                                         obj.optString("displayName", "Người dùng"),
                                         obj.optString("username", "user"),
                                         obj.optString("avatar", ""),

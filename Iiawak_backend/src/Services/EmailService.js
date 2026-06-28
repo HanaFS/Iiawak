@@ -50,7 +50,7 @@ class EmailService {
    */
   loadTemplates() {
     const templates = {};
-    const templatesDir = path.join(__dirname, '../../templates/emails');
+    const templatesDir = path.join(__dirname, '../templates/emails');
 
     if (!fs.existsSync(templatesDir)) {
       logger.warn('Email templates directory not found', { path: templatesDir });
