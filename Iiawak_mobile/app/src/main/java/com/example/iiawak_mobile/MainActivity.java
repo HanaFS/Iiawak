@@ -30,16 +30,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if ("com.example.iiawak_mobile.SESSION_EXPIRED".equals(intent.getAction())) {
-                Toast.makeText(MainActivity.this,
-                        "Phi\u00ean \u0111\u0103ng nh\u1eadp h\u1ebft h\u1ea1n. Vui l\u00f2ng \u0111\u0103ng nh\u1eadp l\u1ea1i.",
-                        Toast.LENGTH_SHORT).show();
+                String reason = intent.getStringExtra("reason");
+                if ("banned".equals(reason)) {
+                    showBannedDialog();
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                
                 SocketManager.getInstance().disconnect();
-                if (navController != null) {
+                if (navController != null && navController.getCurrentDestination() != null 
+                        && navController.getCurrentDestination().getId() != R.id.loginFragment) {
                     navController.navigate(R.id.loginFragment);
                 }
             }
         }
     };
+
+    private void showBannedDialog() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Tài khoản bị khoá")
+                .setMessage("Tài khoản của bạn đã bị khoá.\n\nNếu bạn muốn khiếu nại gỡ khoá, hãy gửi email cho Admin để được xem xét.\n\n📧 Email: admin@iiawak.com\n📝 Nhớ gửi kèm Username và Tên của bạn nhé!")
+                .setPositiveButton("Đã hiểu", null)
+                .setCancelable(false)
+                .show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,14 +150,16 @@ public class MainActivity extends AppCompatActivity {
                 
                 runOnUiThread(() -> {
                     if ("ban".equals(action)) {
-                        Toast.makeText(this, "Tài khoản của bạn đã bị khóa bởi Admin.", Toast.LENGTH_LONG).show();
+                        showBannedDialog();
                         UserSession.getInstance(this).logout();
                         SocketManager.getInstance().disconnect();
                         
-                        Intent intent = new Intent(this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
+                        // We shouldn't finish the activity immediately or the dialog disappears.
+                        // Since we just logged out, we can navigate to login if not already there
+                        if (navController != null && navController.getCurrentDestination() != null 
+                                && navController.getCurrentDestination().getId() != R.id.loginFragment) {
+                            navController.navigate(R.id.loginFragment);
+                        }
                     } else if ("warn".equals(action)) {
                         String reason = data.optString("reason", "Vi phạm quy định");
                         new AlertDialog.Builder(this)

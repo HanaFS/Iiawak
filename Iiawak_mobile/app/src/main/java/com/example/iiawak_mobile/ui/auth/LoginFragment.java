@@ -151,10 +151,10 @@ public class LoginFragment extends Fragment {
 
             }
 
-            @Override
             public void onError(String errorMessage, int statusCode) {
                 setLoading(false);
-                if (statusCode == 403 && errorMessage.toLowerCase().contains("bị khóa")) {
+                String msg = errorMessage.toLowerCase();
+                if (statusCode == 403 && (msg.contains("khóa") || msg.contains("khoá") || msg.contains("banned"))) {
                     showBannedDialog(email);
                 } else {
                     Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();

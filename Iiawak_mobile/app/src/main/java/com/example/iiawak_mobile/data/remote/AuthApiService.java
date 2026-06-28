@@ -38,7 +38,7 @@ public class AuthApiService {
                              ApiClient.ApiCallback callback) {
         try {
             JSONObject body = new JSONObject();
-            body.put("email", email);
+            body.put("identifier", email);
             body.put("password", password);
             ApiClient.post(context, "/auth/login", body, callback);
         } catch (Exception e) {

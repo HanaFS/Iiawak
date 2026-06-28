@@ -146,11 +146,15 @@ public class ApiClient {
             } else {
                 String msg = json.optString("message", "Lỗi server: " + code);
                 
-                if (code == 401 || (code == 403 && msg.toLowerCase().contains("khóa"))) {
+                if (code == 401 || (code == 403 && (msg.toLowerCase().contains("khóa") || msg.toLowerCase().contains("khoá")))) {
                     if (context != null) {
                         UserSession.getInstance(context).logout();
                         // Phát broadcast để Activity điều hướng về màn login
                         android.content.Intent intent = new android.content.Intent("com.example.iiawak_mobile.SESSION_EXPIRED");
+                        if (code == 403) {
+                            intent.putExtra("reason", "banned");
+                            intent.putExtra("message", msg);
+                        }
                         context.sendBroadcast(intent);
                     }
                 }

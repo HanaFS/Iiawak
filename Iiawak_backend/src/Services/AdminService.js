@@ -72,6 +72,15 @@ class AdminService {
       user.strikeCount += 1;
       await new StrikeRecord({ userId: user._id, adminId, reason, severity: 'warning' }).save();
       if (user.strikeCount >= 3) user.status = 'banned';
+    } else if (action === 'reset_strikes') {
+      user.strikeCount = 0;
+      user.status = 'active'; // optional: unban when resetting strikes
+      await StrikeRecord.deleteMany({ userId: user._id });
+    } else if (action === 'update_username') {
+      if (reason) user.username = reason; // reusing 'reason' for the new username
+    } else if (action === 'delete') {
+      await user.deleteOne();
+      return null;
     }
     await user.save();
     return user;

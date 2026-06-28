@@ -91,10 +91,8 @@ class AuthService {
       throw AppError.forbidden(Errors.AUTH.ACCOUNT_BANNED);
     }
 
-    // Chỉ admin mới được vào web admin
-    if (user.role !== 'admin') {
-      throw AppError.forbidden('Bạn không có quyền truy cập hệ thống quản trị.');
-    }
+    // Nếu cần check role admin, có thể làm ở route/controller riêng
+    // Hiện tại cho phép tất cả đăng nhập để trả token về cho app
 
     // Reset số lần sai
     if (user.loginAttempts > 0) {

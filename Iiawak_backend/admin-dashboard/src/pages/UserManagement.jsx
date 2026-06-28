@@ -367,29 +367,60 @@ const UserManagement = () => {
     setReviewUser(prev => prev?.id === id ? updater(prev) : prev);
   };
 
-  const handleToggleStatus = id => syncUser(id, u => {
-    const s = u.status === 'Active' ? 'Locked' : 'Active';
-    return { ...u, status: s, strikes: s === 'Active' && u.strikes >= 3 ? 0 : u.strikes };
-  });
+  const apiManageUser = async (id, action, reason) => {
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      const res = await fetch(`http://localhost:5000/api/admin/users/${id}/manage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action, reason })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert('Lỗi: ' + data.message);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const handleToggleStatus = async id => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    const action = user.status === 'Active' ? 'ban' : 'unban';
+    const success = await apiManageUser(id, action, 'Thay đổi trạng thái bởi Admin');
+    if (success) {
+      syncUser(id, u => {
+        const s = u.status === 'Active' ? 'Locked' : 'Active';
+        return { ...u, status: s, strikes: s === 'Active' && u.strikes >= 3 ? 0 : u.strikes };
+      });
+    }
+  };
 
   // Admin DUYỆT báo cáo → chuyển thành cảnh cáo chính thức + cộng strike
-  const handleApproveReport = (userId, report) => {
-    syncUser(userId, u => {
-      const newStrikes = Math.min(u.strikes + 1, 3);
-      return {
-        ...u,
-        strikes: newStrikes,
-        status: newStrikes >= 3 ? 'Locked' : u.status,
-        warnings: [...(u.warnings || []), {
-          id: report.id,
-          reason: report.reason,
-          detail: report.detail,
-          date: new Date().toISOString().slice(0, 10),
-          admin: 'Admin hệ thống'
-        }],
-        pendingReports: (u.pendingReports || []).filter(r => r.id !== report.id)
-      };
-    });
+  const handleApproveReport = async (userId, report) => {
+    const success = await apiManageUser(userId, 'warn', report.detail || report.reason);
+    if (success) {
+      syncUser(userId, u => {
+        const newStrikes = Math.min(u.strikes + 1, 3);
+        return {
+          ...u,
+          strikes: newStrikes,
+          status: newStrikes >= 3 ? 'Locked' : u.status,
+          warnings: [...(u.warnings || []), {
+            id: report.id,
+            reason: report.reason,
+            detail: report.detail,
+            date: new Date().toISOString().slice(0, 10),
+            admin: 'Admin hệ thống'
+          }],
+          pendingReports: (u.pendingReports || []).filter(r => r.id !== report.id)
+        };
+      });
+    }
   };
 
   // Admin BỎ QUA báo cáo → xoá khỏi danh sách chờ
@@ -400,9 +431,27 @@ const UserManagement = () => {
     }));
   };
 
-  const handleResetStrikes = id => syncUser(id, u => ({ ...u, strikes: 0, warnings: [] }));
-  const handleSaveUsername = (id, username) => syncUser(id, u => ({ ...u, username }));
-  const handleDelete = id => { setUsers(p => p.filter(u => u.id !== id)); setSelectedUser(null); };
+  const handleResetStrikes = async id => {
+    const success = await apiManageUser(id, 'reset_strikes', 'Xoá lịch sử vi phạm');
+    if (success) {
+      syncUser(id, u => ({ ...u, strikes: 0, warnings: [], status: 'Active' }));
+    }
+  };
+
+  const handleSaveUsername = async (id, username) => {
+    const success = await apiManageUser(id, 'update_username', username);
+    if (success) {
+      syncUser(id, u => ({ ...u, username }));
+    }
+  };
+
+  const handleDelete = async id => {
+    const success = await apiManageUser(id, 'delete', 'Xoá tài khoản');
+    if (success) {
+      setUsers(p => p.filter(u => u.id !== id));
+      setSelectedUser(null);
+    }
+  };
 
   const toggleSort = field => {
     if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
