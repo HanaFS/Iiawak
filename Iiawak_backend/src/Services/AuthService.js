@@ -3,6 +3,11 @@ const userRepository = require('../Repositories/UserRepository');
 const jwtUtil        = require('../Utils/jwtUtil');
 const AppError       = require('../Exceptions/AppError');
 const Errors         = require('../Constants/errorMessages');
+const { OAuth2Client } = require('google-auth-library');
+const emailService   = require('../Services/EmailService');
+const crypto         = require('crypto');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'YOUR_WEB_CLIENT_ID_HERE');
 
 const MAX_LOGIN_ATTEMPTS = 3; // Khoá vĩnh viễn sau 3 lần sai
 
@@ -135,6 +140,117 @@ class AuthService {
     user.loginAttempts = 0;
     await user.save();
     return user;
+  }
+
+  /**
+   * Đăng nhập bằng Google
+   */
+  async loginGoogle(idToken) {
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: idToken,
+        audience: process.env.GOOGLE_CLIENT_ID || 'YOUR_WEB_CLIENT_ID_HERE',
+      });
+      const payload = ticket.getPayload();
+      
+      const email = payload['email'];
+      const name = payload['name'];
+
+      if (!email) {
+        throw AppError.badRequest('Không thể lấy email từ Google.');
+      }
+
+      // Check if user exists
+      let user = await userRepository.findByEmailOrUsername(email, email);
+      
+      if (!user) {
+        // Create new user automatically
+        const username = email.split('@')[0] + '_' + Math.floor(Math.random() * 10000);
+        user = await userRepository.create({ 
+          username: username, 
+          email: email, 
+          password: Math.random().toString(36).slice(-10), // Random password
+          displayName: name 
+        });
+      }
+
+      if (user.status === 'banned') {
+        throw AppError.forbidden(Errors.AUTH.ACCOUNT_BANNED);
+      }
+
+      const token = jwtUtil.sign({ id: user._id, username: user.username, role: user.role });
+      return { user, token };
+
+    } catch (err) {
+      if (err.isAppError) throw err;
+      throw AppError.unauthorized('Xác thực Google thất bại: ' + err.message);
+    }
+  }
+
+  // --- Quên Mật Khẩu (OTP Flow) ---
+
+  async sendResetOtp(email) {
+    const user = await userRepository.findByEmailOrUsername(email, email);
+    if (!user) {
+      throw AppError.notFound('Tài khoản chưa được đăng ký.');
+    }
+
+    // Tạo mã OTP 6 số
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    user.resetPasswordOtp = otp;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+    await user.save();
+
+    // Gửi email
+    const result = await emailService.sendOTPEmail(user.email, otp, 10);
+    if (!result.success) {
+      throw AppError.internal('Không thể gửi email: ' + result.error);
+    }
+  }
+
+  async verifyResetOtp(email, otp) {
+    const user = await userRepository.findByEmailOrUsername(email, email);
+    if (!user) {
+      throw AppError.notFound('Không tìm thấy người dùng.');
+    }
+
+    if (!user.resetPasswordOtp || user.resetPasswordOtp !== otp) {
+      throw AppError.badRequest('Mã xác nhận không chính xác.');
+    }
+
+    if (Date.now() > user.resetPasswordExpires) {
+      throw AppError.badRequest('Mã xác nhận đã hết hạn.');
+    }
+
+    // Xác nhận thành công -> sinh ra một resetToken để dùng ở bước sau
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 phút để đổi mật khẩu
+    user.resetPasswordToken = resetToken; // Thêm trường tạm thời vào document
+    await user.save();
+
+    return resetToken;
+  }
+
+  async resetPassword(email, resetToken, newPassword) {
+    const user = await userRepository.findByEmailOrUsername(email, email);
+    if (!user) {
+      throw AppError.notFound('Không tìm thấy người dùng.');
+    }
+
+    if (!user.resetPasswordToken || user.resetPasswordToken !== resetToken) {
+      throw AppError.badRequest('Yêu cầu không hợp lệ hoặc đã hết hạn.');
+    }
+
+    if (Date.now() > user.resetPasswordExpires) {
+      throw AppError.badRequest('Thời gian đổi mật khẩu đã hết hạn.');
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
   }
 }
 

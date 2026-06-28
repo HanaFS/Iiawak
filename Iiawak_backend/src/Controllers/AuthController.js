@@ -52,6 +52,64 @@ class AuthController {
     }
   }
 
+  async loginGoogle(req, res) {
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Thiếu Google idToken.' });
+    }
+
+    try {
+      const { user, token } = await authService.loginGoogle(idToken);
+      res.json({ success: true, data: AuthDTO.toAuthResponse(user, token) });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  // --- Quên Mật Khẩu (OTP) ---
+
+  async forgotPasswordOtp(req, res) {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp email.' });
+    }
+    try {
+      await authService.sendResetOtp(email);
+      res.json({ success: true, message: 'Mã xác nhận 6 số đã được gửi đến email của bạn.' });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async verifyResetOtp(req, res) {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp email và mã xác nhận.' });
+    }
+    try {
+      const resetToken = await authService.verifyResetOtp(email, otp);
+      res.json({ success: true, message: 'Mã xác nhận hợp lệ.', data: { resetToken } });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async resetPassword(req, res) {
+    const { email, resetToken, newPassword } = req.body;
+    if (!email || !resetToken || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đủ thông tin đổi mật khẩu.' });
+    }
+    try {
+      await authService.resetPassword(email, resetToken, newPassword);
+      res.json({ success: true, message: 'Đổi mật khẩu thành công.' });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
 
   async changePassword(req, res) {
     const { currentPassword, newPassword } = req.body;

@@ -186,4 +186,5 @@
     <string name="error_password_length">Mật khẩu ít nhất 6 ký tự</string>
     <string name="login_welcome_back">Chào mừng trở lại, %s! 💕</string>
     <string name="loading_login">Đang đăng nhập...</string>
+    <string name="google_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
 </resources>

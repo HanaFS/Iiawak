@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
   //   'Yes' → Bị khoá vĩnh viễn, chỉ vào MongoDB đổi lại 'No' để mở khoá
   adminLocked:    { type: String, enum: ['Yes', 'No'], default: 'No' },
 
+  // ── Khôi phục mật khẩu ──────────────────────────────────────────────────
+  resetPasswordOtp:     { type: String },
+  resetPasswordExpires: { type: Date },
+
   createdAt:      { type: Date, default: Date.now },
 });
 

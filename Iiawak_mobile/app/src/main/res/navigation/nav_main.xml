@@ -63,9 +63,49 @@
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.iiawak_mobile.ui.auth.ForgotPasswordFragment"
         android:label="Quên mật khẩu">
+        <!-- Chuyển sang màn hình xác nhận OTP -->
+        <action
+            android:id="@+id/action_forgot_to_verify_otp"
+            app:destination="@id/verifyOtpFragment" />
         <!-- Quay lại màn hình Đăng nhập sau khi gửi yêu cầu khôi phục thành công -->
         <action
             android:id="@+id/action_forgot_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Màn hình Xác nhận OTP -->
+    <fragment
+        android:id="@+id/verifyOtpFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.VerifyOtpFragment"
+        android:label="Xác nhận mã">
+        <argument
+            android:name="email"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_verify_otp_to_reset_password"
+            app:destination="@id/resetPasswordFragment"
+            app:popUpTo="@id/forgotPasswordFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Màn hình Đặt Mật khẩu mới -->
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.ResetPasswordFragment"
+        android:label="Mật khẩu mới">
+        <argument
+            android:name="email"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="resetToken"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_reset_to_login"
             app:destination="@id/loginFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true" />

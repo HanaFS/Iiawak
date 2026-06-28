@@ -46,7 +46,7 @@ class AdminController {
       const user = await AdminService.takeActionOnUser(req.params.id, action, reason, req.user.id);
       
       const io = req.app.get('io');
-      if (io) {
+      if (io && user) {
         NotificationService.emitToUser(user._id.toString(), 'admin:action', { action, reason }, io);
       }
       
