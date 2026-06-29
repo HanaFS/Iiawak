@@ -1,5 +1,5 @@
 'use strict';
-const errorHandler = require('../../core/Exceptions/ErrorHandler');
+const errorHandler = require('../Exceptions/ErrorHandler');
 
 /**
  * Global Error Handling Middleware cho Express.

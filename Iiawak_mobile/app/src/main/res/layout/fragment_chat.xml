@@ -24,16 +24,13 @@
             android:background="@color/bg_secondary"
             android:elevation="8dp">
 
-            <com.google.android.material.button.MaterialButton
+            <ImageButton
                 android:id="@+id/btn_back"
-                style="@style/Widget.Iiawak.Button.Text"
-                android:layout_width="44dp"
-                android:layout_height="wrap_content"
-                android:minHeight="44dp"
-                android:text="←"
-                android:textSize="22sp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_nav_back"
+                android:contentDescription="Quay lại" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/chat_header_avatar"
@@ -259,20 +256,18 @@
                     android:textSize="15sp" />
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.button.MaterialButton
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/btn_send"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="↗"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="12dp"
                 android:background="@drawable/bg_button_gradient"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:layout_marginStart="10dp"
-                app:backgroundTint="@null"
-                app:cornerRadius="24dp" />
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="10dp"
+                android:scaleType="centerInside"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.CircleImage" />
+
         </LinearLayout>
 
     </LinearLayout>

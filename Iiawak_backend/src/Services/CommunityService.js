@@ -1,7 +1,7 @@
 'use strict';
-const communityRepository = require('../../data-access/Repositories/CommunityRepository');
-const AppError            = require('../../core/Exceptions/AppError');
-const Errors              = require('../../core/Constants/errorMessages');
+const communityRepository = require('../Repositories/CommunityRepository');
+const AppError            = require('../Exceptions/AppError');
+const Errors              = require('../Constants/errorMessages');
 
 /**
  * CommunityService — Nghiệp vụ bài đăng cộng đồng.
@@ -29,6 +29,28 @@ class CommunityService {
       });
     }
 
+    return posts;
+  }
+
+  async getMyPosts(userId, { limit = 30, skip = 0 }) {
+    const posts = await communityRepository.findMyPosts(userId, { limit, skip });
+    posts.forEach(p => {
+      p.firedByMe = p.likedBy
+        ? p.likedBy.some(id => id.toString() === userId.toString())
+        : false;
+      delete p.likedBy;
+    });
+    return posts;
+  }
+
+  async getUserPosts(userId, targetUserId, { limit = 30, skip = 0 }) {
+    const posts = await communityRepository.findMyPosts(targetUserId, { limit, skip });
+    posts.forEach(p => {
+      p.firedByMe = p.likedBy
+        ? p.likedBy.some(id => id.toString() === userId.toString())
+        : false;
+      delete p.likedBy;
+    });
     return posts;
   }
 
@@ -63,6 +85,49 @@ class CommunityService {
 
     await communityRepository.savePost(post);
     return { fireCount: post.fireCount, isFired };
+  }
+
+  async updatePost(postId, userId, { content }) {
+    const post = await communityRepository.findPostById(postId);
+    if (!post) throw AppError.notFound('Bài đăng');
+
+    if (post.authorId.toString() !== userId.toString()) {
+      throw AppError.forbidden(Errors.COMMUNITY.UPDATE_UNAUTHORIZED || 'Không có quyền chỉnh sửa');
+    }
+
+    if (!content || !content.trim()) {
+      throw AppError.badRequest(Errors.COMMUNITY.POST_EMPTY_CONTENT, 'POST_EMPTY');
+    }
+
+    post.content = content.trim();
+    await communityRepository.savePost(post);
+    return post;
+  }
+
+  async hidePost(postId, userId) {
+    const post = await communityRepository.findPostById(postId);
+    if (!post) throw AppError.notFound('Bài đăng');
+
+    if (post.authorId.toString() !== userId.toString()) {
+      throw AppError.forbidden(Errors.COMMUNITY.UPDATE_UNAUTHORIZED || 'Không có quyền ẩn bài');
+    }
+
+    post.isHidden = true;
+    await communityRepository.savePost(post);
+    return post;
+  }
+
+  async unhidePost(postId, userId) {
+    const post = await communityRepository.findPostById(postId);
+    if (!post) throw AppError.notFound('Bài đăng');
+
+    if (post.authorId.toString() !== userId.toString()) {
+      throw AppError.forbidden(Errors.COMMUNITY.UPDATE_UNAUTHORIZED || 'Không có quyền bỏ ẩn');
+    }
+
+    post.isHidden = false;
+    await communityRepository.savePost(post);
+    return post;
   }
 
   async deletePost(postId, userId) {
@@ -101,6 +166,27 @@ class CommunityService {
     await communityRepository.savePost(post);
 
     return comment;
+  }
+
+  async deleteComment(postId, commentId, userId) {
+    const post = await communityRepository.findPostById(postId);
+    if (!post) throw AppError.notFound('Bài đăng');
+
+    const comment = await communityRepository.findCommentById(commentId);
+    if (!comment) throw AppError.notFound('Bình luận');
+
+    // Quyền xóa: chủ bài đăng HOẶC chủ bình luận
+    if (post.authorId.toString() !== userId.toString() && comment.authorId.toString() !== userId.toString()) {
+      throw AppError.forbidden('Bạn không có quyền xóa bình luận này');
+    }
+
+    await communityRepository.deleteComment(commentId);
+
+    // Giảm số lượng bình luận của bài viết
+    post.commentCount = Math.max(0, (post.commentCount || 1) - 1);
+    await communityRepository.savePost(post);
+
+    return true;
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Lock, Unlock, AlertTriangle, Search, X, Check, Copy,
   ChevronUp, ChevronDown, Trash2, RefreshCw,
@@ -7,59 +7,7 @@ import {
 } from 'lucide-react';
 import './UserManagement.css';
 
-const INITIAL_USERS = [
-  {
-    id: 'A1B2C3D4E5F6', name: 'Nguyễn Cát Tường', username: 'cattuong_pink',
-    email: 'cattuong@iiawak.com',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    status: 'Active', strikes: 0, joinedDate: '2026-01-15',
-    bio: 'Yêu màu hồng rực rỡ và thích lập trình ✨', location: 'Hồ Chí Minh, Việt Nam',
-    warnings: [],
-    pendingReports: [
-      { id: 'PR-001', reporter: 'tuan_handsome', reason: 'Spam / Quảng cáo trái phép', detail: 'Liên tục gửi link quảng cáo vào chat chung trong vòng 30 phút.', date: '2026-05-16' }
-    ]
-  },
-  {
-    id: 'X8Y9Z0W1V2U3', name: 'Phan Minh Tuấn', username: 'tuan_handsome',
-    email: 'tuanpm@iiawak.com',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    status: 'Active', strikes: 1, joinedDate: '2026-02-20',
-    bio: 'Fullstack Developer tài năng tại Iiawak 💻', location: 'Hà Nội, Việt Nam',
-    warnings: [
-      { id: 'W-1715', reason: 'Ngôn từ đả kích / Tục tĩu', detail: 'Sử dụng ngôn từ gây hấn, thiếu văn hóa trên kênh chat chung.', date: '2026-02-22' }
-    ],
-    pendingReports: [
-      { id: 'PR-002', reporter: 'cattuong_pink', reason: 'Ngôn từ đả kích / Tục tĩu', detail: 'Nhắn tin xúc phạm cá nhân trong DM sau khi bị nhắc nhở.', date: '2026-05-15' },
-      { id: 'PR-003', reporter: 'baochau_dev', reason: 'Quấy rối người dùng khác', detail: 'Liên tục tag và @mention người khác dù đã được yêu cầu dừng lại.', date: '2026-05-17' }
-    ]
-  },
-  {
-    id: 'K4L5M6N7P8Q9', name: 'Lê Diệu Linh', username: 'linh_kawaii',
-    email: 'linhld@iiawak.com',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    status: 'Locked', strikes: 3, joinedDate: '2025-11-05',
-    bio: 'Thích vẽ tranh anime và chăm sóc mèo con 🐱', location: 'Đà Nẵng, Việt Nam',
-    warnings: [
-      { id: 'W-1105', reason: 'Spam / Quảng cáo trái phép', detail: 'Liên tục spam các đường liên kết quảng cáo game lậu.', date: '2025-12-10' },
-      { id: 'W-1108', reason: 'Nội dung phản cảm / Nhạy cảm', detail: 'Đăng tải các bức ảnh không phù hợp làm hình nền hồ sơ.', date: '2025-12-18' },
-      { id: 'W-1201', reason: 'Hành vi phá hoại hệ thống', detail: 'Cố ý thực hiện tấn công spam API để phá hoại phòng chat.', date: '2026-01-05' }
-    ],
-    pendingReports: []
-  },
-  {
-    id: 'R2S3T4U5V6W7', name: 'Trần Bảo Châu', username: 'baochau_dev',
-    email: 'chaubs@iiawak.com',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-    status: 'Active', strikes: 2, joinedDate: '2026-03-10',
-    bio: 'UI/UX Designer đam mê sáng tạo 🎨', location: 'Hồ Chí Minh, Việt Nam',
-    warnings: [
-      { id: 'W-0312', reason: 'Ngôn từ đả kích / Tục tĩu', detail: 'Trêu ghẹo, xúc phạm người dùng khác nhiều lần.', date: '2026-03-12' },
-      { id: 'W-0315', reason: 'Vi phạm điều khoản dịch vụ', detail: 'Có hành vi giao dịch tiền mặt trái phép trong hệ thống game.', date: '2026-03-15' }
-    ],
-    pendingReports: []
-  }
-];
-
+const INITIAL_USERS = [];
 /* ─── Sub-components ─── */
 
 function UserAvatar({ src, name, size = 36 }) {
@@ -208,7 +156,7 @@ function ProfileModal({ user, users, onClose, onToggleStatus, onAddStrikeClick, 
     const clean = editingUsername.trim();
     if (!clean) { setUsernameError('Username không được trống!'); return; }
     if (users.some(u => u.username.toLowerCase() === clean.toLowerCase() && u.id !== user.id)) {
-      setUsernameError('Username đã có người dùng! 😿'); return;
+      setUsernameError('Username đã có người dùng!'); return;
     }
     onSaveUsername(user.id, clean);
     setUsernameError('');
@@ -378,8 +326,40 @@ const UserManagement = () => {
   const [sortDir, setSortDir] = useState('asc');
   const [selectedUser, setSelectedUser] = useState(null);
   
-  // Trạng thái modal xem xét báo cáo
   const [reviewUser, setReviewUser] = useState(null);
+
+  const fetchUsers = async () => {
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      const res = await fetch('http://localhost:5000/api/admin/users?limit=100', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const mapped = data.data.map(u => ({
+          id: u._id,
+          name: u.displayName || u.username,
+          username: u.username,
+          email: u.email,
+          avatar: u.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+          status: u.status === 'active' ? 'Active' : 'Locked',
+          strikes: u.strikeCount || 0,
+          joinedDate: new Date(u.createdAt).toISOString().split('T')[0],
+          bio: u.bio || 'Người dùng Iiawak',
+          location: 'Chưa cập nhật',
+          warnings: [],
+          pendingReports: []
+        }));
+        setUsers(mapped);
+      }
+    } catch (err) {
+      console.error('Fetch users error:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const syncUser = (id, updater) => {
     setUsers(prev => prev.map(u => u.id === id ? updater(u) : u));
@@ -387,29 +367,60 @@ const UserManagement = () => {
     setReviewUser(prev => prev?.id === id ? updater(prev) : prev);
   };
 
-  const handleToggleStatus = id => syncUser(id, u => {
-    const s = u.status === 'Active' ? 'Locked' : 'Active';
-    return { ...u, status: s, strikes: s === 'Active' && u.strikes >= 3 ? 0 : u.strikes };
-  });
+  const apiManageUser = async (id, action, reason) => {
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      const res = await fetch(`http://localhost:5000/api/admin/users/${id}/manage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action, reason })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert('Lỗi: ' + data.message);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const handleToggleStatus = async id => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    const action = user.status === 'Active' ? 'ban' : 'unban';
+    const success = await apiManageUser(id, action, 'Thay đổi trạng thái bởi Admin');
+    if (success) {
+      syncUser(id, u => {
+        const s = u.status === 'Active' ? 'Locked' : 'Active';
+        return { ...u, status: s, strikes: s === 'Active' && u.strikes >= 3 ? 0 : u.strikes };
+      });
+    }
+  };
 
   // Admin DUYỆT báo cáo → chuyển thành cảnh cáo chính thức + cộng strike
-  const handleApproveReport = (userId, report) => {
-    syncUser(userId, u => {
-      const newStrikes = Math.min(u.strikes + 1, 3);
-      return {
-        ...u,
-        strikes: newStrikes,
-        status: newStrikes >= 3 ? 'Locked' : u.status,
-        warnings: [...(u.warnings || []), {
-          id: report.id,
-          reason: report.reason,
-          detail: report.detail,
-          date: new Date().toISOString().slice(0, 10),
-          admin: 'Admin hệ thống'
-        }],
-        pendingReports: (u.pendingReports || []).filter(r => r.id !== report.id)
-      };
-    });
+  const handleApproveReport = async (userId, report) => {
+    const success = await apiManageUser(userId, 'warn', report.detail || report.reason);
+    if (success) {
+      syncUser(userId, u => {
+        const newStrikes = Math.min(u.strikes + 1, 3);
+        return {
+          ...u,
+          strikes: newStrikes,
+          status: newStrikes >= 3 ? 'Locked' : u.status,
+          warnings: [...(u.warnings || []), {
+            id: report.id,
+            reason: report.reason,
+            detail: report.detail,
+            date: new Date().toISOString().slice(0, 10),
+            admin: 'Admin hệ thống'
+          }],
+          pendingReports: (u.pendingReports || []).filter(r => r.id !== report.id)
+        };
+      });
+    }
   };
 
   // Admin BỎ QUA báo cáo → xoá khỏi danh sách chờ
@@ -420,9 +431,27 @@ const UserManagement = () => {
     }));
   };
 
-  const handleResetStrikes = id => syncUser(id, u => ({ ...u, strikes: 0, warnings: [] }));
-  const handleSaveUsername = (id, username) => syncUser(id, u => ({ ...u, username }));
-  const handleDelete = id => { setUsers(p => p.filter(u => u.id !== id)); setSelectedUser(null); };
+  const handleResetStrikes = async id => {
+    const success = await apiManageUser(id, 'reset_strikes', 'Xoá lịch sử vi phạm');
+    if (success) {
+      syncUser(id, u => ({ ...u, strikes: 0, warnings: [], status: 'Active' }));
+    }
+  };
+
+  const handleSaveUsername = async (id, username) => {
+    const success = await apiManageUser(id, 'update_username', username);
+    if (success) {
+      syncUser(id, u => ({ ...u, username }));
+    }
+  };
+
+  const handleDelete = async id => {
+    const success = await apiManageUser(id, 'delete', 'Xoá tài khoản');
+    if (success) {
+      setUsers(p => p.filter(u => u.id !== id));
+      setSelectedUser(null);
+    }
+  };
 
   const toggleSort = field => {
     if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -538,7 +567,7 @@ const UserManagement = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="um-empty">Không tìm thấy người dùng phù hợp 😿</td>
+                  <td colSpan={7} className="um-empty">Không tìm thấy người dùng phù hợp</td>
                 </tr>
               ) : filtered.map(user => (
                 <tr key={user.id} className="um-row">

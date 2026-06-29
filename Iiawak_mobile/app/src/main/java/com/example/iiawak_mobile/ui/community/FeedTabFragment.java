@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.PopupMenu;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -83,9 +84,33 @@ public class FeedTabFragment extends Fragment {
             }
 
             @Override
-            public void onCommentClick(String postId) {
-                // TODO: Điều hướng sang màn hình Chi tiết bài viết / Bình luận
-                Toast.makeText(getContext(), "Tính năng bình luận đang phát triển", Toast.LENGTH_SHORT).show();
+            public void onCommentClick(FeedPost post) {
+                CommentsBottomSheetFragment bottomSheet = CommentsBottomSheetFragment.newInstance(post.postId, post.authorId);
+                bottomSheet.show(getChildFragmentManager(), "CommentsBottomSheet");
+            }
+
+            @Override
+            public void onPostOptionsClick(FeedPost post, View anchorView) {
+                showPostOptions(post, anchorView);
+            }
+
+            @Override
+            public void onAuthorClick(String authorId) {
+                String currentUserId = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext()).getUserId();
+                if (authorId.equals(currentUserId)) {
+                    // Nếu là mình, nhảy sang tab Hồ sơ
+                    try {
+                        com.google.android.material.bottomnavigation.BottomNavigationView nav =
+                                getActivity().findViewById(R.id.bottom_nav);
+                        if (nav != null) nav.setSelectedItemId(R.id.profileFragment);
+                    } catch (Exception ignored) {}
+                } else {
+                    // Nếu là người khác, mở UserProfileFragment
+                    Bundle args = new Bundle();
+                    args.putString("userId", authorId);
+                    androidx.navigation.Navigation.findNavController(requireView())
+                            .navigate(R.id.userProfileFragment, args);
+                }
             }
         });
         recyclerView.setAdapter(adapter);
@@ -112,6 +137,23 @@ public class FeedTabFragment extends Fragment {
         });
 
         loadFeed(true);
+
+        // Lắng nghe khi tạo bài mới
+        requireActivity().getSupportFragmentManager().setFragmentResultListener("new_post_created", getViewLifecycleOwner(), (key, result) -> {
+            loadFeed(true);
+        });
+        // Lắng nghe khi chỉnh sửa bài (cập nhật nội dung ngay trên list, không cần tải lại)
+        requireActivity().getSupportFragmentManager().setFragmentResultListener("post_edited", getViewLifecycleOwner(), (key, result) -> {
+            String editedPostId = result.getString("editedPostId", "");
+            String editedContent = result.getString("editedContent", "");
+            for (int i = 0; i < posts.size(); i++) {
+                if (posts.get(i).postId.equals(editedPostId)) {
+                    posts.get(i).content = editedContent;
+                    adapter.notifyItemChanged(i);
+                    break;
+                }
+            }
+        });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -150,18 +192,8 @@ public class FeedTabFragment extends Fragment {
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject obj = data.getJSONObject(i);
 
-                        // Author info (populated từ backend)
-                        String authorName   = obj.optString("authorName",   "Iiawak User");
-                        String authorId     = obj.optString("authorId",     "");
-                        String authorAvatar = obj.optString("authorAvatar", "");
-
-                        // Thử lấy từ nested object nếu backend populate
-                        JSONObject authorObj = obj.optJSONObject("authorId");
-                        if (authorObj != null) {
-                            authorId     = authorObj.optString("_id",         authorId);
-                            authorName   = authorObj.optString("displayName", authorName);
-                            authorAvatar = authorObj.optString("avatar",      authorAvatar);
-                        }
+                        // Bỏ qua bài đã ẩn khi hiển thị Feed chính
+                        if (obj.optBoolean("isHidden", false)) continue;
 
                         // Character tag
                         String characterName  = null;
@@ -169,15 +201,15 @@ public class FeedTabFragment extends Fragment {
                         JSONObject charObj = obj.optJSONObject("characterTag");
                         if (charObj != null) {
                             characterName  = charObj.optString("name", null);
-                            characterTagId = charObj.optString("_id",  null);
+                            characterTagId = charObj.optString("id",   null);
                         }
 
                         posts.add(new FeedPost(
-                                obj.optString("_id",       ""),
-                                authorId,
-                                authorName,
-                                authorAvatar,
-                                obj.optString("content",   ""),
+                                obj.optString("id",           ""),
+                                obj.optString("authorId",     ""),
+                                obj.optString("authorName",   "Iiawak User"),
+                                obj.optString("authorAvatar", ""),
+                                obj.optString("content",      ""),
                                 characterName,
                                 characterTagId,
                                 formatTime(obj.optString("createdAt", "")),
@@ -204,6 +236,93 @@ public class FeedTabFragment extends Fragment {
     // ─────────────────────────────────────────────────────────────────────────
     // Tiện ích
     // ─────────────────────────────────────────────────────────────────────────
+
+    private void showPostOptions(FeedPost post, View anchor) {
+        PopupMenu popup = new PopupMenu(requireContext(), anchor);
+        String currentUserId = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext()).getUserId();
+
+        if (post.authorId.equals(currentUserId)) {
+            // Bài của mình
+            popup.getMenu().add(0, 1, 0, "Chỉnh sửa");
+            popup.getMenu().add(0, 2, 0, post.isHidden ? "Bỏ ẩn" : "Ẩn bài viết");
+            popup.getMenu().add(0, 3, 0, "Xóa bài viết");
+        } else {
+            // Bài của người khác
+            popup.getMenu().add(0, 4, 0, "Báo cáo bài viết");
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case 1:
+                    openEditPost(post);
+                    return true;
+                case 2:
+                    hidePost(post);
+                    return true;
+                case 3:
+                    deletePost(post);
+                    return true;
+                case 4:
+                    showError("Đã gửi báo cáo");
+                    return true;
+            }
+            return false;
+        });
+        popup.show();
+    }
+
+    /** Mở màn hình chỉnh sửa bài viết */
+    private void openEditPost(FeedPost post) {
+        try {
+            android.os.Bundle args = new android.os.Bundle();
+            args.putString("postId", post.postId);
+            args.putString("content", post.content);
+            args.putBoolean("isHidden", post.isHidden);
+            androidx.navigation.Navigation
+                    .findNavController(requireView())
+                    .navigate(R.id.action_community_to_edit_post, args);
+        } catch (Exception e) {
+            showError("Không thể mở chỉnh sửa: " + e.getMessage());
+        }
+    }
+
+    private void deletePost(FeedPost post) {
+        CommunityApiService.deletePost(requireContext(), post.postId, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                int index = posts.indexOf(post);
+                if (index >= 0) {
+                    posts.remove(index);
+                    adapter.notifyItemRemoved(index);
+                    showError("Đã xóa bài viết");
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage, int statusCode) {
+                showError(errorMessage);
+            }
+        });
+    }
+
+    private void hidePost(FeedPost post) {
+        CommunityApiService.hidePost(requireContext(), post.postId, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                int index = posts.indexOf(post);
+                if (index >= 0) {
+                    posts.remove(index);
+                    adapter.notifyItemRemoved(index);
+                    showError("Đã ẩn bài viết");
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage, int statusCode) {
+                showError(errorMessage);
+            }
+        });
+    }
 
     /** Chuyển ISO 8601 timestamp thành chuỗi "x giờ trước" đơn giản */
     private String formatTime(String isoDate) {

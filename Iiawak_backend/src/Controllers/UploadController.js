@@ -1,5 +1,5 @@
 'use strict';
-const storageService = require('../../business-logic/Services/StorageService');
+const storageService = require('../Services/StorageService');
 
 /**
  * UploadController — Gác cổng cho các endpoint upload file.

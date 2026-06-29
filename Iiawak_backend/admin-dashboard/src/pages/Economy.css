@@ -308,9 +308,9 @@
 .eco-pack-edit-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  margin-top: 6px;
-  padding: 5px 14px;
+  padding: 6px 14px;
   border-radius: 8px;
   border: 1px solid rgba(255,105,180,0.25);
   background: transparent;
@@ -323,6 +323,32 @@
 }
 .eco-pack-edit-btn:hover {
   background: rgba(255,105,180,0.1);
+}
+
+.eco-pack-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.eco-pack-delete-btn:hover {
+  background: #ef4444;
+  color: white;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+.eco-pack-actions {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 /* ── Heart Slider ── */

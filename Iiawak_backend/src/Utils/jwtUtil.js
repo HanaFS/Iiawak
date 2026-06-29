@@ -1,7 +1,7 @@
 'use strict';
 const jwt = require('jsonwebtoken');
 const { JWT_EXPIRES_IN } = require('../Constants/appConstants');
-const config = require('../../config');
+const config = require('../config');
 
 const SECRET = config.jwt.secret;
 

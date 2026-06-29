@@ -10,7 +10,7 @@ public class ChatApiService {
 
     /** Lấy danh sách các phiên chat AI của user */
     public static void getAiChatSessions(Context context, ApiClient.ApiCallback callback) {
-        ApiClient.get(context, "/chat/sessions", callback);
+        ApiClient.get(context, "/chat/ai/sessions", callback);
     }
 
     /** Lấy danh sách hội thoại DM giữa các User */

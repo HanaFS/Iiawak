@@ -1,5 +1,6 @@
 'use strict';
-const characterService = require('../../business-logic/Services/CharacterService');
+const characterService = require('../Services/CharacterService');
+const CharacterDTO     = require('../DTOs/character.dto');
 
 /**
  * CharacterController — Gác cổng cho Character endpoints.
@@ -11,7 +12,7 @@ class CharacterController {
   async getCharacters(req, res) {
     try {
       const characters = await characterService.getCharacters(req.query);
-      res.json({ success: true, data: characters });
+      res.json({ success: true, data: characters.map(c => CharacterDTO.toCharacterResponse(c)) });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
@@ -20,10 +21,19 @@ class CharacterController {
   async getCharacterById(req, res) {
     try {
       const char = await characterService.getCharacterById(req.params.id);
-      res.json({ success: true, data: char });
+      res.json({ success: true, data: CharacterDTO.toCharacterResponse(char) });
     } catch (err) {
       const code = err.isAppError ? err.statusCode : 500;
       res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async getUserCharacters(req, res) {
+    try {
+      const characters = await characterService.getUserCharacters(req.params.userId);
+      res.json({ success: true, data: characters.map(c => CharacterDTO.toCharacterResponse(c)) });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
   }
 

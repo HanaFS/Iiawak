@@ -111,6 +111,26 @@ public class ChatFragment extends Fragment {
                     androidx.navigation.Navigation.findNavController(view).navigateUp());
         }
 
+        // Tùy chọn chat -> Bản đồ ký ức
+        View btnOptions = view.findViewById(R.id.btn_chat_options);
+        if (btnOptions != null) {
+            btnOptions.setOnClickListener(v -> {
+                try {
+                    androidx.navigation.Navigation.findNavController(view).navigate(R.id.action_chat_to_memory_map);
+                } catch (Exception e) {}
+            });
+        }
+
+        // Thanh thiện cảm -> Chinh phục
+        View affectionMeter = view.findViewById(R.id.affection_meter);
+        if (affectionMeter != null) {
+            affectionMeter.setOnClickListener(v -> {
+                try {
+                    androidx.navigation.Navigation.findNavController(view).navigate(R.id.action_chat_to_conquest);
+                } catch (Exception e) {}
+            });
+        }
+
         // RP suggestions
         if (!chatMode.equals("dm")) {
             setupRpSuggestions(view);
@@ -258,33 +278,43 @@ public class ChatFragment extends Fragment {
         // Hiển thị loading (chỉ cho AI)
         if (loadingIndicator != null) loadingIndicator.setVisibility(View.VISIBLE);
 
-        String userId = session.getUserId().isEmpty() ? "demo_user" : session.getUserId();
+        // Gọi POST /api/chat/ai/send — Backend dùng SDK @google/genai tự quản lý lịch sử
+        try {
+            JSONObject body = new JSONObject();
+            body.put("characterId", characterId);
+            body.put("content", text);
+            body.put("mode", chatMode);
+            com.example.iiawak_mobile.network.ApiClient.post(getContext(), "/chat/ai/send", body,
+                new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
+                    @Override
+                    public void onSuccess(JSONObject resp) {
+                        if (loadingIndicator != null) loadingIndicator.setVisibility(View.GONE);
+                        // Response: { success: true, data: { response: '...' } }
+                        JSONObject data = resp.optJSONObject("data");
+                        String reply = data != null
+                                ? data.optString("response", "...")
+                                : resp.optString("reply", "...");
+                        messages.add(new ChatMessage(reply, false));
+                        messageAdapter.notifyItemInserted(messages.size() - 1);
+                        messagesRecycler.smoothScrollToPosition(messages.size() - 1);
 
-        com.example.iiawak_mobile.data.remote.CharacterApiService.chatWithCharacter(getContext(), characterId, text, chatMode, userId, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
-            @Override
-            public void onSuccess(JSONObject resp) {
-                if (loadingIndicator != null) loadingIndicator.setVisibility(View.GONE);
-                String reply = resp.optString("reply", "...");
-                
-                messages.add(new ChatMessage(reply, false));
-                messageAdapter.notifyItemInserted(messages.size() - 1);
-                messagesRecycler.smoothScrollToPosition(messages.size() - 1);
-                
-                // Cập nhật Altego meter nhẹ (logic mockup - UI đã ẩn)
-                altegoLevel = Math.min(100, altegoLevel + (int)(Math.random() * 5));
-            }
+                        altegoLevel = Math.min(100, altegoLevel + (int)(Math.random() * 5));
+                    }
 
-            @Override
-            public void onError(String errorMessage, int statusCode) {
-                if (loadingIndicator != null) loadingIndicator.setVisibility(View.GONE);
-                String fallback = chatMode.equals("story")
-                    ? "*" + characterName + " nhìn bạn với ánh mắt sâu thẳm...*\n\nBạn muốn tiếp tục câu chuyện như thế nào?"
-                    : characterName + " đang suy nghĩ... 🌙";
-                messages.add(new ChatMessage(fallback, false));
-                messageAdapter.notifyItemInserted(messages.size() - 1);
-                messagesRecycler.smoothScrollToPosition(messages.size() - 1);
-            }
-        });
+                    @Override
+                    public void onError(String errorMessage, int statusCode) {
+                        if (loadingIndicator != null) loadingIndicator.setVisibility(View.GONE);
+                        String fallback = chatMode.equals("story")
+                            ? "*" + characterName + " nhìn bạn với ánh mắt sâu thẳm...*\n\nBạn muốn tiếp tục câu chuyện như thế nào?"
+                            : characterName + " đang suy nghĩ... 🌙";
+                        messages.add(new ChatMessage(fallback, false));
+                        messageAdapter.notifyItemInserted(messages.size() - 1);
+                        messagesRecycler.smoothScrollToPosition(messages.size() - 1);
+                    }
+                });
+        } catch (Exception e) {
+            if (loadingIndicator != null) loadingIndicator.setVisibility(View.GONE);
+        }
     }
 
     private void setupRpSuggestions(View view) {

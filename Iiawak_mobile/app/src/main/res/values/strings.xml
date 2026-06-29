@@ -28,7 +28,7 @@
     <string name="nav_community">Cộng đồng</string>
     <string name="nav_explore">Khám phá</string>
     <string name="nav_chat">Chat</string>
-    <string name="nav_creator">Creator</string>
+    <string name="nav_creator">Nhà sáng tạo</string>
     <string name="nav_profile">Hồ sơ</string>
 
     <!-- Community -->
@@ -44,7 +44,7 @@
     <string name="label_users">người chơi</string>
     <string name="label_new">Mới</string>
     <string name="label_official">Chính thức</string>
-    <string name="label_community_header">🌐 Cộng đồng</string>
+    <string name="label_community_header"> Cộng đồng</string>
     <string name="label_kim_cuong">Kim cương</string>
     <string name="placeholder_coins">150</string>
     <string name="btn_share_moment">Chia sẻ khoảnh khắc</string>
@@ -58,7 +58,7 @@
     <string name="filter_mystery">Bí ẩn</string>
     <string name="filter_action">Hành động</string>
     <string name="filter_slice_of_life">Đời thường</string>
-    <string name="btn_random_char">🎲 Nhân vật ngẫu nhiên</string>
+    <string name="btn_random_char"> Nhân vật ngẫu nhiên</string>
     <string name="sort_newest">Mới nhất</string>
     <string name="sort_popular">Phổ biến nhất</string>
     <string name="sort_difficulty">Độ khó</string>
@@ -79,9 +79,7 @@
 
     <!-- Profile / Wallet -->
     <string name="hearts_free">Kim Cương Hồng miễn phí</string>
-    <string name="hearts_premium">Kim Cương Hồng cao cấp</string>
     <string name="btn_earn_hearts">Nhận Kim Cương Hồng</string>
-    <string name="btn_watch_ad">Xem quảng cáo (+{n} 💎)</string>
     <string name="btn_daily_checkin">Điểm danh hôm nay</string>
     <string name="label_streak">Chuỗi điểm danh</string>
     <string name="label_gift_code">Nhập mã quà tặng</string>
@@ -116,7 +114,7 @@
     <string name="lock_confirm_pin">Nhập lại mã PIN để xác nhận</string>
     <string name="lock_incorrect">Mã PIN không chính xác</string>
     <string name="lock_mismatch">Mã PIN xác nhận không khớp</string>
-    <string name="lock_success">Đã thiết lập mã PIN thành công ✅</string>
+    <string name="lock_success">Đã thiết lập mã PIN thành công!</string>
     <string name="lock_verified">Xác thực thành công</string>
     <string name="lock_disabled">Đã tắt khóa ứng dụng</string>
     <string name="btn_disable_lock">Tắt khóa ứng dụng</string>
@@ -144,16 +142,19 @@
     <string name="login_google_btn">Google</string>
     <string name="profile_following">Đang theo dõi</string>
     <string name="profile_followers">Người theo dõi</string>
-    <string name="profile_conquests">Chinh phục ⭐</string>
-    <string name="profile_pink_diamond">💎 Kim Cương Hồng</string>
+    <string name="profile_conquests">Chinh phục</string>
+    <string name="profile_pink_diamond">Kim Cương Hồng</string>
     <string name="profile_topup_now">Nạp ngay</string>
-    <string name="profile_weekly_checkin">🔥 Điểm danh tuần</string>
+    <string name="profile_weekly_checkin">Điểm danh tuần</string>
     <string name="profile_characters">Nhân Vật</string>
     <string name="profile_friends">Bạn Bè</string>
-    <string name="profile_redeem_gift">🎁 Nhập mã quà tặng</string>
-    <string name="profile_invite_friends">🤝 Mời bạn bè</string>
-    <string name="profile_share_reward">📤 Chia sẻ nhận thưởng</string>
-    <string name="placeholder_level">⭐ Lv. 12 Người chơi</string>
+    <string name="profile_redeem_gift">Nhập mã quà tặng</string>
+    <string name="profile_invite_friends">Mời bạn bè</string>
+    <string name="profile_share_reward">Chia sẻ nhận thưởng</string>
+    <string name="profile_redeem_gift_desc">Đổi mã nhận kim cương &amp; phần thưởng</string>
+    <string name="profile_invite_friends_desc">Cùng nhau chinh phục, cùng nhận thưởng</string>
+    <string name="profile_share_reward_desc">Chia sẻ ứng dụng, nhận kim cương miễn phí</string>
+    <string name="placeholder_level"> Lv. 12 Người chơi</string>
     <string name="placeholder_following_count">24</string>
     <string name="placeholder_followers_count">128</string>
     <string name="placeholder_conquests_count">7</string>
@@ -175,7 +176,7 @@
     <string name="settings_version">Phiên bản</string>
     <string name="settings_version_val">1.0.0 (beta)</string>
     <string name="settings_feedback">Gửi phản hồi</string>
-    <string name="settings_logout">🚪 Đăng xuất</string>
+    <string name="settings_logout"> Đăng xuất</string>
     <string name="content_desc_back">Quay lại</string>
     <string name="content_desc_next">Tiếp theo</string>
     <string name="day_format">Ngày %d</string>
@@ -185,4 +186,5 @@
     <string name="error_password_length">Mật khẩu ít nhất 6 ký tự</string>
     <string name="login_welcome_back">Chào mừng trở lại, %s! 💕</string>
     <string name="loading_login">Đang đăng nhập...</string>
+    <string name="google_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
 </resources>

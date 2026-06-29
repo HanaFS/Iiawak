@@ -105,7 +105,7 @@ public class BotChatTabFragment extends Fragment {
                             Object charObj  = s.opt("characterId");
                             if (charObj instanceof JSONObject) {
                                 JSONObject c = (JSONObject) charObj;
-                                charId   = c.optString("_id", "");
+                                charId   = c.optString("id", "");
                                 charName = c.optString("name", "Nhân vật");
                                 avatar   = c.optString("avatar", "");
                             } else if (charObj instanceof String) {
@@ -129,7 +129,7 @@ public class BotChatTabFragment extends Fragment {
                             String mode = s.optString("mode", "normal");
 
                             sessions.add(new ChatSession(
-                                    s.optString("_id", ""),
+                                    s.optString("id", ""),
                                     charId,
                                     charName,
                                     avatar,

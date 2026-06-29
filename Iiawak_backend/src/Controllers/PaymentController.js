@@ -1,6 +1,6 @@
 'use strict';
-const VNPayService = require('../../business-logic/Services/VNPayService');
-const AppError = require('../../core/Exceptions/AppError');
+const VNPayService = require('../Services/VNPayService');
+const AppError = require('../Exceptions/AppError');
 
 /**
  * PaymentController — Gác cổng cho /api/payment/*
@@ -64,7 +64,7 @@ class PaymentController {
 
       // VNPay yêu cầu response 200 OK với statusCode
       if (result.statusCode === 0) {
-        console.log('✅ VNPay webhook processed successfully');
+
       } else {
         console.warn(`⚠️ VNPay webhook error: ${result.message}`);
       }

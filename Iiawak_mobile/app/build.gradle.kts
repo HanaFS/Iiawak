@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation("io.socket:socket.io-client:2.1.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.android.billingclient:billing:6.1.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

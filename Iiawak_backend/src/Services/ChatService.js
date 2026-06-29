@@ -1,14 +1,14 @@
 'use strict';
 
-const ChatSession      = require('../../data-access/Models/ChatSession.model');
-const Character        = require('../../data-access/Models/Character.model');
-const Message          = require('../../data-access/Models/Message.model');
-const User             = require('../../data-access/Models/User.model');
+const ChatSession      = require('../Models/ChatSession.model');
+const Character        = require('../Models/Character.model');
+const Message          = require('../Models/Message.model');
+const User             = require('../Models/User.model');
 const aiService        = require('./AiService');
 const memoryService    = require('./MemoryService');
 const macroService     = require('./MacroService');
 const lorebookService  = require('./LorebookService');
-const AppError         = require('../../core/Exceptions/AppError');
+const AppError         = require('../Exceptions/AppError');
 
 /**
  * ChatService — Nghiệp vụ chat (AI sessions + Direct messages).
@@ -192,7 +192,7 @@ class ChatService {
       character
     );
 
-    // 6. Gọi AI (non-streaming hoặc Character.AI)
+    // 6. Gọi AI — truyền session.messages (history thô), AiService sẽ chuẩn hóa
     let aiResponse = '';
     if (character.aiBackend === 'character_ai') {
       const characterAiService = require('./CharacterAiService');
@@ -202,7 +202,8 @@ class ChatService {
         session.caiChatId = caiResult.newCaiChatId;
       }
     } else {
-      aiResponse = await aiService.generateResponse(systemInstruction, history, content);
+      // Truyền thẳng session.messages — SDK @google/genai tự quản lý history
+      aiResponse = await aiService.generateResponse(systemInstruction, session.messages, content);
     }
 
     // 7. Lưu tin nhắn vào DB
@@ -289,8 +290,8 @@ class ChatService {
       res.write('data: [DONE]\n\n');
       res.end();
     } else {
-      // Pipe SSE stream về client từ Gemini
-      fullAiResponse = await aiService.streamResponse(systemInstruction, history, content, res);
+      // Truyền thẳng session.messages — SDK @google/genai tự quản lý history
+      fullAiResponse = await aiService.streamResponse(systemInstruction, session.messages, content, res);
     }
 
     // Lưu vào DB sau khi stream kết thúc
@@ -318,7 +319,7 @@ class ChatService {
       session.memorySummary    = newSummary;
       session.lastSummarizedAt = session.messages.length;
       await session.save();
-      console.log(`🧠 Memory updated for session ${session._id}: ${newSummary.substring(0, 60)}...`);
+
     }
   }
 
@@ -398,7 +399,7 @@ class ChatService {
     // Gọi AI với cùng user message nhưng không có response cũ
     const newAiResponse = await aiService.generateResponse(
       systemInstruction,
-      history,
+      session.messages,  // session đã bị trim (không có response cũ)
       originalUserContent
     );
 

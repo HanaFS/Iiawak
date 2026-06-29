@@ -18,6 +18,6 @@ public class CommunityPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 2; // Thịnh hành + Đang theo dõi
+        return 3; // Thịnh hành + Đang theo dõi + Bạn bè
     }
 }

@@ -1,8 +1,8 @@
 'use strict';
 const CharacterAI = require('node_characterai');
-const config      = require('../../config');
-const logger      = require('../../core/Logger/logger');
-const AppError    = require('../../core/Exceptions/AppError');
+const config      = require('../config');
+const logger      = require('../Logger/logger');
+const AppError    = require('../Exceptions/AppError');
 
 /**
  * CharacterAiService — Tích hợp thư viện node_characterai.

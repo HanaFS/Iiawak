@@ -1,8 +1,8 @@
 'use strict';
-const storageUtil  = require('../../core/Utils/storageUtil');
-const AppError     = require('../../core/Exceptions/AppError');
-const userRepository = require('../../data-access/Repositories/UserRepository');
-const characterRepository = require('../../data-access/Repositories/CharacterRepository');
+const storageUtil  = require('../Utils/storageUtil');
+const AppError     = require('../Exceptions/AppError');
+const userRepository = require('../Repositories/UserRepository');
+const characterRepository = require('../Repositories/CharacterRepository');
 
 /**
  * StorageService — Nghiệp vụ upload file theo đúng quy trình chuẩn:

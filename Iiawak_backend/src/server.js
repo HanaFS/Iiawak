@@ -6,16 +6,16 @@ const { Server } = require('socket.io');
 const helmet     = require('helmet');
 const compression = require('compression');
 
-const db      = require('./database/connection');
-const redis   = require('./cache/redisClient');
-const Message = require('./models/Message.model');
-const logger  = require('./logger/logger');
-const requestLogger = require('./middlewares/requestLogger.middleware');
-const webSocketManager = require('./middlewares/websocket.middleware');
-const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./middlewares/rateLimiter.middleware');
-const { sanitizeMiddleware, preventInjectionMiddleware } = require('./middlewares/requestValidator.middleware');
-const errorHandler = require('./exceptions/ErrorHandler');
-const errorMiddleware = require('./middlewares/error.middleware');
+const db      = require('./Database/connection');
+const redis   = require('./Cache/redisClient');
+const Message = require('./Models/Message.model');
+const logger  = require('./Logger/logger');
+const requestLogger = require('./Middlewares/requestLogger.middleware');
+const webSocketManager = require('./Middlewares/websocket.middleware');
+const { globalLimiter, authLimiter, apiLimiter, paymentLimiter, uploadLimiter, searchLimiter } = require('./Middlewares/rateLimiter.middleware');
+const { sanitizeMiddleware, preventInjectionMiddleware } = require('./Middlewares/requestValidator.middleware');
+const errorHandler = require('./Exceptions/ErrorHandler');
+const errorMiddleware = require('./Middlewares/error.middleware');
 
 // ─── Process Level Error Catching (Node Best Practices) ───────────────────────
 process.on('uncaughtException', (error) => {
@@ -63,7 +63,7 @@ app.use(preventInjectionMiddleware); // Injection prevention
 db.connect()
   .then(() => redis.connect())
   .catch(err => {
-    logger.error('❌ Database connection error:', err.message);
+    logger.error(' Database connection error:', err.message);
     process.exit(1);
   });
 
@@ -75,7 +75,7 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
   const userId = socket.userId;
-  logger.info(`🔌 WebSocket connected: ${userId} (${socket.id})`);
+  logger.info(` WebSocket connected: ${userId} (${socket.id})`);
 
   // Handle connection
   webSocketManager.handleUserConnect(socket, io);
@@ -93,7 +93,7 @@ io.on('connection', (socket) => {
       socket.emit('msg_sent_status', { success: true, timestamp: new Date() });
       logger.info(`📨 Message sent: ${userId} → ${receiverId}`);
     } catch (err) {
-      logger.error(`❌ Error sending message: ${err.message}`);
+      logger.error(` Error sending message: ${err.message}`);
       socket.emit('msg_sent_status', { success: false, error: err.message });
     }
   });
@@ -104,22 +104,22 @@ io.on('connection', (socket) => {
       if (!messageId) return;
 
       webSocketManager.emitReadReceipt(io, messageId, userId, data.conversationId);
-      logger.debug(`✅ Message read: ${messageId}`);
+      logger.debug(` Message read: ${messageId}`);
     } catch (err) {
-      logger.error(`❌ Error marking message as read: ${err.message}`);
+      logger.error(` Error marking message as read: ${err.message}`);
     }
   });
 
   // ─── Room Management ──────────────────────────────────────────────────────
   socket.on('join_char_room', (roomId) => {
     socket.join(`char_${roomId}`);
-    logger.info(`👤 User ${userId} joined character room: ${roomId}`);
+    logger.info(` User ${userId} joined character room: ${roomId}`);
     io.to(`char_${roomId}`).emit('user:joined', { userId, timestamp: new Date() });
   });
 
   socket.on('leave_char_room', (roomId) => {
     socket.leave(`char_${roomId}`);
-    logger.info(`👤 User ${userId} left character room: ${roomId}`);
+    logger.info(` User ${userId} left character room: ${roomId}`);
     io.to(`char_${roomId}`).emit('user:left', { userId, timestamp: new Date() });
   });
 
@@ -140,13 +140,13 @@ io.on('connection', (socket) => {
   // ─── Disconnect Handler ──────────────────────────────────────────────────
   socket.on('disconnect', () => {
     webSocketManager.handleUserDisconnect(socket, io);
-    logger.info(`🔌 WebSocket disconnected: ${userId}`);
+    logger.info(` WebSocket disconnected: ${userId}`);
   });
 
   // ─── Reconnection Handler ──────────────────────────────────────────────────
   socket.on('reconnect', () => {
     webSocketManager.handleReconnect(socket, io);
-    logger.info(`🔄 WebSocket reconnected: ${userId}`);
+    logger.info(` WebSocket reconnected: ${userId}`);
   });
 });
 
@@ -163,16 +163,24 @@ app.get('/health', (req, res) => {
 });
 
 // ─── Routes with API versioning (/api/v1/) ──────────────────────────────────
-app.use('/api', require('./routes/index.js'));
+app.use('/api', require('./Routes/index.js'));
 
 // ─── Legacy routes (mobile compatibility) ────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({
-    message: '🚀 Iiawak API v3.1 — Production Backend',
+    message: ' Iiawak API v3.1 — Production Backend',
     status: 'ok',
     version: '3.1.0',
     features: ['VNPay payments', 'Redis caching', 'WebSocket JWT', 'Rate limiting', 'Request validation'],
     timestamp: new Date(),
+  });
+});
+
+// ─── 404 Handler (JSON) ──────────────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.method} ${req.url} not found`
   });
 });
 
@@ -183,13 +191,13 @@ app.use(errorMiddleware);
 const PORT = config.app.port || 5000;
 
 const shutdown = () => {
-  logger.info('🛑 Shutting down gracefully...');
+  logger.info(' Shutting down gracefully...');
   server.close(() => {
-    logger.info('✅ Server closed');
+    logger.info(' Server closed');
     process.exit(0);
   });
   setTimeout(() => {
-    logger.error('❌ Force shutdown (timeout)');
+    logger.error(' Force shutdown (timeout)');
     process.exit(1);
   }, 10000);
 };
@@ -198,9 +206,9 @@ process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
 server.listen(PORT, '0.0.0.0', () => {
-  logger.info(`🚀 Server running on port ${PORT}`);
-  logger.info(`📐 Architecture: Presentation → BusinessLogic → DataAccess → Core`);
-  logger.info(`🔐 Features: VNPay, Redis, WebSocket JWT, Rate Limiting, Input Validation`);
-  logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  logger.info(`✨ Version: 3.1.0 (Phase 5-7 Complete)`);
+  logger.info(` Server running on port ${PORT}`);
+  logger.info(` Architecture: Presentation → BusinessLogic → DataAccess → Core`);
+  logger.info(` Features: VNPay, Redis, WebSocket JWT, Rate Limiting, Input Validation`);
+  logger.info(` Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(` Version: 3.1.0 (Phase 5-7 Complete)`);
 });

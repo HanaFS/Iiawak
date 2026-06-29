@@ -9,6 +9,7 @@ const postSchema = new mongoose.Schema({
   likedBy:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   commentCount:  { type: Number, default: 0 },
   isViral:       { type: Boolean, default: false },
+  isHidden:      { type: Boolean, default: false },
   distributionStep: { type: Number, default: 100 },
   createdAt:     { type: Date, default: Date.now },
 });

@@ -18,10 +18,15 @@ public class UserSession {
     private static final String KEY_EMAIL           = "email";
     private static final String KEY_ROLE            = "role";
     private static final String KEY_KCH_BALANCE     = "kch_balance";
+    private static final String KEY_CREATOR_BALANCE = "creator_balance";
     private static final String KEY_IS_CREATOR      = "is_creator";
     private static final String KEY_APP_LOCK_PIN    = "app_lock_pin";
     private static final String KEY_APP_LOCK_ENABLED = "app_lock_enabled";
     private static final String KEY_AVATAR          = "avatar_url";
+    private static final String KEY_CHECKED_DAYS    = "checked_in_days";
+    private static final String KEY_TRANSACTIONS    = "transactions";
+    private static final String KEY_CHECKIN_STREAK  = "checkin_streak";
+    private static final String KEY_LAST_CHECKIN_DATE = "last_checkin_date";
 
     private static UserSession instance;
     private final SharedPreferences prefs;
@@ -141,6 +146,14 @@ public class UserSession {
         prefs.edit().putInt(KEY_KCH_BALANCE, amount).apply();
     }
 
+    public int getCreatorBalance() {
+        return prefs.getInt(KEY_CREATOR_BALANCE, 0); // Default to 0
+    }
+
+    public void setCreatorBalance(int amount) {
+        prefs.edit().putInt(KEY_CREATOR_BALANCE, amount).apply();
+    }
+
     /** Alias cho compatibility với các Fragment cũ */
     public void setFreeHearts(int amount) {
         setKchBalance(amount);
@@ -204,5 +217,60 @@ public class UserSession {
 
     public void setAppLockPin(String pin) {
         prefs.edit().putString(KEY_APP_LOCK_PIN, pin).apply();
+    }
+
+    // ======================== Check-in Data ========================
+
+    public java.util.Set<String> getCheckedInDays() {
+        return prefs.getStringSet(KEY_CHECKED_DAYS, new java.util.HashSet<>());
+    }
+
+    public void setCheckedInDays(java.util.Set<String> days) {
+        prefs.edit().putStringSet(KEY_CHECKED_DAYS, days).apply();
+    }
+
+    public void addCheckedInDay(String dateStr) {
+        java.util.Set<String> days = new java.util.HashSet<>(getCheckedInDays());
+        days.add(dateStr);
+        setCheckedInDays(days);
+    }
+
+    public int getCheckInStreak() {
+        return prefs.getInt(KEY_CHECKIN_STREAK, 0);
+    }
+
+    public void setCheckInStreak(int streak) {
+        prefs.edit().putInt(KEY_CHECKIN_STREAK, streak).apply();
+    }
+
+    public String getLastCheckInDate() {
+        return prefs.getString(KEY_LAST_CHECKIN_DATE, "");
+    }
+
+    public void setLastCheckInDate(String dateStr) {
+        prefs.edit().putString(KEY_LAST_CHECKIN_DATE, dateStr).apply();
+    }
+
+    public void addTransaction(String title, int amount, String date) {
+        try {
+            org.json.JSONArray txs = getTransactions();
+            org.json.JSONObject tx = new org.json.JSONObject();
+            tx.put("description", title);
+            tx.put("amount", amount);
+            tx.put("date", date);
+            txs.put(tx);
+            prefs.edit().putString(KEY_TRANSACTIONS, txs.toString()).apply();
+        } catch (org.json.JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public org.json.JSONArray getTransactions() {
+        String data = prefs.getString(KEY_TRANSACTIONS, "[]");
+        try {
+            return new org.json.JSONArray(data);
+        } catch (org.json.JSONException e) {
+            return new org.json.JSONArray();
+        }
     }
 }

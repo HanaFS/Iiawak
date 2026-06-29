@@ -7,14 +7,17 @@ import {
 } from 'lucide-react';
 import './Topbar.css';
 
-const MOCK_ADMIN = {
-  name: 'Nguyễn Hoài An',
-  code: 'NV-2026-IIAWAK-09',
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Thông tin admin mặc định (sẽ được ghi đè bởi dữ liệu từ sessionStorage)
+const DEFAULT_ADMIN = {
+  name: 'Quản Trị Viên',
+  code: 'NV-2026-IIAWAK-01',
   role: 'Tổng Quản Trị Viên',
-  email: 'hoaian.admin@iiawak.com',
+  email: 'admin@iiawak.com',
   department: 'Ban Vận Hành & An Ninh Hệ Thống',
-  joinedDate: '2025-08-01',
-  lastLogin: '2026-05-18 00:10',
+  joinedDate: '---',
+  lastLogin: '---',
   avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
 };
 
@@ -55,10 +58,22 @@ export default function Topbar({ toggleSidebar }) {
   const [adminTab, setAdminTab] = useState('info'); // 'info' | 'security'
   const [notifs, setNotifs] = useState(MOCK_NOTIFICATIONS);
 
+  // Lấy thông tin admin từ sessionStorage (đã lưu sau khi đăng nhập)
+  const adminUser = (() => {
+    try { return JSON.parse(sessionStorage.getItem('adminUser') || '{}'); } catch { return {}; }
+  })();
+  const ADMIN_INFO = {
+    ...DEFAULT_ADMIN,
+    name:  adminUser.displayName || DEFAULT_ADMIN.name,
+    email: adminUser.email       || DEFAULT_ADMIN.email,
+    role:  adminUser.role === 'admin' ? 'Tổng Quản Trị Viên' : DEFAULT_ADMIN.role,
+  };
+
   // Password change state
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
   const [showPass, setShowPass] = useState({ current: false, newPass: false, confirm: false });
-  const [passMsg, setPassMsg] = useState({ text: '', type: '' }); // type: 'error'|'success'
+  const [passMsg, setPassMsg] = useState({ text: '', type: '' });
+  const [passLoading, setPassLoading] = useState(false);
 
   const notifRef = useRef(null);
   const adminRef = useRef(null);
@@ -85,28 +100,44 @@ export default function Topbar({ toggleSidebar }) {
     setPasswords({ current: '', newPass: '', confirm: '' });
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
     const { current, newPass, confirm } = passwords;
-    const storedPassword = localStorage.getItem('admin_password') || 'admin123';
     if (!current || !newPass || !confirm)
       return setPassMsg({ text: 'Vui lòng điền đầy đủ tất cả các trường!', type: 'error' });
-    if (current !== storedPassword)
-      return setPassMsg({ text: 'Mật khẩu hiện tại không chính xác!', type: 'error' });
     if (newPass.length < 6)
       return setPassMsg({ text: 'Mật khẩu mới phải có ít nhất 6 ký tự!', type: 'error' });
     if (newPass === current)
       return setPassMsg({ text: 'Mật khẩu mới không được trùng mật khẩu cũ!', type: 'error' });
     if (newPass !== confirm)
       return setPassMsg({ text: 'Xác nhận mật khẩu không khớp!', type: 'error' });
-    // Lưu mật khẩu mới → Login sẽ đọc từ đây
-    localStorage.setItem('admin_password', newPass);
-    setPassMsg({ text: 'Đổi mật khẩu thành công! Đang chuyển hướng... ✨', type: 'success' });
-    setPasswords({ current: '', newPass: '', confirm: '' });
-    setTimeout(() => {
-      sessionStorage.removeItem('isAuthenticated');
-      navigate('/login', { replace: true });
-    }, 1500);
+
+    setPassLoading(true);
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPassMsg({ text: 'Đổi mật khẩu thành công! Đang đăng xuất... ✨', type: 'success' });
+        setPasswords({ current: '', newPass: '', confirm: '' });
+        setTimeout(() => {
+          sessionStorage.clear();
+          navigate('/login', { replace: true });
+        }, 1500);
+      } else {
+        setPassMsg({ text: data.message || 'Đổi mật khẩu thất bại!', type: 'error' });
+      }
+    } catch {
+      setPassMsg({ text: 'Không thể kết nối đến máy chủ!', type: 'error' });
+    }
+    setPassLoading(false);
   };
 
   // Handler dùng trong PasswordField
@@ -136,7 +167,7 @@ export default function Topbar({ toggleSidebar }) {
           {showNotif && (
             <div className="tb-notif-panel glass animate-fade-in">
               <div className="tb-notif-hd">
-                <span className="tb-notif-title">🔔 Thông báo hệ thống</span>
+                <span className="tb-notif-title"> Thông báo hệ thống</span>
                 {unread > 0 && <button className="tb-text-btn" onClick={markAllRead}>Đánh dấu đã đọc</button>}
               </div>
               <div className="tb-notif-list">
@@ -164,12 +195,12 @@ export default function Topbar({ toggleSidebar }) {
         <div className="tb-admin-trigger" ref={adminRef}>
           <div className="tb-admin-pill" onClick={openAdmin} title="Thông tin quản trị viên">
             <div className="tb-admin-avatar">
-              <img src={MOCK_ADMIN.avatar} alt="Admin" />
+              <img src={ADMIN_INFO.avatar} alt="Admin" />
               <span className="tb-online-dot" />
             </div>
             <div className="tb-admin-info">
-              <span className="tb-admin-name">{MOCK_ADMIN.name}</span>
-              <span className="tb-admin-role"><Shield size={10} /> {MOCK_ADMIN.role}</span>
+              <span className="tb-admin-name">{ADMIN_INFO.name}</span>
+              <span className="tb-admin-role"><Shield size={10} /> {ADMIN_INFO.role}</span>
             </div>
             <ChevronRight size={14} className="tb-chevron" />
           </div>
@@ -181,11 +212,11 @@ export default function Topbar({ toggleSidebar }) {
               <div className="tb-am-header">
                 <button className="tb-am-close" onClick={() => setShowAdmin(false)}><X size={16} /></button>
                 <div className="tb-am-avatar-wrap">
-                  <img src={MOCK_ADMIN.avatar} alt="Admin" className="tb-am-avatar" />
+                  <img src={ADMIN_INFO.avatar} alt="Admin" className="tb-am-avatar" />
                   <span className="tb-am-shield"><Shield size={13} /></span>
                 </div>
-                <h3 className="tb-am-name">{MOCK_ADMIN.name}</h3>
-                <span className="tb-am-role-badge">{MOCK_ADMIN.role}</span>
+                <h3 className="tb-am-name">{ADMIN_INFO.name}</h3>
+                <span className="tb-am-role-badge">{ADMIN_INFO.role}</span>
               </div>
 
               {/* Tab Switch */}
@@ -203,28 +234,28 @@ export default function Topbar({ toggleSidebar }) {
                 <div className="tb-am-body">
                   <div className="tb-info-grid">
                     <div className="tb-info-card">
-                      <span className="tb-info-lbl"><Briefcase size={12} /> Mã nhân viên</span>
-                      <code className="tb-info-val tb-highlight">{MOCK_ADMIN.code}</code>
+                      <span className="tb-info-lbl"><Briefcase size={12} /> Tên đăng nhập</span>
+                      <code className="tb-info-val tb-highlight">{adminUser.username || 'hongocgiahan'}</code>
                     </div>
                     <div className="tb-info-card">
                       <span className="tb-info-lbl"><Award size={12} /> Chức vụ</span>
-                      <span className="tb-info-val">{MOCK_ADMIN.role}</span>
+                      <span className="tb-info-val">{ADMIN_INFO.role}</span>
                     </div>
                     <div className="tb-info-card tb-info-full">
                       <span className="tb-info-lbl"><User size={12} /> Bộ phận</span>
-                      <span className="tb-info-val">{MOCK_ADMIN.department}</span>
+                      <span className="tb-info-val">{DEFAULT_ADMIN.department}</span>
                     </div>
                     <div className="tb-info-card tb-info-full">
                       <span className="tb-info-lbl"><Mail size={12} /> Email công vụ</span>
-                      <span className="tb-info-val">{MOCK_ADMIN.email}</span>
+                      <span className="tb-info-val">{ADMIN_INFO.email}</span>
                     </div>
                     <div className="tb-info-card">
-                      <span className="tb-info-lbl"><Clock size={12} /> Ngày vào làm</span>
-                      <span className="tb-info-val">{MOCK_ADMIN.joinedDate}</span>
+                      <span className="tb-info-lbl"><Clock size={12} /> Ngày tạo tài khoản</span>
+                      <span className="tb-info-val">{adminUser.createdAt ? new Date(adminUser.createdAt).toLocaleDateString('vi-VN') : '---'}</span>
                     </div>
                     <div className="tb-info-card">
-                      <span className="tb-info-lbl"><AlertCircle size={12} /> Đăng nhập cuối</span>
-                      <span className="tb-info-val">{MOCK_ADMIN.lastLogin}</span>
+                      <span className="tb-info-lbl"><AlertCircle size={12} /> Trạng thái</span>
+                      <span className="tb-info-val" style={{color: '#22c55e', fontWeight: 600}}>● Đang hoạt động</span>
                     </div>
                   </div>
 
@@ -263,8 +294,8 @@ export default function Topbar({ toggleSidebar }) {
                       </div>
                     )}
 
-                    <button type="submit" className="glass-button tb-pass-submit">
-                      Xác nhận đổi mật khẩu
+                    <button type="submit" className="glass-button tb-pass-submit" disabled={passLoading}>
+                      {passLoading ? 'Đang xử lý...' : 'Xác nhận đổi mật khẩu'}
                     </button>
                   </form>
                 </div>

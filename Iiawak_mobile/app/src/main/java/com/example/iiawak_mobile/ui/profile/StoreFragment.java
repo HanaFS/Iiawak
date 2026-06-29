@@ -25,13 +25,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StoreFragment extends Fragment {
+import com.example.iiawak_mobile.billing.BillingManager;
+import com.example.iiawak_mobile.data.remote.EconomyApiService;
+
+public class StoreFragment extends Fragment implements BillingManager.BillingListener {
 
     private RecyclerView recyclerView;
     private StorePackageAdapter adapter;
     private List<StorePackage> packageList = new ArrayList<>();
     private TextView tvBalance;
     private UserSession session;
+    private BillingManager billingManager;
+    private boolean isX2Active = false;
 
     @Nullable
     @Override
@@ -43,17 +48,28 @@ public class StoreFragment extends Fragment {
         updateBalance();
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
-            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+            androidx.navigation.Navigation.findNavController(requireView()).navigateUp();
         });
 
         recyclerView = view.findViewById(R.id.recycler_store_packages);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new StorePackageAdapter(packageList, this::buyPackage);
+        adapter = new StorePackageAdapter(packageList, this::buyPackage, false);
         recyclerView.setAdapter(adapter);
+
+        billingManager = new BillingManager(getActivity(), this);
+        billingManager.startConnection();
 
         fetchPackages();
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (billingManager != null) {
+            billingManager.destroy();
+        }
     }
 
     private void updateBalance() {
@@ -62,16 +78,66 @@ public class StoreFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateBalance();
+    }
+
     private void buyPackage(StorePackage pkg) {
-        // Logic mô phỏng thanh toán
-        Toast.makeText(getContext(), "Đang xử lý thanh toán cho: " + pkg.name, Toast.LENGTH_SHORT).show();
-        
-        // Giả lập thanh toán thành công sau 1s
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            session.addFreeHearts(pkg.kch);
-            updateBalance();
-            Toast.makeText(getContext(), "Nạp thành công +" + pkg.kch + " 💎", Toast.LENGTH_LONG).show();
-        }, 1000);
+        if (pkg.playStoreProductId == null || pkg.playStoreProductId.isEmpty()) {
+            showError("Gói nạp này chưa được cấu hình cho Google Play.");
+            return;
+        }
+        billingManager.purchasePackage(pkg.playStoreProductId);
+    }
+
+    @Override
+    public void onBillingSetupFinished(boolean success) {
+        if (!success) {
+            showError("Không thể kết nối đến hệ thống thanh toán Google Play.");
+        }
+    }
+
+    @Override
+    public void onPurchaseSuccess(String purchaseToken, String productId) {
+        new Handler(Looper.getMainLooper()).post(() -> 
+            Toast.makeText(getContext(), "Thanh toán CH Play thành công, đang xác thực...", Toast.LENGTH_SHORT).show()
+        );
+
+        EconomyApiService.verifyGooglePlayPurchase(getContext(), productId, purchaseToken, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    try {
+                        JSONObject data = json.getJSONObject("data");
+                        String status = data.optString("status", "");
+                        if (status.equals("pending")) {
+                            Toast.makeText(getContext(), "Thanh toán thành công! Giao dịch đang chờ Admin duyệt.", Toast.LENGTH_LONG).show();
+                        } else {
+                            int reward = data.getInt("rewardKch");
+                            session.addFreeHearts(reward);
+                            updateBalance();
+                            Toast.makeText(getContext(), com.example.iiawak_mobile.utils.UIUtils.withDiamond(getContext(), "Xác thực thành công +" + reward + " 💎"), Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        showError("Lỗi đọc dữ liệu xác thực.");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage, int statusCode) {
+                showError("Xác thực thất bại: " + errorMessage);
+            }
+        });
+    }
+
+    @Override
+    public void onPurchaseError(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> 
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show()
+        );
     }
 
     private void fetchPackages() {
@@ -80,15 +146,19 @@ public class StoreFragment extends Fragment {
             public void onSuccess(JSONObject jsonResponse) {
                 try {
                     if (jsonResponse.getBoolean("success")) {
+                        isX2Active = jsonResponse.optBoolean("isX2Active", false);
+                        adapter.setX2Active(isX2Active);
                         JSONArray data = jsonResponse.getJSONArray("data");
                         packageList.clear();
                         for (int i = 0; i < data.length(); i++) {
                             JSONObject obj = data.getJSONObject(i);
                             packageList.add(new StorePackage(
-                                    obj.getString("id"),
+                                    obj.optString("id", obj.optString("_id", "")),
                                     obj.getString("name"),
                                     obj.getInt("price"),
-                                    obj.getInt("kch")
+                                    obj.getInt("kch"),
+                                    obj.optInt("bonus", 0),
+                                    obj.optString("playStoreProductId", "")
                             ));
                         }
                         adapter.notifyDataSetChanged();
@@ -115,8 +185,12 @@ public class StoreFragment extends Fragment {
         String name;
         int price;
         int kch;
-        StorePackage(String id, String name, int price, int kch) {
-            this.id = id; this.name = name; this.price = price; this.kch = kch;
+        int bonus;
+        String playStoreProductId;
+        
+        StorePackage(String id, String name, int price, int kch, int bonus, String playStoreProductId) {
+            this.id = id; this.name = name; this.price = price; this.kch = kch; this.bonus = bonus;
+            this.playStoreProductId = playStoreProductId;
         }
     }
 
@@ -127,10 +201,17 @@ public class StoreFragment extends Fragment {
     static class StorePackageAdapter extends RecyclerView.Adapter<StorePackageAdapter.ViewHolder> {
         private final List<StorePackage> list;
         private final OnBuyClickListener listener;
+        private boolean isX2Active;
 
-        StorePackageAdapter(List<StorePackage> list, OnBuyClickListener listener) {
+        StorePackageAdapter(List<StorePackage> list, OnBuyClickListener listener, boolean isX2Active) {
             this.list = list;
             this.listener = listener;
+            this.isX2Active = isX2Active;
+        }
+
+        public void setX2Active(boolean x2Active) {
+            this.isX2Active = x2Active;
+            notifyDataSetChanged();
         }
 
         @NonNull
@@ -144,7 +225,18 @@ public class StoreFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             StorePackage pkg = list.get(position);
             holder.tvName.setText(pkg.name);
-            holder.tvKch.setText("+" + pkg.kch + " Kim Cương Hồng");
+            
+            int displayKch = isX2Active ? pkg.kch * 2 : pkg.kch;
+            
+            if (isX2Active) {
+                holder.tvName.setText("✨ " + pkg.name + " (X2)");
+            }
+            
+            if (pkg.bonus > 0) {
+                holder.tvKch.setText("+" + displayKch + " KCH (Thưởng +" + pkg.bonus + ")");
+            } else {
+                holder.tvKch.setText("+" + displayKch + " Kim Cương Hồng");
+            }
             holder.btnBuy.setText(String.format("%,dđ", pkg.price).replace(',', '.'));
             holder.btnBuy.setOnClickListener(v -> listener.onBuy(pkg));
         }

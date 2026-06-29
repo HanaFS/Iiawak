@@ -142,7 +142,8 @@ public class FriendChatTabFragment extends Fragment {
                         lastMsg.isEmpty() ? "Bắt đầu trò chuyện..." : lastMsg);
 
                 String partnerId = partner != null
-                        ? partner.optString("_id", "") : conv.optString("partnerId", "");
+                        ? partner.optString("id", partner.optString("_id", ""))
+                        : conv.optString("partnerId", "");
                 h.itemView.setOnClickListener(v -> {
                     android.os.Bundle args = new android.os.Bundle();
                     args.putString("characterId", partnerId);

@@ -29,7 +29,7 @@ const Migration = mongoose.model('Migration', migrationSchema);
 const migration001 = {
   name: '001_add_vnpay_to_transaction',
   async up(db) {
-    logger.info('🔄 Migration 001: Adding VNPay fields to Transaction...');
+    logger.info(' Migration 001: Adding VNPay fields to Transaction...');
     const Transaction = db.model('Transaction');
     await Transaction.updateMany(
       {},
@@ -41,10 +41,10 @@ const migration001 = {
         },
       }
     );
-    logger.info('✅ Migration 001 completed');
+    logger.info(' Migration 001 completed');
   },
   async down(db) {
-    logger.warn('⏮️  Rollback: Removing VNPay fields from Transaction...');
+    logger.warn('  Rollback: Removing VNPay fields from Transaction...');
     const Transaction = db.model('Transaction');
     await Transaction.updateMany(
       {},
@@ -61,7 +61,7 @@ const migration001 = {
         },
       }
     );
-    logger.info('✅ Rollback completed');
+    logger.info(' Rollback completed');
   },
 };
 
@@ -71,7 +71,7 @@ const migration001 = {
 const migration002 = {
   name: '002_add_notification_preferences',
   async up(db) {
-    logger.info('🔄 Migration 002: Adding notification preferences to User...');
+    logger.info(' Migration 002: Adding notification preferences to User...');
     const User = db.model('User');
     await User.updateMany(
       { preferences: { $exists: false } },
@@ -85,13 +85,13 @@ const migration002 = {
         },
       }
     );
-    logger.info('✅ Migration 002 completed');
+    logger.info(' Migration 002 completed');
   },
   async down(db) {
-    logger.warn('⏮️  Rollback: Removing notification preferences from User...');
+    logger.warn('  Rollback: Removing notification preferences from User...');
     const User = db.model('User');
     await User.updateMany({}, { $unset: { preferences: '' } });
-    logger.info('✅ Rollback completed');
+    logger.info(' Rollback completed');
   },
 };
 
@@ -101,16 +101,16 @@ const migration002 = {
 const migration003 = {
   name: '003_create_notification_indexes',
   async up(db) {
-    logger.info('🔄 Migration 003: Creating Notification indexes...');
+    logger.info(' Migration 003: Creating Notification indexes...');
     const Notification = db.model('Notification');
     await Notification.collection.createIndex({ userId: 1, read: 1, createdAt: -1 });
-    logger.info('✅ Migration 003 completed');
+    logger.info(' Migration 003 completed');
   },
   async down(db) {
-    logger.warn('⏮️  Rollback: Removing Notification indexes...');
+    logger.warn('  Rollback: Removing Notification indexes...');
     const Notification = db.model('Notification');
     await Notification.collection.dropIndex('userId_1_read_1_createdAt_-1');
-    logger.info('✅ Rollback completed');
+    logger.info(' Rollback completed');
   },
 };
 
@@ -120,7 +120,7 @@ const migration003 = {
 const migration004 = {
   name: '004_backup_before_phase5',
   async up(db) {
-    logger.info('🔄 Migration 004: Backing up data...');
+    logger.info(' Migration 004: Backing up data...');
     const backupDir = path.join(__dirname, '../backups');
     if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
 
@@ -137,10 +137,10 @@ const migration004 = {
     const backup = { timestamp, userData, transactionData };
     fs.writeFileSync(backupFile, JSON.stringify(backup, null, 2));
 
-    logger.info(`✅ Backup created: ${backupFile}`);
+    logger.info(` Backup created: ${backupFile}`);
   },
   async down(db) {
-    logger.warn('⏮️  Rollback: Backup cannot be rolled back');
+    logger.warn('  Rollback: Backup cannot be rolled back');
   },
 };
 
@@ -167,13 +167,13 @@ const getPendingMigrations = async () => {
  */
 const migrateUp = async () => {
   try {
-    logger.info('🚀 Starting migrations...');
+    logger.info(' Starting migrations...');
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/iiawak');
 
     const pending = await getPendingMigrations();
 
     if (pending.length === 0) {
-      logger.info('✅ All migrations already applied');
+      logger.info(' All migrations already applied');
       await mongoose.connection.close();
       return;
     }
@@ -194,15 +194,15 @@ const migrateUp = async () => {
           duration,
         });
 
-        logger.info(`✅ Applied: ${migration.name} (${duration}ms)\n`);
+        logger.info(` Applied: ${migration.name} (${duration}ms)\n`);
       } catch (error) {
-        logger.error(`❌ Migration failed: ${migration.name}`);
+        logger.error(` Migration failed: ${migration.name}`);
         logger.error(`Error: ${error.message}`);
         throw error;
       }
     }
 
-    logger.info('\n🎉 All migrations applied successfully!');
+    logger.info('\n All migrations applied successfully!');
     await mongoose.connection.close();
   } catch (error) {
     logger.error(`Migration error: ${error.message}`);
@@ -221,7 +221,7 @@ const migrateDown = async () => {
     const applied = await getAppliedMigrations();
 
     if (applied.length === 0) {
-      logger.info('ℹ️  No migrations to rollback');
+      logger.info('  No migrations to rollback');
       await mongoose.connection.close();
       return;
     }
@@ -239,14 +239,14 @@ const migrateDown = async () => {
       await migration.down(mongoose);
 
       await Migration.deleteOne({ name: migration.name });
-      logger.info(`✅ Rolled back: ${migration.name}`);
+      logger.info(` Rolled back: ${migration.name}`);
     } catch (error) {
-      logger.error(`❌ Rollback failed: ${migration.name}`);
+      logger.error(` Rollback failed: ${migration.name}`);
       logger.error(`Error: ${error.message}`);
       throw error;
     }
 
-    logger.info('\n✅ Rollback completed!');
+    logger.info('\n Rollback completed!');
     await mongoose.connection.close();
   } catch (error) {
     logger.error(`Rollback error: ${error.message}`);
@@ -264,20 +264,20 @@ const migrateStatus = async () => {
     const applied = await getAppliedMigrations();
     const pending = await getPendingMigrations();
 
-    logger.info('\n📊 MIGRATION STATUS\n');
+    logger.info('\n MIGRATION STATUS\n');
     logger.info(`Total Migrations: ${migrations.length}`);
     logger.info(`Applied: ${applied.length}`);
     logger.info(`Pending: ${pending.length}\n`);
 
     if (applied.length > 0) {
-      logger.info('✅ Applied Migrations:');
+      logger.info(' Applied Migrations:');
       applied.forEach((m) => {
         logger.info(`  - ${m.name} (${m.executedAt}) - ${m.duration}ms`);
       });
     }
 
     if (pending.length > 0) {
-      logger.info('\n⏳ Pending Migrations:');
+      logger.info('\n Pending Migrations:');
       pending.forEach((m) => {
         logger.info(`  - ${m.name}`);
       });

@@ -8,6 +8,12 @@
         android:id="@+id/exploreFragment"
         android:icon="@drawable/ic_nav_explore"
         android:title="@string/nav_explore" />
+
+    <item
+        android:id="@+id/creatorFragment"
+        android:icon="@drawable/ic_nav_creator"
+        android:title="@string/nav_creator" />
+
     <item
         android:id="@+id/chatListFragment"
         android:icon="@drawable/ic_nav_chat"

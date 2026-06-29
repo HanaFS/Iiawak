@@ -1,7 +1,7 @@
 'use strict';
-const authService = require('../../business-logic/Services/AuthService');
+const authService = require('../Services/AuthService');
 const AuthDTO     = require('../DTOs/auth.dto');
-const AppError    = require('../../core/Exceptions/AppError');
+const AppError    = require('../Exceptions/AppError');
 
 /**
  * AuthController — Gác cổng cho Auth endpoints.
@@ -27,14 +27,101 @@ class AuthController {
   }
 
   async login(req, res) {
-    const validation = AuthDTO.validateLogin(req.body);
-    if (!validation.valid) {
-      return res.status(400).json({ success: false, message: validation.errors.join(', ') });
+    const { identifier, password } = req.body;
+    if (!identifier || !password) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập tên đăng nhập và mật khẩu.' });
     }
 
     try {
-      const { user, token } = await authService.login(req.body);
+      const { user, token } = await authService.login({ identifier, password });
       res.json({ success: true, data: AuthDTO.toAuthResponse(user, token) });
+    } catch (err) {
+      if (err.code === 'ADMIN_LOCKED') {
+        return res.status(403).json({ success: false, code: 'ADMIN_LOCKED', message: 'Tài khoản đã bị khoá vĩnh viễn.' });
+      }
+      if (err.message === 'INVALID_CREDENTIALS') {
+        return res.status(401).json({
+          success: false,
+          code: 'INVALID_CREDENTIALS',
+          remaining: err.remaining,
+          message: `Mật khẩu không đúng! Còn ${err.remaining} lần thử.`,
+        });
+      }
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async loginGoogle(req, res) {
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Thiếu Google idToken.' });
+    }
+
+    try {
+      const { user, token } = await authService.loginGoogle(idToken);
+      res.json({ success: true, data: AuthDTO.toAuthResponse(user, token) });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  // --- Quên Mật Khẩu (OTP) ---
+
+  async forgotPasswordOtp(req, res) {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp email.' });
+    }
+    try {
+      await authService.sendResetOtp(email);
+      res.json({ success: true, message: 'Mã xác nhận 6 số đã được gửi đến email của bạn.' });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async verifyResetOtp(req, res) {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp email và mã xác nhận.' });
+    }
+    try {
+      const resetToken = await authService.verifyResetOtp(email, otp);
+      res.json({ success: true, message: 'Mã xác nhận hợp lệ.', data: { resetToken } });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async resetPassword(req, res) {
+    const { email, resetToken, newPassword } = req.body;
+    if (!email || !resetToken || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đủ thông tin đổi mật khẩu.' });
+    }
+    try {
+      await authService.resetPassword(email, resetToken, newPassword);
+      res.json({ success: true, message: 'Đổi mật khẩu thành công.' });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async changePassword(req, res) {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mật khẩu hiện tại và mật khẩu mới.' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+    }
+    try {
+      await authService.changePassword(req.user.id, currentPassword, newPassword);
+      res.json({ success: true, message: 'Đổi mật khẩu thành công.' });
     } catch (err) {
       const code = err.isAppError ? err.statusCode : 500;
       res.status(code).json({ success: false, message: err.message });

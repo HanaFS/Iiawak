@@ -13,6 +13,7 @@
     <color name="brand_primary_dark">#C2185B</color>
     <color name="brand_primary_light">#FF6EC7</color>
     <color name="brand_primary_ultra">#FF0080</color>
+    <color name="btn_pink">#FF2E9D</color>
 
     <!-- Secondary: Aurora Purple -->
     <color name="brand_secondary">#A855F7</color>
@@ -35,6 +36,7 @@
          ══════════════════════════════════════════ -->
     <color name="bg_primary">#0A0612</color>
     <color name="bg_secondary">#0F0A1E</color>
+    <color name="bg_surface">#0F0A1E</color>
     <color name="bg_card">#160E2A</color>
     <color name="bg_card_elevated">#1E1438</color>
     <color name="bg_overlay">#99000000</color>

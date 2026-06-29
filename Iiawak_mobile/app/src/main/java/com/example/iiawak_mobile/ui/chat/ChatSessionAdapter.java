@@ -104,10 +104,10 @@ public class ChatSessionAdapter extends RecyclerView.Adapter<ChatSessionAdapter.
                 if (session.avatarUrl != null && !session.avatarUrl.isEmpty()) {
                     Glide.with(itemView.getContext())
                             .load(session.avatarUrl)
-                            .placeholder(R.drawable.ic_diamond)
+                            .placeholder(R.drawable.ic_pink_diamond)
                             .into(avatar);
                 } else {
-                    avatar.setImageResource(R.drawable.ic_diamond);
+                    avatar.setImageResource(R.drawable.ic_pink_diamond);
                 }
             }
         }

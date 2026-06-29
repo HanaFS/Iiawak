@@ -1,7 +1,7 @@
 'use strict';
-const AdminService = require('../../business-logic/Services/AdminService');
-const NotificationService = require('../../business-logic/Services/NotificationService');
-const AppError     = require('../../core/Exceptions/AppError');
+const AdminService = require('../Services/AdminService');
+const NotificationService = require('../Services/NotificationService');
+const AppError     = require('../Exceptions/AppError');
 
 /**
  * AdminController — Gác cổng cho /api/admin/*
@@ -46,7 +46,7 @@ class AdminController {
       const user = await AdminService.takeActionOnUser(req.params.id, action, reason, req.user.id);
       
       const io = req.app.get('io');
-      if (io) {
+      if (io && user) {
         NotificationService.emitToUser(user._id.toString(), 'admin:action', { action, reason }, io);
       }
       

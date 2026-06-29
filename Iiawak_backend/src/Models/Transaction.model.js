@@ -23,7 +23,6 @@ const transactionSchema = new mongoose.Schema({
 
 // Index for quick queries
 transactionSchema.index({ userId: 1, createdAt: -1 });
-transactionSchema.index({ txId: 1 });
 transactionSchema.index({ status: 1, type: 1 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

@@ -21,6 +21,8 @@ class CommunityRepository {
       sortOption = { createdAt: -1 };
     }
 
+    query.isHidden = { $ne: true }; // Hide private posts
+
     return Post.find(query)
       .populate('authorId',   'displayName username avatar')
       .populate('characterTag', 'name avatar _id')
@@ -50,6 +52,16 @@ class CommunityRepository {
     return Post.findByIdAndDelete(id);
   }
 
+  async findMyPosts(userId, { limit = 30, skip = 0 }) {
+    return Post.find({ authorId: userId })
+      .populate('authorId',   'displayName username avatar')
+      .populate('characterTag', 'name avatar _id')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .lean();
+  }
+
   // ── Comments ──────────────────────────────────────────────────────────────
 
   async findComments(postId) {
@@ -62,6 +74,14 @@ class CommunityRepository {
     const comment = new Comment(data);
     await comment.save();
     return comment.populate('authorId', 'displayName username avatar');
+  }
+
+  async findCommentById(id) {
+    return Comment.findById(id);
+  }
+
+  async deleteComment(id) {
+    return Comment.findByIdAndDelete(id);
   }
 
   // ── Social helpers ────────────────────────────────────────────────────────

@@ -1,8 +1,8 @@
 'use strict';
-const userRepository = require('../../data-access/Repositories/UserRepository');
+const userRepository = require('../Repositories/UserRepository');
 const emailService = require('./EmailService');
-const logger = require('../../core/Logger/logger');
-const AppError = require('../../core/Exceptions/AppError');
+const logger = require('../Logger/logger');
+const AppError = require('../Exceptions/AppError');
 
 // In-memory store for user subscriptions (real-time notifications)
 const userSubscriptions = new Map(); // userId -> Set of socketIds
@@ -13,7 +13,7 @@ const userSubscriptions = new Map(); // userId -> Set of socketIds
  */
 class NotificationService {
   constructor() {
-    this.Notification = require('../../data-access/Models/Notification.model');
+    this.Notification = require('../Models/Notification.model');
     this.notificationTypes = {
       PAYMENT: 'payment',
       FOLLOW: 'follow',

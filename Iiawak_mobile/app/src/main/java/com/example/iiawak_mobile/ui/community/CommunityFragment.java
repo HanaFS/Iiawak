@@ -34,21 +34,54 @@ public class CommunityFragment extends Fragment {
 
         // Link TabLayout with ViewPager2
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText("🔥 Thịnh hành");
-            } else {
-                tab.setText("💫 Đang theo dõi");
+            switch (position) {
+                case 0:
+                    tab.setText("Thịnh hành");
+                    break;
+                case 1:
+                    tab.setText("Theo dõi");
+                    break;
+                case 2:
+                    tab.setText("Bạn bè");
+                    break;
             }
         }).attach();
 
         // Hearts balance display
         View heartsCard = view.findViewById(R.id.hearts_balance_card);
+        android.widget.TextView tvHeartsCount = view.findViewById(R.id.tv_hearts_count);
+        if (tvHeartsCount != null) {
+            com.example.iiawak_mobile.data.UserSession session = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext());
+            tvHeartsCount.setText(java.text.NumberFormat.getInstance(java.util.Locale.US).format(session.getKchBalance()));
+        }
+        
         if (heartsCard != null) {
             heartsCard.setOnClickListener(v -> {
                 // Navigate to wallet
                 androidx.navigation.Navigation.findNavController(view)
                         .navigate(R.id.walletFragment);
             });
+        }
+        
+        // Setup FAB "Tạo bài viết"
+        View fabCreatePost = view.findViewById(R.id.fab_create_post);
+        if (fabCreatePost != null) {
+            fabCreatePost.setOnClickListener(v -> {
+                androidx.navigation.Navigation.findNavController(view)
+                        .navigate(R.id.action_community_to_create_post);
+            });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() != null) {
+            android.widget.TextView tvHeartsCount = getView().findViewById(R.id.tv_hearts_count);
+            if (tvHeartsCount != null) {
+                com.example.iiawak_mobile.data.UserSession session = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext());
+                tvHeartsCount.setText(java.text.NumberFormat.getInstance(java.util.Locale.US).format(session.getKchBalance()));
+            }
         }
     }
 }

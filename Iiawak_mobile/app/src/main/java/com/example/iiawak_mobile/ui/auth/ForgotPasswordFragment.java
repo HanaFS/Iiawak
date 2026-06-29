@@ -13,12 +13,16 @@ import com.example.iiawak_mobile.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import android.widget.Toast;
+import org.json.JSONObject;
+import com.example.iiawak_mobile.network.ApiClient;
 
 public class ForgotPasswordFragment extends Fragment {
 
     private TextInputLayout tilEmail;
     private TextInputEditText etEmail;
-    private MaterialButton btnSend, btnBack;
+    private MaterialButton btnSend;
+    private android.widget.ImageButton btnBack;
     private View successCard;
 
     @Nullable
@@ -65,21 +69,41 @@ public class ForgotPasswordFragment extends Fragment {
             btnSend.setText("Đang gửi...");
         }
 
-        // Mock API call
-        view.postDelayed(() -> {
-            if (getView() == null) return;
+        // Call API
+        com.example.iiawak_mobile.data.remote.AuthApiService.forgotPasswordOtp(getContext(), email, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                if (getView() == null) return;
+                
+                boolean success = json.optBoolean("success", false);
+                String message = json.optString("message", "");
 
-            if (btnSend != null) {
-                btnSend.setEnabled(true);
-                btnSend.setText("Gửi lại");
+                if (btnSend != null) {
+                    btnSend.setEnabled(true);
+                    btnSend.setText("Gửi lại");
+                }
+
+                if (success) {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    // Chuyển sang trang Verify OTP, truyền kèm email
+                    Bundle bundle = new Bundle();
+                    bundle.putString("email", email);
+                    Navigation.findNavController(view).navigate(R.id.action_forgot_to_verify_otp, bundle);
+                } else {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                }
             }
 
-            // Show success card
-            if (successCard != null) {
-                successCard.setVisibility(View.VISIBLE);
-                successCard.setAlpha(0f);
-                successCard.animate().alpha(1f).setDuration(400).start();
+            @Override
+            public void onError(String errorMessage, int statusCode) {
+                if (getView() == null) return;
+                
+                if (btnSend != null) {
+                    btnSend.setEnabled(true);
+                    btnSend.setText("Gửi lại");
+                }
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
             }
-        }, 1500);
+        });
     }
 }

@@ -24,7 +24,7 @@
             android:id="@+id/chat_bot_avatar"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:src="@drawable/ic_diamond"
+            android:src="@drawable/ic_pink_diamond"
             app:civ_border_color="@color/brand_primary"
             app:civ_border_width="2dp" />
 

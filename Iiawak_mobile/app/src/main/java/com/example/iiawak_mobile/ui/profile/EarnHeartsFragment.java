@@ -17,7 +17,7 @@ public class EarnHeartsFragment extends Fragment {
         layout.setGravity(android.view.Gravity.CENTER);
         layout.setBackgroundColor(0xFF0D0A14);
         TextView tv = new TextView(getContext());
-        tv.setText("💎 Nhận Kim Cương Hồng miễn phí\n\n✓ Điểm danh hàng ngày (+100 💎)\n▶ Xem quảng cáo (+5 💎)\n🎁 Nhập mã quà tặng\n🎮 Tham gia sự kiện cộng đồng");
+        tv.setText(com.example.iiawak_mobile.utils.UIUtils.withDiamond(getContext(), "💎 Nhận Kim Cương Hồng miễn phí\n\n✓ Điểm danh hàng ngày (+100 💎)"));
         tv.setTextColor(0xFFE91E8C);
         tv.setTextSize(15f);
         tv.setGravity(android.view.Gravity.CENTER);

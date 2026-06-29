@@ -1,5 +1,5 @@
 'use strict';
-const SocialService = require('../../business-logic/Services/SocialService');
+const SocialService = require('../Services/SocialService');
 
 /**
  * SocialController — Gác cổng cho /api/social/*

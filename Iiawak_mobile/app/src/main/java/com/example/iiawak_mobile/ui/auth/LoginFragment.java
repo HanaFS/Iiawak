@@ -23,6 +23,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import android.content.Intent;
+import android.util.Log;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -32,6 +42,9 @@ public class LoginFragment extends Fragment {
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
     private MaterialButton btnLogin, btnForgot, btnGoRegister, btnGoogle;
+    
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Nullable
     @Override
@@ -43,6 +56,23 @@ public class LoginFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        // Setup Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.google_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
+
+        // Register Activity Result Launcher
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        handleSignInResult(task, view);
+                    }
+                });
 
         // Bind views
         tilEmail = view.findViewById(R.id.til_email);
@@ -69,9 +99,12 @@ public class LoginFragment extends Fragment {
                     Navigation.findNavController(view).navigate(R.id.registerFragment));
         }
 
-        // Google login (mock)
+        // Google login
         if (btnGoogle != null) {
-            btnGoogle.setOnClickListener(v -> mockGoogleLogin(view));
+            btnGoogle.setOnClickListener(v -> {
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                googleSignInLauncher.launch(signInIntent);
+            });
         }
 
         // Enter key on password → submit
@@ -151,35 +184,84 @@ public class LoginFragment extends Fragment {
 
             }
 
-            @Override
             public void onError(String errorMessage, int statusCode) {
                 setLoading(false);
-                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                String msg = errorMessage.toLowerCase();
+                if (statusCode == 403 && (msg.contains("khóa") || msg.contains("khoá") || msg.contains("banned"))) {
+                    showBannedDialog(email);
+                } else {
+                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    private void mockGoogleLogin(View view) {
-        setLoading(true);
-        // Giả lập xử lý đăng nhập Google
-        view.postDelayed(() -> {
-            if (getContext() == null) return;
-            setLoading(false);
+    private void showBannedDialog(String identifier) {
+        if (getContext() == null) return;
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext())
+                .setTitle("Tài khoản bị khoá")
+                .setMessage("Tài khoản của bạn đã bị khoá.\n\nNếu bạn muốn khiếu nại gỡ khoá, hãy gửi email cho Admin để được xem xét.\n\n📧 Email: admin@iiawak.com\n📝 Nhớ gửi kèm Username và Tên của bạn nhé!")
+                .setPositiveButton("Đã hiểu", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
 
-            // Hiện tại chúng ta giả lập một tài khoản Google thành công
-            // Trong thực tế, bạn sẽ gọi GoogleSignInClient và gửi idToken lên server
-            String mockToken = "google_token_" + System.currentTimeMillis();
-            String mockUserId = "google_user_id";
-            
-            UserSession.getInstance(requireContext())
-                    .login(mockToken, mockUserId, "google_user", "Google User", "google@gmail.com", "user", 0);
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask, View view) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (account != null) {
+                String idToken = account.getIdToken();
+                if (idToken != null) {
+                    setLoading(true);
+                    com.example.iiawak_mobile.data.remote.AuthApiService.loginGoogle(getContext(), idToken, new com.example.iiawak_mobile.network.ApiClient.ApiCallback() {
+                        @Override
+                        public void onSuccess(JSONObject json) {
+                            setLoading(false);
+                            boolean success = json.optBoolean("success", false);
+                            String message = json.optString("message", "Lỗi đăng nhập Google");
 
-            Toast.makeText(getContext(), "Đăng nhập Google thành công! 🎉",
-                    Toast.LENGTH_SHORT).show();
+                            if (success) {
+                                try {
+                                    JSONObject data = json.getJSONObject("data");
+                                    String token = data.getString("token");
+                                    JSONObject userData = data.getJSONObject("user");
 
-            // Chuyển hướng vào màn hình chính sau khi login thành công
-            Navigation.findNavController(view).navigate(R.id.action_login_to_main);
-        }, 1500);
+                                    String userId = userData.optString("id", userData.optString("_id", ""));
+                                    String username = userData.getString("username");
+                                    String displayName = userData.optString("displayName", username);
+                                    String emailAddr = userData.getString("email");
+                                    String role = userData.optString("role", "user");
+                                    int kchBalance = userData.optInt("kchBalance", 0);
+
+                                    UserSession.getInstance(requireContext())
+                                            .login(token, userId, username, displayName, emailAddr, role, kchBalance);
+
+                                    Toast.makeText(getContext(), getString(R.string.login_welcome_back, displayName), Toast.LENGTH_SHORT).show();
+                                    Navigation.findNavController(view).navigate(R.id.action_login_to_main);
+                                } catch (Exception e) {
+                                    Toast.makeText(getContext(), "Lỗi xử lý dữ liệu Google: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onError(String errorMessage, int statusCode) {
+                            setLoading(false);
+                            String msg = errorMessage.toLowerCase();
+                            if (statusCode == 403 && (msg.contains("khóa") || msg.contains("khoá") || msg.contains("banned"))) {
+                                showBannedDialog(account.getEmail());
+                            } else {
+                                Toast.makeText(getContext(), "Lỗi Google: " + errorMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (ApiException e) {
+            Log.w("GoogleLogin", "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(getContext(), "Đăng nhập Google thất bại", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setLoading(boolean loading) {

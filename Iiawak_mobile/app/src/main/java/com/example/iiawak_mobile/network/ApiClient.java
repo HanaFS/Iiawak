@@ -23,7 +23,7 @@ import java.net.URL;
 public class ApiClient {
 
     private static final int CONNECT_TIMEOUT_MS = 10_000;
-    private static final int READ_TIMEOUT_MS    = 30_000;
+    private static final int READ_TIMEOUT_MS    = 60_000; // Gemini cần thêm thời gian
 
     // ─── Callback interface ───────────────────────────────────────────────────
 
@@ -134,16 +134,31 @@ public class ApiClient {
             reader.close();
             conn.disconnect();
 
-            JSONObject json = new JSONObject(sb.toString());
+            String responseBody = sb.toString().trim();
+            if (responseBody.startsWith("<!DOCTYPE") || responseBody.startsWith("<html")) {
+                postError(callback, "Server trả về HTML (lỗi 404 hoặc 500). Vui lòng kiểm tra Backend.", code);
+                return;
+            }
+
+            JSONObject json = new JSONObject(responseBody);
             if (code < 400) {
                 postSuccess(callback, json);
             } else {
-                if (code == 401) {
+                String msg = json.optString("message", "Lỗi server: " + code);
+                
+                if (code == 401 || (code == 403 && (msg.toLowerCase().contains("khóa") || msg.toLowerCase().contains("khoá")))) {
                     if (context != null) {
                         UserSession.getInstance(context).logout();
+                        // Phát broadcast để Activity điều hướng về màn login
+                        android.content.Intent intent = new android.content.Intent("com.example.iiawak_mobile.SESSION_EXPIRED");
+                        if (code == 403) {
+                            intent.putExtra("reason", "banned");
+                            intent.putExtra("message", msg);
+                        }
+                        context.sendBroadcast(intent);
                     }
                 }
-                String msg = json.optString("message", "Lỗi server: " + code);
+                
                 postError(callback, msg, code);
             }
         } catch (Exception e) {

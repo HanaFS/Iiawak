@@ -1,182 +1,272 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://tools.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_primary"
-    android:orientation="vertical">
+    android:background="@drawable/bg_splash_gradient">
 
-    <!-- Header -->
+    <!-- Ambient Glow mờ ảo phía sau làm nền lấp lánh -->
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-60dp"
+        android:layout_marginEnd="-80dp"
+        android:alpha="0.15"
+        android:background="@drawable/bg_glow_pink" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="52dp"
-        android:paddingBottom="12dp"
-        android:background="@color/bg_secondary">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/creator_dashboard"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
+        <!-- 1. HEADER BAR TRONG SUỐT VỚI VIỀN NEON ĐÁY -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            app:cardBackgroundColor="#F0100828"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="8dp"
+            app:strokeColor="#20FF2E9D"
+            app:strokeWidth="1dp">
 
-            <!-- Stats Card -->
-            <androidx.cardview.widget.CardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@color/bg_card"
-                android:layout_marginBottom="24dp">
+                android:paddingHorizontal="12dp"
+                android:paddingTop="52dp"
+                android:paddingBottom="14dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_nav_back"
+                    app:tint="@color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <TextView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_marginHorizontal="60dp" android:text="Ví của nhà sáng tạo"
+                    android:textColor="@color/white"
+                    android:textSize="19sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.001"
+                    android:gravity="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_monthly_reward"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
+        <!-- 2. SCROLLVIEW CHỨA NỘI DUNG VÍ -->
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:overScrollMode="never">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="8dp">
-
-                        <TextView
-                            android:id="@+id/tv_reward_amount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/placeholder_reward_amount"
-                            android:textColor="@color/brand_primary"
-                            android:textSize="32sp"
-                            android:textStyle="bold" />
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginStart="8dp"
-                            android:src="@drawable/ic_pink_diamond"
-                            android:contentDescription="@string/content_desc_diamond" />
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_withdraw"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/btn_withdraw"
-                        style="@style/Widget.Iiawak.Button.Primary" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Detailed Stats -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
+                <!-- MAIN WALLET CARD (Tổng số dư kim cương nhận được) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardBackgroundColor="@color/bg_card">
+                    android:layout_marginBottom="20dp"
+                    app:cardBackgroundColor="#F0100828"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="#30FF2E9D"
+                    app:strokeWidth="1.2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="20dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_mau"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="12sp" />
+                            android:text="Doanh thu tích lũy"
+                            android:textColor="#99FFFFFF"
+                            android:textSize="13sp"
+                            android:letterSpacing="0.02" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/placeholder_mau_count"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/tv_reward_amount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/white"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="-0.02"
+                                tools:text="54,200" />
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_marginStart="10dp"
+                                android:src="@drawable/ic_pink_diamond"
+                                android:contentDescription="Kim cương hồng" />
+                        </LinearLayout>
+
+                        <!-- Nút rút tiền đổ màu Gradient cực đẹp -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_withdraw"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/bg_button_gradient"
+                            android:text="Rút kim cương về ví"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="15sp"
                             android:textStyle="bold"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                            app:backgroundTint="@null"
+                            app:cornerRadius="24dp" />
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- DETAILED STATS (Cặp thẻ song song hiển thị chỉ số phụ) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardBackgroundColor="@color/bg_card">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp"
+                    android:baselineAligned="false">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Thẻ 1: Số lượng mẫu (Mẫu nhân vật) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardBackgroundColor="#15FFFFFF"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#20FFFFFF"
+                        app:strokeWidth="1dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_drop_off"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="12sp" />
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Số lượng nhân vật đã tạo"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="12sp"
+                                android:letterSpacing="0.01" />
+
+                            <TextView
+                                android:id="@+id/tv_mau_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="6dp"
+                                tools:text="12 Mẫu" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Thẻ 2: Đã được bổ sung hoàn chỉnh (Tổng lượt trò chuyện) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardBackgroundColor="#15FFFFFF"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#20FFFFFF"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/placeholder_drop_off_rate"
-                            android:textColor="@color/status_error"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tổng số lượt người chơi"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="12sp"
+                                android:letterSpacing="0.01" />
+
+                            <TextView
+                                android:id="@+id/tv_total_chats"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="6dp"
+                                tools:text="845K" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- SECTION: ACTION BUTTON & DANH SÁCH NHÂN VẬT -->
+                <!-- Nút tạo nhân vật mới -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_create_character"
+                    style="@style/Widget.Iiawak.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginBottom="16dp"
+                    android:minHeight="48dp"
+                    android:text="Tạo nhân vật mới"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    app:backgroundTint="@color/brand_primary"
+                    app:cornerRadius="24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Các nhân vật đã tạo"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Danh sách nhân vật hiển thị mượt mà -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_created_characters"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:clipToPadding="false"
+                    android:paddingBottom="32dp" />
+
             </LinearLayout>
-
-            <!-- Actions -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_create_character"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="@string/btn_create_character"
-                app:icon="@android:drawable/ic_input_add"
-                style="@style/Widget.Iiawak.Button.Secondary"
-                android:textAllCaps="false"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

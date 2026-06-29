@@ -63,9 +63,49 @@
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.iiawak_mobile.ui.auth.ForgotPasswordFragment"
         android:label="Quên mật khẩu">
+        <!-- Chuyển sang màn hình xác nhận OTP -->
+        <action
+            android:id="@+id/action_forgot_to_verify_otp"
+            app:destination="@id/verifyOtpFragment" />
         <!-- Quay lại màn hình Đăng nhập sau khi gửi yêu cầu khôi phục thành công -->
         <action
             android:id="@+id/action_forgot_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Màn hình Xác nhận OTP -->
+    <fragment
+        android:id="@+id/verifyOtpFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.VerifyOtpFragment"
+        android:label="Xác nhận mã">
+        <argument
+            android:name="email"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_verify_otp_to_reset_password"
+            app:destination="@id/resetPasswordFragment"
+            app:popUpTo="@id/forgotPasswordFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Màn hình Đặt Mật khẩu mới -->
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.example.iiawak_mobile.ui.auth.ResetPasswordFragment"
+        android:label="Mật khẩu mới">
+        <argument
+            android:name="email"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="resetToken"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_reset_to_login"
             app:destination="@id/loginFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true" />
@@ -86,6 +126,14 @@
         <action
             android:id="@+id/action_community_to_character_detail"
             app:destination="@id/characterDetailFragment" />
+        <!-- Mở giao diện tạo bài viết mới -->
+        <action
+            android:id="@+id/action_community_to_create_post"
+            app:destination="@id/createPostFragment" />
+        <!-- Mở chỉnh sửa bài viết -->
+        <action
+            android:id="@+id/action_community_to_edit_post"
+            app:destination="@id/editPostFragment" />
     </fragment>
 
     <!-- Tab Khám phá: Tìm kiếm và lọc nhân vật theo thẻ -->
@@ -158,6 +206,10 @@
         <action
             android:id="@+id/action_profile_to_friends"
             app:destination="@id/friendsFragment" />
+        <!-- Mở quản lý bài viết -->
+        <action
+            android:id="@+id/action_profile_to_manage_posts"
+            app:destination="@id/managePostsFragment" />
     </fragment>
 
     <!-- =================== DETAIL SCREENS (CÁC MÀN HÌNH CHI TIẾT) =================== -->
@@ -267,6 +319,18 @@
             app:popUpToInclusive="true" />
     </fragment>
 
+    <!-- Màn hình tạo bài viết cộng đồng -->
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.example.iiawak_mobile.ui.community.CreatePostFragment"
+        android:label="Tạo bài viết">
+        <action
+            android:id="@+id/action_create_post_to_community"
+            app:destination="@id/communityFragment"
+            app:popUpTo="@id/communityFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
     <!-- Các màn hình tiện ích khác thuộc về Profile -->
     <fragment
         android:id="@+id/editProfileFragment"
@@ -287,5 +351,48 @@
         android:id="@+id/friendsFragment"
         android:name="com.example.iiawak_mobile.ui.profile.FriendsFragment"
         android:label="Bạn Bè" />
+
+    <fragment
+        android:id="@+id/managePostsFragment"
+        android:name="com.example.iiawak_mobile.ui.community.ManagePostsFragment"
+        android:label="Quản lý Bài viết">
+        <!-- Mở chỉnh sửa bài viết từ trang quản lý -->
+        <action
+            android:id="@+id/action_manage_posts_to_edit_post"
+            app:destination="@id/editPostFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editPostFragment"
+        android:name="com.example.iiawak_mobile.ui.community.EditPostFragment"
+        android:label="Chỉnh sửa bài viết">
+        <argument
+            android:name="postId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="content"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="isHidden"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.UserProfileFragment"
+        android:label="Trang cá nhân">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_user_profile_to_character_detail"
+            app:destination="@id/characterDetailFragment" />
+        <action
+            android:id="@+id/action_user_profile_to_chat"
+            app:destination="@id/chatFragment" />
+    </fragment>
 
 </navigation>

@@ -1,5 +1,6 @@
 'use strict';
-const ChatService = require('../../business-logic/Services/ChatService');
+const ChatService = require('../Services/ChatService');
+const ChatDTO     = require('../DTOs/chat.dto');
 
 /**
  * ChatController — Gác cổng cho /api/chat/*
@@ -117,7 +118,7 @@ class ChatController {
   async getAiSessions(req, res) {
     try {
       const sessions = await ChatService.getAiSessions(req.user.id);
-      res.json({ success: true, data: sessions });
+      res.json({ success: true, data: sessions.map(s => ChatDTO.toAiSessionResponse(s)) });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
@@ -128,7 +129,7 @@ class ChatController {
       const { characterId } = req.params;
       const { mode } = req.query;
       const history = await ChatService.getAiChatHistory(req.user.id, characterId, mode);
-      res.json({ success: true, data: history });
+      res.json({ success: true, data: ChatDTO.toAiHistoryResponse(history) });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }

@@ -18,6 +18,11 @@ public class CharacterApiService {
         ApiClient.get(context, endpoint, callback);
     }
 
+    /** Lấy danh sách nhân vật của một user cụ thể */
+    public static void getUserCharacters(Context context, String userId, ApiClient.ApiCallback callback) {
+        ApiClient.get(context, "/characters/user/" + userId, callback);
+    }
+
     /** Lấy chi tiết 1 nhân vật */
     public static void getCharacterDetail(Context context, String characterId, ApiClient.ApiCallback callback) {
         ApiClient.get(context, "/characters/" + characterId, callback);

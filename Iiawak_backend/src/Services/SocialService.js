@@ -1,6 +1,6 @@
 'use strict';
-const UserRepository = require('../../data-access/Repositories/UserRepository');
-const AppError       = require('../../core/Exceptions/AppError');
+const UserRepository = require('../Repositories/UserRepository');
+const AppError       = require('../Exceptions/AppError');
 
 /**
  * SocialService — Nghiệp vụ follow/unfollow và danh sách bạn bè.
@@ -36,14 +36,14 @@ class SocialService {
   async getFollowing(userId) {
     const user = await UserRepository.findById(userId, 'following');
     // Populate thủ công vì Repository không trả về Mongoose doc chưa populate
-    const User = require('../../data-access/Models/User.model');
+    const User = require('../Models/User.model');
     const populated = await User.findById(userId)
       .populate('following', 'displayName username avatar bio');
     return populated.following;
   }
 
   async getFollowers(userId) {
-    const User = require('../../data-access/Models/User.model');
+    const User = require('../Models/User.model');
     const populated = await User.findById(userId)
       .populate('followers', 'displayName username avatar bio');
     return populated.followers;

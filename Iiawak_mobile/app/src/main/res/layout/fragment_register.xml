@@ -26,15 +26,13 @@
             android:layout_marginTop="-80dp" />
 
         <!-- Back button -->
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/btn_back"
-            style="@style/Widget.Iiawak.Button.Text"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="←"
-            android:textSize="20sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_back"
+            android:contentDescription="Quay lại"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -52,8 +50,7 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:src="@drawable/ic_diamond"
-                app:tint="@color/brand_primary"
+                android:src="@drawable/ic_pink_diamond"
                 android:contentDescription="Iiawak" />
 
             <TextView

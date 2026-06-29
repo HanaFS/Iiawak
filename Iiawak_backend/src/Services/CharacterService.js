@@ -1,7 +1,7 @@
 'use strict';
-const characterRepository = require('../../data-access/Repositories/CharacterRepository');
-const AppError            = require('../../core/Exceptions/AppError');
-const Errors              = require('../../core/Constants/errorMessages');
+const characterRepository = require('../Repositories/CharacterRepository');
+const AppError            = require('../Exceptions/AppError');
+const Errors              = require('../Constants/errorMessages');
 const macroService        = require('./MacroService');
 
 /**
@@ -77,6 +77,17 @@ class CharacterService {
 
   async getCharacters(filters) {
     return characterRepository.findPublic(filters);
+  }
+
+  async getMyCharacters(userId) {
+    return characterRepository.findByCreator(userId);
+  }
+
+  async getUserCharacters(userId) {
+    // Trả về danh sách nhân vật công khai của một user bất kỳ
+    const Character = require('../Models/Character.model');
+    return Character.find({ creatorId: userId, privacy: 'public', isBanned: false })
+      .sort({ totalChats: -1, createdAt: -1 });
   }
 
   async getCharacterById(id) {

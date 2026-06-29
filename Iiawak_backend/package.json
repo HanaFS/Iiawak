@@ -22,6 +22,7 @@
     "smoke-tests": "bash scripts/smoke-tests.sh"
   },
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "axios": "^1.7.2",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.6.0",
@@ -31,11 +32,14 @@
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.0",
+    "google-auth-library": "^10.9.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.4.1",
     "multer": "^1.4.5-lts.1",
+    "node_characterai": "^1.2.8",
     "nodemailer": "^6.9.7",
+    "puppeteer": "^25.2.1",
     "rate-limit-redis": "^4.1.5",
     "redis": "^4.6.11",
     "socket.io": "^4.8.3",

@@ -107,9 +107,12 @@ public class CharacterDetailFragment extends Fragment {
         int    totalChats = data.optInt("totalChats",    0);
         String chatMode  = data.optString("chatMode",   "both");
 
-        String creatorName = "Iiawak";
+        String creatorName = data.optString("creatorName", "Iiawak");
         JSONObject creator = data.optJSONObject("creatorId");
-        if (creator != null) creatorName = creator.optString("displayName", "Iiawak");
+        if (creator != null) {
+            // Fallback nếu DTO trả object thay vì string+creatorName riêng
+            creatorName = creator.optString("displayName", creatorName);
+        }
 
         // Tags
         JSONArray tagsArr = data.optJSONArray("tags");
@@ -138,10 +141,10 @@ public class CharacterDetailFragment extends Fragment {
             if (!avatarUrl.isEmpty()) {
                 Glide.with(this)
                         .load(avatarUrl)
-                        .placeholder(R.drawable.ic_diamond)
+                        .placeholder(R.drawable.ic_pink_diamond)
                         .into(ivAvatar);
             } else {
-                ivAvatar.setImageResource(R.drawable.ic_diamond);
+                ivAvatar.setImageResource(R.drawable.ic_pink_diamond);
             }
         }
 

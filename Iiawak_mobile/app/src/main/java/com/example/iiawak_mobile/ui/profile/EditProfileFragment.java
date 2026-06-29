@@ -100,16 +100,23 @@ public class EditProfileFragment extends Fragment {
             return;
         }
 
-        // TODO: Xử lý upload ảnh (hiện tại để trống avatar)
-        String avatarUrl = ""; 
+        // Không gửi avatar rỗng để tránh xóa avatar cũ trên server
+        String avatarUrl = null;
 
-        UserApiService.updateProfile(getContext(), name, bio, avatarUrl, new ApiClient.ApiCallback() {
+        UserApiService.updateProfile(getContext(), name, username, bio, avatarUrl, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (response.optBoolean("success", false)) {
                     // Lưu vào session
                     session.setDisplayName(name);
-                    session.setUsername(username); // Username thường không đổi qua API này, nhưng giữ tạm local
+                    session.setUsername(username);
+
+                    // Cập nhật avatar từ response nếu có
+                    JSONObject data = response.optJSONObject("data");
+                    if (data != null) {
+                        String newAvatar = data.optString("avatar", "");
+                        if (!newAvatar.isEmpty()) session.setAvatarUrl(newAvatar);
+                    }
 
                     Toast.makeText(getContext(), "Hồ sơ đã được cập nhật ✅", Toast.LENGTH_SHORT).show();
                     androidx.navigation.Navigation.findNavController(view).navigateUp();

@@ -1,14 +1,14 @@
 'use strict';
-const UserRepository      = require('../../data-access/Repositories/UserRepository');
-const CharacterRepository = require('../../data-access/Repositories/CharacterRepository');
-const CommunityRepository = require('../../data-access/Repositories/CommunityRepository');
-const EconomyRepository   = require('../../data-access/Repositories/EconomyRepository');
-const User         = require('../../data-access/Models/User.model');
-const Character    = require('../../data-access/Models/Character.model');
-const Post         = require('../../data-access/Models/Post.model');
-const Transaction  = require('../../data-access/Models/Transaction.model');
-const StrikeRecord = require('../../data-access/Models/StrikeRecord.model');
-const AppError     = require('../../core/Exceptions/AppError');
+const UserRepository      = require('../Repositories/UserRepository');
+const CharacterRepository = require('../Repositories/CharacterRepository');
+const CommunityRepository = require('../Repositories/CommunityRepository');
+const EconomyRepository   = require('../Repositories/EconomyRepository');
+const User         = require('../Models/User.model');
+const Character    = require('../Models/Character.model');
+const Post         = require('../Models/Post.model');
+const Transaction  = require('../Models/Transaction.model');
+const StrikeRecord = require('../Models/StrikeRecord.model');
+const AppError     = require('../Exceptions/AppError');
 
 /**
  * AdminService — Nghiệp vụ quản trị hệ thống.
@@ -72,6 +72,15 @@ class AdminService {
       user.strikeCount += 1;
       await new StrikeRecord({ userId: user._id, adminId, reason, severity: 'warning' }).save();
       if (user.strikeCount >= 3) user.status = 'banned';
+    } else if (action === 'reset_strikes') {
+      user.strikeCount = 0;
+      user.status = 'active'; // optional: unban when resetting strikes
+      await StrikeRecord.deleteMany({ userId: user._id });
+    } else if (action === 'update_username') {
+      if (reason) user.username = reason; // reusing 'reason' for the new username
+    } else if (action === 'delete') {
+      await user.deleteOne();
+      return null;
     }
     await user.save();
     return user;

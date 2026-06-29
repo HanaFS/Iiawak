@@ -45,7 +45,7 @@ public class FriendsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar_friends);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> androidx.navigation.Navigation.findNavController(requireView()).navigateUp());
 
         recyclerFriends = view.findViewById(R.id.recycler_friends);
         progressBar = view.findViewById(R.id.progress_friends);
@@ -90,7 +90,7 @@ public class FriendsFragment extends Fragment {
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject obj = data.getJSONObject(i);
                                 friendList.add(new FriendModel(
-                                        obj.optString("_id"),
+                                        obj.optString("id", obj.optString("_id", "")),
                                         obj.optString("displayName", "Người dùng"),
                                         obj.optString("username", "user"),
                                         obj.optString("avatar", ""),

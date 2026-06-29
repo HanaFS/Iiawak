@@ -1,143 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Community Fragment – hero header + gradient + glow -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://tools.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bg_splash_gradient">
 
-    <!-- ── Hero Top Bar ── -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Glow blob top-right -->
+        <!-- Lớp Ambient phát sáng góc phải cực đỉnh -->
         <View
             android:layout_width="180dp"
             android:layout_height="180dp"
             android:layout_gravity="top|end"
-            android:background="@drawable/bg_glow_pink"
-            android:alpha="0.25" />
+            android:layout_marginTop="-60dp"
+            android:layout_marginEnd="-40dp"
+            android:alpha="0.25"
+            android:background="@drawable/bg_glow_pink" />
 
         <LinearLayout
             android:id="@+id/community_topbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="20dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
             android:paddingTop="56dp"
             android:paddingBottom="16dp">
 
-            <!-- Logo + App Name -->
+            <!-- Logo + Tên App -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/ic_pink_diamond" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_community_header"
-                    android:textColor="@color/brand_primary_light"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.08" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_diamond"
-                        app:tint="@color/brand_primary"
-                        android:contentDescription="@string/app_name" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Iiawak"
-                        android:textColor="@color/text_primary"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="-0.02"
-                        android:layout_marginStart="8dp" />
-                </LinearLayout>
+                    android:layout_marginStart="8dp"
+                    android:letterSpacing="-0.02"
+                    android:text="Iiawak"
+                    android:textColor="@color/text_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Hearts Balance pill -->
+            <!-- Khối hiển thị số dư Kim cương hồng (Đã tối ưu căn dọc) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/hearts_balance_card"
-                app:cardBackgroundColor="@color/bg_card"
-                app:cardCornerRadius="100dp"
-                app:strokeColor="@color/surface_border"
-                app:strokeWidth="1dp"
-                app:cardElevation="0dp"
                 android:layout_width="wrap_content"
-                android:layout_height="38dp">
+                android:layout_height="38dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/bg_card"
+                app:cardCornerRadius="19dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
                     android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:paddingHorizontal="14dp">
 
                     <ImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:src="@drawable/ic_diamond"
-                        app:tint="@color/brand_primary"
-                        android:contentDescription="@string/label_kim_cuong" />
+                        android:layout_gravity="center_vertical"
+                        android:contentDescription="@string/label_kim_cuong"
+                        android:src="@drawable/ic_pink_diamond" />
 
                     <TextView
                         android:id="@+id/tv_hearts_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/placeholder_coins"
+                        android:layout_marginStart="6dp"
+                        android:layout_gravity="center_vertical"
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:layout_marginStart="6dp" />
+                        tools:text="1,250" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Notification Bell -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_notifications"
-                style="@style/Widget.Iiawak.Button.Text"
-                android:layout_width="44dp"
-                android:layout_height="wrap_content"
-                android:minHeight="44dp"
-                android:text="🔔"
-                android:textSize="18sp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                app:cornerRadius="100dp"
-                android:layout_marginStart="8dp" />
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="28dp"
+                android:layout_height="29dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/ic_notification_pixel"
+                app:backgroundTint="@null"
+                app:backgroundTintMode="screen" />
         </LinearLayout>
     </FrameLayout>
 
-    <!-- ── Tab Layout ── -->
+    <!-- Thanh TabLayout chia đôi cột đều tăm tắp bằng chằn chặn -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/community_tabs"
         style="@style/Widget.Iiawak.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingHorizontal="20dp" />
+        app:tabMode="auto"
+        app:tabGravity="center"
+        app:tabPaddingStart="8dp"
+        app:tabPaddingEnd="8dp" />
 
-    <!-- ── ViewPager2 ── -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/community_viewpager"
+    <!-- Khu vực hiển thị bài đăng (Đã bảo vệ đệm đáy 100dp) -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/community_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_create_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="120dp"
+            android:src="@android:drawable/ic_input_add"
+            android:contentDescription="Tạo bài viết"
+            app:tint="@color/white"
+            app:backgroundTint="@color/btn_pink"
+            app:elevation="8dp" />
+    </RelativeLayout>
 
 </LinearLayout>
