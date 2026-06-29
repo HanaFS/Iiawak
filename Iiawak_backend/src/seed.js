@@ -16,7 +16,7 @@ const Post = require('./Models/Post.model');
 const MONGO_URI = config.db.uri || 'mongodb://127.0.0.1:27017/iiawak';
 
 async function seed() {
-  console.log('🔄 Đang bắt đầu quá trình Seed dữ liệu...');
+  console.log(' Đang bắt đầu quá trình Seed dữ liệu...');
 
   try {
     await mongoose.connect(MONGO_URI);
@@ -30,7 +30,7 @@ async function seed() {
       Giftcode.deleteMany({}),
       Post.deleteMany({})
     ]);
-    console.log('🗑️  Đã xóa dữ liệu cũ');
+    console.log('  Đã xóa dữ liệu cũ');
 
     // ── Tạo Admin ────────────────────────────────────────────────────────────
     const admin = await User.create({
@@ -43,7 +43,7 @@ async function seed() {
       loginAttempts: 0,
       adminLocked: 'No',   // 'No' = bình thường | 'Yes' = bị khoá (đổi trong MongoDB để mở khoá)
     });
-    console.log('👑 Đã tạo Admin:', admin.email);
+    console.log(' Đã tạo Admin:', admin.email);
 
     // ── Tạo User mẫu ─────────────────────────────────────────────────────────
     const user1 = await User.create({
@@ -124,7 +124,7 @@ async function seed() {
         creatorId: admin._id
       }
     ]);
-    console.log('🎭 Đã tạo 3 Nhân vật mẫu');
+    console.log(' Đã tạo 3 Nhân vật mẫu');
 
     // ── Tạo Gói Nạp ──────────────────────────────────────────────────────────
     await TopupPackage.insertMany([
@@ -135,7 +135,7 @@ async function seed() {
       { name: 'Rương Bạch Kim',     price: 199900, kch: 2200 },
       { name: 'Kho Kim Cương',      price: 499900, kch: 6000 }
     ]);
-    console.log('💎 Đã tạo 6 Gói Nạp');
+    console.log(' Đã tạo 6 Gói Nạp');
 
     // ── Tạo Giftcode mẫu ─────────────────────────────────────────────────────
     await Giftcode.insertMany([
@@ -144,7 +144,7 @@ async function seed() {
       { code: 'VIPONLY500',  rewardKch: 500,  maxUses: 50,  expiresAt: new Date('2026-12-31') },
       { code: 'NEWUSER50',   rewardKch: 50,   maxUses: 9999 }
     ]);
-    console.log('🎁 Đã tạo 4 Giftcode');
+    console.log(' Đã tạo 4 Giftcode');
 
     // ── Tạo Bài đăng mẫu ─────────────────────────────────────────────────────
     await Post.insertMany([
@@ -164,9 +164,9 @@ async function seed() {
         characterTag: characters[1]._id
       }
     ]);
-    console.log('📝 Đã tạo 2 Bài đăng mẫu');
+    console.log(' Đã tạo 2 Bài đăng mẫu');
 
-    console.log('\n🎉 Seed hoàn thành!');
+    console.log('\n Seed hoàn thành!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('  Admin:  hongocgiahan@iiawak.com / 24102005');
     console.log('  User 1: han@iiawak.com   / User@2026');
@@ -174,7 +174,7 @@ async function seed() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   } catch (err) {
-    console.error('❌ Lỗi trong quá trình Seed:', err);
+    console.error(' Lỗi trong quá trình Seed:', err);
   } finally {
     await mongoose.disconnect();
     process.exit(0);
