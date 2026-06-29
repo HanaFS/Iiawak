@@ -76,6 +76,12 @@ public class ManagePostsFragment extends Fragment {
             public void onPostOptionsClick(FeedPost post, View anchorView) {
                 showManageMenu(post, anchorView);
             }
+
+            @Override
+            public void onAuthorClick(String authorId) {
+                // Trên trang quản lý của mình thì không cần nhảy đi đâu,
+                // hoặc nhảy sang Profile tab.
+            }
         });
 
         rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));

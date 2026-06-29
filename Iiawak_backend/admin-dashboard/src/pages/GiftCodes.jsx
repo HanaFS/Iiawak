@@ -3,13 +3,13 @@ import { Ticket, Plus, Search, Trash2, Copy, Check, X, Gift, Globe, User, Sparkl
 import { giftcodeApi } from '../api/giftcodeApi';
 import './GiftCodes.css';
 
-/* ── Pink Diamond icon ── */
+/* ── Kim Cương Hồng icon (Đồng bộ theo ic_diamond.xml) ── */
 function KCH({ size = 15 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ display:'inline-block', verticalAlign:'middle', flexShrink:0 }}>
-      <polygon points="12,2 22,9 12,22 2,9" fill="#FF69B4" opacity="0.9"/>
-      <polygon points="12,2 22,9 12,22 2,9" fill="url(#pkd2)" opacity="0.45"/>
-      <polygon points="12,2 17,9 12,14 7,9" fill="rgba(255,255,255,0.6)"/>
+      <path d="M12,2L2,9l10,13L22,9L12,2z" fill="url(#pkd2)" />
+      <path d="M12,4.8l5.8,5.2H6.2L12,4.8z" fill="rgba(255,255,255,0.5)" />
+      <path d="M3.8,10.5h16.4l-8.2,10.7L3.8,10.5z" fill="rgba(0,0,0,0.08)" />
       <defs>
         <linearGradient id="pkd2" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#ff9ee0"/>
@@ -32,7 +32,7 @@ function StatusBadge({ m }) {
 }
 
 function ScopeBadge({ scope }) {
-  const map = { server:['🌐','Toàn máy chủ'], new:['🆕','Người mới'], user:['👤','Cá nhân'] };
+  const map = { server:['Toàn máy chủ'], new:['Người mới'], user:['Cá nhân'] };
   const [icon, label] = map[scope] || ['?',''];
   return <span className="gc-scope">{icon} {label}</span>;
 }
@@ -203,7 +203,7 @@ export default function GiftCodes() {
             <div>
               <label className="gc-label">Phạm vi áp dụng</label>
               <div className="gc-scope-btns">
-                {[['server','🌐 Toàn máy chủ'],['new','🆕 Người dùng mới'],['user','👤 Cá nhân / Nhóm']].map(([v,l]) => (
+                {[['server',' Toàn máy chủ'],['new',' Người dùng mới'],['user',' Cá nhân / Nhóm']].map(([v,l]) => (
                   <button key={v} type="button"
                     className={`gc-scope-btn ${form.scope===v?'active':''}`}
                     onClick={() => setForm(p => ({...p, scope: v, uid:''}))}>{l}</button>
@@ -291,7 +291,7 @@ export default function GiftCodes() {
       {filtered.length === 0 ? (
         <div className="gc-empty glass">
           <Sparkles size={32} style={{color:'#FFB6C1', marginBottom:8}}/>
-          <p>Không tìm thấy mã nào 🌸</p>
+          <p>Không tìm thấy mã nào </p>
         </div>
       ) : (
         <div className="gc-cards-grid">
@@ -328,7 +328,7 @@ export default function GiftCodes() {
                   </span>
                 </div>
 
-                {c.uid && <p className="gc-meta-uid">👤 UID: <code>{c.uid}</code></p>}
+                {c.uid && <p className="gc-meta-uid"> UID: <code>{c.uid}</code></p>}
 
                 {/* Usage bar */}
                 <div className="gc-usage-wrap">

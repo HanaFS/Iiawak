@@ -28,6 +28,15 @@ class CharacterController {
     }
   }
 
+  async getUserCharacters(req, res) {
+    try {
+      const characters = await characterService.getUserCharacters(req.params.userId);
+      res.json({ success: true, data: characters.map(c => CharacterDTO.toCharacterResponse(c)) });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  }
+
   async createCharacter(req, res) {
     try {
       const char = await characterService.createCharacter(req.user.id, req.body);

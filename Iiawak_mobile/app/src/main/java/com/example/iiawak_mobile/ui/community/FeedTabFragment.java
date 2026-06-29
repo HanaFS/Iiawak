@@ -93,6 +93,25 @@ public class FeedTabFragment extends Fragment {
             public void onPostOptionsClick(FeedPost post, View anchorView) {
                 showPostOptions(post, anchorView);
             }
+
+            @Override
+            public void onAuthorClick(String authorId) {
+                String currentUserId = com.example.iiawak_mobile.data.UserSession.getInstance(requireContext()).getUserId();
+                if (authorId.equals(currentUserId)) {
+                    // Nếu là mình, nhảy sang tab Hồ sơ
+                    try {
+                        com.google.android.material.bottomnavigation.BottomNavigationView nav =
+                                getActivity().findViewById(R.id.bottom_nav);
+                        if (nav != null) nav.setSelectedItemId(R.id.profileFragment);
+                    } catch (Exception ignored) {}
+                } else {
+                    // Nếu là người khác, mở UserProfileFragment
+                    Bundle args = new Bundle();
+                    args.putString("userId", authorId);
+                    androidx.navigation.Navigation.findNavController(requireView())
+                            .navigate(R.id.userProfileFragment, args);
+                }
+            }
         });
         recyclerView.setAdapter(adapter);
 

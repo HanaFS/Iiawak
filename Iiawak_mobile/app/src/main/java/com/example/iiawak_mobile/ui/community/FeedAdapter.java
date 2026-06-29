@@ -84,7 +84,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         }
 
         void bind(FeedPost post, FeedInteractionListener listener) {
-            if (tvAuthorName  != null) tvAuthorName.setText(post.authorName);
+            if (tvAuthorName  != null) {
+                tvAuthorName.setText(post.authorName);
+                tvAuthorName.setOnClickListener(v -> {
+                    if (listener != null) listener.onAuthorClick(post.authorId);
+                });
+            }
             if (tvTimeAgo     != null) tvTimeAgo.setText(post.timeAgo);
             if (tvContent     != null) tvContent.setText(post.content);
 
@@ -103,6 +108,9 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                 } else {
                     authorAvatar.setImageResource(R.drawable.ic_nav_profile);
                 }
+                authorAvatar.setOnClickListener(v -> {
+                    if (listener != null) listener.onAuthorClick(post.authorId);
+                });
             }
 
             // Đếm fire / comment

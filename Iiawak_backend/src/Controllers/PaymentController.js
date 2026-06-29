@@ -64,7 +64,7 @@ class PaymentController {
 
       // VNPay yêu cầu response 200 OK với statusCode
       if (result.statusCode === 0) {
-        console.log('✅ VNPay webhook processed successfully');
+
       } else {
         console.warn(`⚠️ VNPay webhook error: ${result.message}`);
       }

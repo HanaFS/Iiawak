@@ -191,7 +191,7 @@ class VNPayService {
     });
 
     // Log event
-    console.log(`✅ Payment success: ${transaction._id} (+${transaction.amountKch} KCH)`);
+
   }
 
   /**
@@ -246,7 +246,7 @@ class VNPayService {
       $inc: { kchBalance: -transaction.amountKch },
     });
 
-    console.log(`💰 Transaction refunded: ${transaction._id} (-${transaction.amountKch} KCH)`);
+
 
     return {
       txId: transaction.txId,

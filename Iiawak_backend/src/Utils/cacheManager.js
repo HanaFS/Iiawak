@@ -224,7 +224,7 @@ class CacheManager {
    * Warm up critical caches on startup
    */
   async warmUp() {
-    console.log('🔥 Warming up cache (initial data load)');
+
     // This can be called after database seeding
     // For now, it's a placeholder
   }

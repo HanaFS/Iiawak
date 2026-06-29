@@ -14,18 +14,18 @@ client.on('error', (err) => {
   // Chỉ log lỗi kết nối một lần hoặc log ở mức debug để tránh spam
   if (err.code === 'ECONNREFUSED') {
     if (!client.connRefusedLogged) {
-      logger.warn('⚠️  Không thể kết nối Redis (127.0.0.1:6379). Tính năng caching sẽ tạm thời bị vô hiệu hóa.');
+      logger.warn('  Không thể kết nối Redis (127.0.0.1:6379). Tính năng caching sẽ tạm thời bị vô hiệu hóa.');
       client.connRefusedLogged = true;
     }
   } else {
-    logger.error('❌ Redis Client Error:', err);
+    logger.error(' Redis Client Error:', err);
   }
 });
 client.on('connect', () => {
-  logger.info('✅ Redis đang kết nối...');
+  logger.info(' Redis đang kết nối...');
   client.connRefusedLogged = false;
 });
-client.on('ready', () => logger.info('✅ Redis đã sẵn sàng'));
+client.on('ready', () => logger.info(' Redis đã sẵn sàng'));
 
 // Wrapper object
 const redisClient = {

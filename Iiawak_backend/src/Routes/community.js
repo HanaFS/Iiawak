@@ -5,6 +5,7 @@ const communityController = require('../Controllers/CommunityController');
 const { verifyToken, optionalAuth } = require('../Middlewares/auth.middleware');
 
 router.get('/posts/me', verifyToken, communityController.getMyPosts);
+router.get('/user/:userId', optionalAuth, communityController.getUserPosts);
 router.get('/feed', optionalAuth, communityController.getFeed);
 router.get('/posts/:postId/comments', optionalAuth, communityController.getComments);
 

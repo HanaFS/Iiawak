@@ -14,6 +14,11 @@ public class UserApiService {
         ApiClient.get(context, "/user/profile", callback);
     }
 
+    /** Lấy profile công khai của một user khác */
+    public static void getUserPublicProfile(Context context, String userId, ApiClient.ApiCallback callback) {
+        ApiClient.get(context, "/user/" + userId + "/profile", callback);
+    }
+
     /** Cập nhật profile */
     public static void updateProfile(Context context, String displayName, String username, String bio, String avatar, ApiClient.ApiCallback callback) {
         try {

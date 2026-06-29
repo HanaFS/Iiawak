@@ -319,7 +319,7 @@ class ChatService {
       session.memorySummary    = newSummary;
       session.lastSummarizedAt = session.messages.length;
       await session.save();
-      console.log(`🧠 Memory updated for session ${session._id}: ${newSummary.substring(0, 60)}...`);
+
     }
   }
 

@@ -48,15 +48,15 @@ public class UserPostsTabFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_feed_tab, container, false);
+        return inflater.inflate(R.layout.fragment_user_profile_tab, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView = view.findViewById(R.id.feed_recycler);
-        tvEmpty = view.findViewById(R.id.feed_empty_state); // Assuming this ID exists or similar
+        recyclerView = view.findViewById(R.id.rv_tab_content);
+        tvEmpty = view.findViewById(R.id.tv_tab_empty);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FeedAdapter(posts, new FeedAdapter.FeedInteractionListener() {

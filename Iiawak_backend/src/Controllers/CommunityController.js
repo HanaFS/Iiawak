@@ -30,6 +30,18 @@ class CommunityController {
     }
   }
 
+  async getUserPosts(req, res) {
+    try {
+      const { limit = 30, skip = 0 } = req.query;
+      const userId = req.user?.id || null;
+      const posts = await communityService.getUserPosts(userId, req.params.userId, { limit, skip });
+      res.json({ success: true, data: posts.map(p => CommunityDTO.toPostResponse(p, userId)) });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
   async createPost(req, res) {
     const validation = CommunityDTO.validateCreatePost(req.body);
     if (!validation.valid) {

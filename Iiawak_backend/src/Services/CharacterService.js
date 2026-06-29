@@ -79,6 +79,17 @@ class CharacterService {
     return characterRepository.findPublic(filters);
   }
 
+  async getMyCharacters(userId) {
+    return characterRepository.findByCreator(userId);
+  }
+
+  async getUserCharacters(userId) {
+    // Trả về danh sách nhân vật công khai của một user bất kỳ
+    const Character = require('../Models/Character.model');
+    return Character.find({ creatorId: userId, privacy: 'public', isBanned: false })
+      .sort({ totalChats: -1, createdAt: -1 });
+  }
+
   async getCharacterById(id) {
     const char = await characterRepository.findById(id);
     if (!char) throw AppError.notFound('Nhân vật');

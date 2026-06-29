@@ -43,6 +43,17 @@ class CommunityService {
     return posts;
   }
 
+  async getUserPosts(userId, targetUserId, { limit = 30, skip = 0 }) {
+    const posts = await communityRepository.findMyPosts(targetUserId, { limit, skip });
+    posts.forEach(p => {
+      p.firedByMe = p.likedBy
+        ? p.likedBy.some(id => id.toString() === userId.toString())
+        : false;
+      delete p.likedBy;
+    });
+    return posts;
+  }
+
   async createPost(userId, { content, images, characterTag }) {
     if (!content || !content.trim()) {
       throw AppError.badRequest(Errors.COMMUNITY.POST_EMPTY_CONTENT, 'POST_EMPTY');

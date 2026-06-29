@@ -380,4 +380,19 @@
             android:defaultValue="false" />
     </fragment>
 
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.iiawak_mobile.ui.profile.UserProfileFragment"
+        android:label="Trang cá nhân">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_user_profile_to_character_detail"
+            app:destination="@id/characterDetailFragment" />
+        <action
+            android:id="@+id/action_user_profile_to_chat"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
 </navigation>

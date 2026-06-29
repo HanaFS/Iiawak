@@ -76,8 +76,18 @@ class UserController {
 
   async toggleFollow(req, res) {
     try {
-      const isNowFollowing = await userService.toggleFollow(req.params.targetId, req.user.id);
+      const isNowFollowing = await userService.toggleFollow(req.params.id, req.user.id);
       res.json({ success: true, isFollowing: isNowFollowing });
+    } catch (err) {
+      const code = err.isAppError ? err.statusCode : 500;
+      res.status(code).json({ success: false, message: err.message });
+    }
+  }
+
+  async getUserPublicProfile(req, res) {
+    try {
+      const profile = await userService.getUserPublicProfile(req.params.id, req.user?.id);
+      res.json({ success: true, data: profile });
     } catch (err) {
       const code = err.isAppError ? err.statusCode : 500;
       res.status(code).json({ success: false, message: err.message });

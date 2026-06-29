@@ -47,18 +47,14 @@ public class UserCharactersTabFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_explore, container, false);
+        return inflater.inflate(R.layout.fragment_user_profile_tab, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Reusing fragment_explore layout which has a recycler
-        recyclerView = view.findViewById(R.id.explore_recycler);
-        view.findViewById(R.id.explore_top_bar).setVisibility(View.GONE);
-        view.findViewById(R.id.explore_filter_scroll).setVisibility(View.GONE);
-
+        recyclerView = view.findViewById(R.id.rv_tab_content);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         adapter = new ExploreCharacterAdapter(characters);
         adapter.setOnChatClickListener(new ExploreCharacterAdapter.OnChatClickListener() {

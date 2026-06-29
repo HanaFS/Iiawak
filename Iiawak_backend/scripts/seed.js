@@ -14,7 +14,7 @@ const MONGO_URI = config.db.uri;
 
 async function seed() {
   await mongoose.connect(MONGO_URI);
-  console.log('✅ Đã kết nối MongoDB');
+  console.log(' Đã kết nối MongoDB');
 
   // ── Xóa dữ liệu cũ ──────────────────────────────────────────────────────
   await Promise.all([
@@ -24,7 +24,7 @@ async function seed() {
     Giftcode.deleteMany({}),
     Post.deleteMany({})
   ]);
-  console.log('🗑️  Đã xóa dữ liệu cũ');
+  console.log('️  Đã xóa dữ liệu cũ');
 
   // ── Tạo Admin ────────────────────────────────────────────────────────────
   const admin = await User.create({
@@ -35,7 +35,7 @@ async function seed() {
     role: 'admin',
     kchBalance: 99999
   });
-  console.log('👑 Đã tạo Admin:', admin.email);
+  console.log(' Đã tạo Admin:', admin.email);
 
   // ── Tạo User mẫu ─────────────────────────────────────────────────────────
   const user1 = await User.create({
@@ -60,7 +60,7 @@ async function seed() {
   user2.followers.push(user1._id);
   await user1.save();
   await user2.save();
-  console.log('👥 Đã tạo 2 User mẫu (mutual follow)');
+  console.log(' Đã tạo 2 User mẫu (mutual follow)');
 
   // ── Tạo Nhân vật mẫu ─────────────────────────────────────────────────────
   await Character.insertMany([
@@ -127,7 +127,7 @@ async function seed() {
     { name: 'Rương Bạch Kim',     price: 199900, kch: 2200 },
     { name: 'Kho Kim Cương',      price: 499900, kch: 6000 }
   ]);
-  console.log('💎 Đã tạo 6 Gói Nạp');
+  console.log(' Đã tạo 6 Gói Nạp');
 
   // ── Tạo Giftcode mẫu ─────────────────────────────────────────────────────
   await Giftcode.insertMany([
@@ -136,7 +136,7 @@ async function seed() {
     { code: 'VIPONLY500',  rewardKch: 500,  maxUses: 50,  expiresAt: new Date('2026-12-31') },
     { code: 'NEWUSER50',   rewardKch: 50,   maxUses: 9999 }
   ]);
-  console.log('🎁 Đã tạo 4 Giftcode');
+  console.log(' Đã tạo 4 Giftcode');
 
   // ── Tạo Bài đăng mẫu ─────────────────────────────────────────────────────
   await Post.insertMany([
@@ -174,6 +174,6 @@ async function seed() {
 }
 
 seed().catch(err => {
-  console.error('❌ Seed thất bại:', err.message);
+  console.error(' Seed thất bại:', err.message);
   process.exit(1);
 });

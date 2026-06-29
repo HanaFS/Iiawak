@@ -5,6 +5,7 @@ const characterController = require('../Controllers/CharacterController');
 const { verifyToken } = require('../Middlewares/auth.middleware');
 
 router.get('/', characterController.getCharacters);
+router.get('/user/:userId', characterController.getUserCharacters);
 router.get('/:id', characterController.getCharacterById);
 
 router.use(verifyToken);

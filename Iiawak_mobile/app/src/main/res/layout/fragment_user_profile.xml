@@ -17,165 +17,148 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:titleEnabled="false"> <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="?attr/actionBarSize" android:paddingBottom="24dp"
+            app:layout_collapseMode="parallax">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp">
+                <View
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_gravity="center"
+                    android:alpha="0.3"
+                    android:background="@drawable/bg_avatar_ring" />
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/user_avatar"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_nav_profile"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.CircleImage"
+                    app:strokeColor="@color/brand_primary"
+                    app:strokeWidth="2dp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/user_display_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="Hân Nguyễn" />
+
+            <TextView
+                android:id="@+id/user_handle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/text_tertiary"
+                android:textSize="14sp"
+                tools:text="@han_nguyen" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="48dp"
-                android:paddingBottom="24dp">
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-                <!-- Avatar & Basic Info -->
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal">
-                    <View
-                        android:layout_width="110dp"
-                        android:layout_height="110dp"
-                        android:layout_gravity="center"
-                        android:alpha="0.3"
-                        android:background="@drawable/bg_avatar_ring" />
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/user_avatar"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_nav_profile"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.CircleImage"
-                        app:strokeColor="@color/brand_primary"
-                        app:strokeWidth="2dp" />
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/user_display_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    tools:text="Hân Nguyễn" />
-
-                <TextView
-                    android:id="@+id/user_handle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="14sp"
-                    tools:text="@han_nguyen" />
-
-                <TextView
-                    android:id="@+id/user_bio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:paddingHorizontal="40dp"
-                    android:gravity="center"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    tools:text="Yêu thích sáng tạo nội dung và nhập vai AI" />
-
-                <!-- Stats Row -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
                     android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
+                    android:orientation="vertical"
+                    android:paddingHorizontal="24dp">
+                    <TextView
+                        android:id="@+id/tv_following_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="24dp">
-                        <TextView
-                            android:id="@+id/tv_following_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/white"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            tools:text="128" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Đang theo dõi"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="24dp">
-                        <TextView
-                            android:id="@+id/tv_followers_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/white"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            tools:text="1.5K" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Người theo dõi"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Action Buttons -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="32dp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_follow"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Theo dõi"
+                        android:textColor="@color/white" android:textSize="18sp"
                         android:textStyle="bold"
-                        app:backgroundTint="@color/brand_primary"
-                        app:cornerRadius="12dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_message"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        tools:text="128" />
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text="Nhắn tin"
-                        app:cornerRadius="12dp"
-                        app:strokeColor="@color/surface_border"
-                        app:icon="@drawable/ic_nav_chat"
-                        app:iconTint="@color/white" />
+                        android:text="Đang theo dõi"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="24dp">
+                    <TextView
+                        android:id="@+id/tv_followers_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        tools:text="1.5K" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Người theo dõi"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="32dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_follow"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Theo dõi"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/brand_primary"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_message"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Nhắn tin"
+                    android:textColor="@color/white"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/surface_border"
+                    app:icon="@drawable/ic_nav_chat"
+                    app:iconTint="@color/white" />
+            </LinearLayout>
+
+        </LinearLayout>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/ic_nav_back"
-                app:title="Hân Nguyễn"
-                app:titleTextColor="@color/white" />
+                app:navigationIcon="@drawable/ic_nav_back" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -188,8 +171,14 @@
             app:tabIndicatorHeight="3dp"
             app:tabSelectedTextColor="@color/brand_primary"
             app:tabTextColor="@color/text_tertiary">
-            <com.google.android.material.tabs.TabItem android:text="Bài đăng" />
-            <com.google.android.material.tabs.TabItem android:text="Nhân vật" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bài đăng" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nhân vật" />
         </com.google.android.material.tabs.TabLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -118,6 +118,17 @@ class UserService {
     const isFollowing = target.followers?.some(id => id.toString() === followerId.toString());
     return userRepository.toggleFollow(targetId, followerId, isFollowing);
   }
+
+  async getUserPublicProfile(userId, currentUserId = null) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw AppError.notFound('Người dùng');
+
+    const profile = UserDTO.toUserPublicResponse(user);
+    if (currentUserId) {
+      profile.isFollowing = user.followers?.some(id => id.toString() === currentUserId.toString()) || false;
+    }
+    return profile;
+  }
 }
 
 module.exports = new UserService();

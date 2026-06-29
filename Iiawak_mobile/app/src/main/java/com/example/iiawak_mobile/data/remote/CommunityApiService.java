@@ -17,6 +17,12 @@ public class CommunityApiService {
         ApiClient.get(context, endpoint, callback);
     }
 
+    /** Lấy bài đăng của một user cụ thể */
+    public static void getUserPosts(Context context, String userId, int limit, int skip, ApiClient.ApiCallback callback) {
+        String endpoint = "/community/user/" + userId + "?limit=" + limit + "&skip=" + skip;
+        ApiClient.get(context, endpoint, callback);
+    }
+
     /** Tạo bài đăng mới */
     public static void createPost(Context context, String content, List<String> images, String characterTagId, ApiClient.ApiCallback callback) {
         try {

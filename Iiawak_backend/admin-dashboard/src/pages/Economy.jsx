@@ -1,31 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { TrendingUp, Diamond, Clock, Gift, Search, RotateCcw, X, Check, Plus, Sliders, Edit2, Save } from 'lucide-react';
+import { TrendingUp, Diamond, Clock, Gift, Search, RotateCcw, X, Check, Plus, Sliders, Edit2, Save, Trash2 } from 'lucide-react';
 import './Economy.css';
 
 import { transactionApi } from '../api/transactionApi';
 import { configApi } from '../api/configApi';
+import { economyApi } from '../api/economyApi';
 
 const INIT_TXN = [];
-
-const INIT_PACKS = [
-  { id: 'P1', name: 'Túi Nhỏ Tân Thủ', price: 9900, kch: 80 },
-  { id: 'P2', name: 'Hộp Phổ Thông', price: 29900, kch: 250 },
-  { id: 'P3', name: 'Túi Bạc', price: 49900, kch: 450 },
-  { id: 'P4', name: 'Rương Vàng', price: 99900, kch: 1000 },
-  { id: 'P5', name: 'Rương Bạch Kim', price: 199900, kch: 2200 },
-  { id: 'P6', name: 'Kho Kim Cương', price: 499900, kch: 6000 },
-];
-
-
 const fmt = n => n?.toLocaleString('vi-VN');
 
-// Biểu tượng Kim Cương Hồng — SVG pink diamond inline
+// Biểu tượng Kim Cương Hồng — SVG pink diamond (Đồng bộ theo ic_diamond.xml)
 function KCH({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}>
-      <polygon points="12,2 22,9 12,22 2,9" fill="#FF69B4" opacity="0.85" />
-      <polygon points="12,2 22,9 12,22 2,9" fill="url(#pkd)" opacity="0.5" />
-      <polygon points="12,2 17,9 12,14 7,9" fill="rgba(255,255,255,0.55)" />
+      <path d="M12,2L2,9l10,13L22,9L12,2z" fill="url(#pkd)" />
+      <path d="M12,4.8l5.8,5.2H6.2L12,4.8z" fill="rgba(255,255,255,0.45)" />
+      <path d="M3.8,10.5h16.4l-8.2,10.7L3.8,10.5z" fill="rgba(0,0,0,0.08)" />
       <defs>
         <linearGradient id="pkd" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#ff9ee0" />
@@ -91,6 +81,7 @@ function ModalHoanTien({ gd, onXacNhan, onDong }) {
 }
 
 function ModalChinhSuaGoi({ goi, onLuu, onDong }) {
+  const [name, setName] = useState(goi.name || '');
   const [gia, setGia] = useState(goi.price);
   const [kch, setKch] = useState(goi.kch);
   const [playStoreId, setPlayStoreId] = useState(goi.playStoreProductId || '');
@@ -102,6 +93,10 @@ function ModalChinhSuaGoi({ goi, onLuu, onDong }) {
           <button onClick={onDong}><X size={16} /></button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label className="eco-label">Tên gói nạp</label>
+            <input className="eco-input" type="text" value={name} onChange={e => setName(e.target.value)} />
+          </div>
           <div>
             <label className="eco-label">Giá nạp (VNĐ)</label>
             <input className="eco-input" type="number" value={gia} onChange={e => setGia(+e.target.value)} />
@@ -117,8 +112,58 @@ function ModalChinhSuaGoi({ goi, onLuu, onDong }) {
         </div>
         <div className="eco-modal-ft">
           <button className="eco-btn-ghost" onClick={onDong}>Huỷ</button>
-          <button className="eco-btn-primary" onClick={() => { onLuu(goi.id, { price: gia, kch, playStoreProductId: playStoreId }); onDong(); }}>
+          <button className="eco-btn-primary" onClick={() => { onLuu(goi.id, { name, price: gia, kch, playStoreProductId: playStoreId }); onDong(); }}>
             <Save size={14} /> Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModalTaoGoi({ onLuu, onDong }) {
+  const [name, setName] = useState('');
+  const [gia, setGia] = useState('');
+  const [kch, setKch] = useState('');
+  const [playStoreId, setPlayStoreId] = useState('');
+
+  const handleLuu = () => {
+    if (!name || !gia || !kch) {
+      alert('Vui lòng nhập đầy đủ thông tin bắt buộc!');
+      return;
+    }
+    onLuu({ name, price: +gia, kch: +kch, playStoreProductId: playStoreId });
+  };
+
+  return (
+    <div className="eco-overlay" onClick={onDong}>
+      <div className="eco-modal glass" onClick={e => e.stopPropagation()}>
+        <div className="eco-modal-hd">
+          <h3><Plus size={15} /> Tạo gói nạp mới</h3>
+          <button onClick={onDong}><X size={16} /></button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label className="eco-label">Tên gói nạp</label>
+            <input className="eco-input" type="text" placeholder="Nhập tên gói..." value={name} onChange={e => setName(e.target.value)} />
+          </div>
+          <div>
+            <label className="eco-label">Giá nạp (VNĐ)</label>
+            <input className="eco-input" type="number" placeholder="Ví dụ: 9900" value={gia} onChange={e => setGia(e.target.value)} />
+          </div>
+          <div>
+            <label className="eco-label" style={{ display: 'flex', alignItems: 'center', gap: 5 }}><KCH size={14} /> Số lượng nhận được</label>
+            <input className="eco-input" type="number" placeholder="Ví dụ: 80" value={kch} onChange={e => setKch(e.target.value)} />
+          </div>
+          <div>
+            <label className="eco-label">Mã CH Play (Product ID)</label>
+            <input className="eco-input" type="text" placeholder="Ví dụ: kch_pack_9900" value={playStoreId} onChange={e => setPlayStoreId(e.target.value)} />
+          </div>
+        </div>
+        <div className="eco-modal-ft">
+          <button className="eco-btn-ghost" onClick={onDong}>Huỷ</button>
+          <button className="eco-btn-primary" onClick={handleLuu}>
+            <Save size={14} /> Tạo gói ngay
           </button>
         </div>
       </div>
@@ -133,13 +178,10 @@ export default function Economy() {
   const [gdHoan, setGdHoan] = useState(null);
   const [daHoanIds, setDaHoanIds] = useState([]);
 
-  const [goiNap, setGoiNap] = useState(() => {
-    const saved = localStorage.getItem('eco_packs');
-    return saved ? JSON.parse(saved) : INIT_PACKS;
-  });
+  const [goiNap, setGoiNap] = useState([]);
   const [chinhSuaGoi, setChinhSuaGoi] = useState(null);
+  const [hienTaoGoi, setHienTaoGoi] = useState(false);
   const [suKienX2, setSuKienX2] = useState(false);
-  const [packSource, setPackSource] = useState('local'); // 'local' | 'api'
 
   const [dieuChinh, setDieuChinh] = useState({ uid: '', qty: '', loai: 'cap', lydo: '' });
   const [thongBaoDC, setThongBaoDC] = useState('');
@@ -161,23 +203,24 @@ export default function Economy() {
     }).catch(err => console.error("Lỗi tải giao dịch:", err));
   };
 
+  const fetchPackages = () => {
+    economyApi.getPackages()
+      .then(res => {
+        if (res.success && res.data) {
+          setGoiNap(res.data.map(p => ({ ...p, id: p.id || p._id })));
+        }
+      })
+      .catch(err => console.error("Lỗi tải gói nạp:", err));
+  };
+
   useEffect(() => {
     fetchRealTransactions();
+    fetchPackages();
 
     // Load config from backend
     configApi.getConfig('suKienX2')
       .then(res => setSuKienX2(res.data?.value || false))
       .catch(() => { });
-
-    fetch('http://localhost:5000/api/economy/packages')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data?.length > 0) {
-          setGoiNap(data.data.map(p => ({ ...p, id: p._id })));
-          setPackSource('api');
-        }
-      })
-      .catch(() => { /* backend chưa chạy — dùng dữ liệu local */ });
   }, []);
 
   const thongKe = useMemo(() => ({
@@ -218,31 +261,43 @@ export default function Economy() {
   };
 
   const luuGoiNap = (id, thayDoi) => {
-    if (packSource === 'api') {
-      // Cập nhật qua API khi backend đang chạy
-      fetch(`http://localhost:5000/api/economy/packages/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(thayDoi)
+    economyApi.updatePackage(id, thayDoi)
+      .then(res => {
+        if (res.success) {
+          fetchPackages();
+          alert('Cập nhật gói nạp thành công!');
+        }
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) setGoiNap(p => p.map(g => g.id === id ? { ...g, ...thayDoi } : g));
-        })
-        .catch(() => { });
-    } else {
-      // Lưu local khi chưa có backend
-      setGoiNap(p => {
-        const updated = p.map(g => g.id === id ? { ...g, ...thayDoi } : g);
-        localStorage.setItem('eco_packs', JSON.stringify(updated));
-        return updated;
-      });
-    }
+      .catch(err => alert('Lỗi khi cập nhật: ' + err.message));
+  };
+
+  const taoGoiNap = (data) => {
+    economyApi.createPackage(data)
+      .then(res => {
+        if (res.success) {
+          fetchPackages();
+          setHienTaoGoi(false);
+          alert('Tạo gói nạp mới thành công!');
+        }
+      })
+      .catch(err => alert('Lỗi khi tạo gói: ' + err.message));
+  };
+
+  const xoaGoiNap = (id) => {
+    if (!window.confirm('Bạn có chắc chắn muốn XOÁ gói nạp này?')) return;
+    economyApi.deletePackage(id)
+      .then(res => {
+        if (res.success) {
+          fetchPackages();
+          alert('Đã xoá gói nạp.');
+        }
+      })
+      .catch(err => alert('Lỗi khi xoá: ' + err.message));
   };
 
   const xuLyDieuChinh = e => {
     e.preventDefault();
-    if (!dieuChinh.uid || !dieuChinh.qty || !dieuChinh.lydo) { setThongBaoDC('⚠️ Vui lòng điền đầy đủ thông tin!'); return; }
+    if (!dieuChinh.uid || !dieuChinh.qty || !dieuChinh.lydo) { setThongBaoDC(' Vui lòng điền đầy đủ thông tin!'); return; }
     setThongBaoDC(` Đã ${dieuChinh.loai === 'cap' ? 'cấp' : 'khấu trừ'} ${fmt(+dieuChinh.qty)} Kim Cương Hồng cho UID ${dieuChinh.uid}`);
     setDieuChinh({ uid: '', qty: '', loai: 'cap', lydo: '' });
     setTimeout(() => setThongBaoDC(''), 4000);
@@ -252,18 +307,23 @@ export default function Economy() {
     <div className="page-container animate-fade-in">
       <div className="eco-page-hd">
         <h1 className="page-title">Kinh tế &amp; Giao dịch</h1>
-        <div className="eco-event-toggle">
-          <span>Sự kiện X2 nạp</span>
-          <button className={`eco-toggle ${suKienX2 ? 'on' : ''}`} onClick={() => {
-            const newVal = !suKienX2;
-            setSuKienX2(newVal);
-            configApi.updateConfig('suKienX2', newVal).catch((err) => {
-              alert('Lỗi cập nhật cấu hình: ' + (err.message || 'Lỗi không xác định'));
-              setSuKienX2(!newVal);
-            });
-          }}>
-            <span className="eco-toggle-knob" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
+          <button className="eco-btn-primary" onClick={() => setHienTaoGoi(true)} style={{ padding: '8px 15px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Plus size={16} /> Tạo gói nạp mới
           </button>
+          <div className="eco-event-toggle">
+            <span>Sự kiện X2 nạp</span>
+            <button className={`eco-toggle ${suKienX2 ? 'on' : ''}`} onClick={() => {
+              const newVal = !suKienX2;
+              setSuKienX2(newVal);
+              configApi.updateConfig('suKienX2', newVal).catch((err) => {
+                alert('Lỗi cập nhật cấu hình: ' + (err.message || 'Lỗi không xác định'));
+                setSuKienX2(!newVal);
+              });
+            }}>
+              <span className="eco-toggle-knob" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -302,7 +362,7 @@ export default function Economy() {
                 <tr key={g.id}>
                   <td><code className="eco-code">{g.id}</code></td>
                   <td>@{g.username}</td>
-                  <td><code className="eco-code eco-code-sm">{g.uid.slice(0, 8)}…</code></td>
+                  <td><code className="eco-code eco-code-sm">{g.uid}</code></td>
                   <td><span className="eco-kch-val" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>{fmt(g.qty)} <KCH size={15} /></span></td>
                   <td className="eco-muted">{g.time}</td>
                   <td><TrangThaiBadge s={daHoanIds.includes(g.id) ? 'refunded' : g.status} /></td>
@@ -340,11 +400,17 @@ export default function Economy() {
               <p className="eco-pack-name">{goi.name}</p>
               <p className="eco-pack-kch" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>{fmt(suKienX2 ? goi.kch * 2 : goi.kch)} <KCH size={18} /></p>
               <p className="eco-pack-price">{fmt(goi.price)}<span>₫</span></p>
-              <button className="eco-pack-edit-btn" onClick={() => setChinhSuaGoi(goi)}>
-                <Edit2 size={12} /> Chỉnh sửa
-              </button>
+              <div className="eco-pack-actions" style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                <button className="eco-pack-edit-btn" onClick={() => setChinhSuaGoi(goi)} style={{ flex: 1 }}>
+                  <Edit2 size={12} /> Sửa
+                </button>
+                <button className="eco-pack-delete-btn" onClick={() => xoaGoiNap(goi.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                  <Trash2 size={12} />
+                </button>
+              </div>
             </div>
           ))}
+          {goiNap.length === 0 && <div className="eco-empty" style={{ gridColumn: '1/-1' }}>Chưa có gói nạp nào. Hãy tạo gói nạp đầu tiên!</div>}
         </div>
       </section>
 
@@ -385,6 +451,7 @@ export default function Economy() {
 
       {gdHoan && <ModalHoanTien gd={gdHoan} onXacNhan={xuLyHoan} onDong={() => setGdHoan(null)} />}
       {chinhSuaGoi && <ModalChinhSuaGoi goi={chinhSuaGoi} onLuu={luuGoiNap} onDong={() => setChinhSuaGoi(null)} />}
+      {hienTaoGoi && <ModalTaoGoi onLuu={taoGoiNap} onDong={() => setHienTaoGoi(false)} />}
     </div>
   );
 }

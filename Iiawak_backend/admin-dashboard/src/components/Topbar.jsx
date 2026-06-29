@@ -167,7 +167,7 @@ export default function Topbar({ toggleSidebar }) {
           {showNotif && (
             <div className="tb-notif-panel glass animate-fade-in">
               <div className="tb-notif-hd">
-                <span className="tb-notif-title">🔔 Thông báo hệ thống</span>
+                <span className="tb-notif-title"> Thông báo hệ thống</span>
                 {unread > 0 && <button className="tb-text-btn" onClick={markAllRead}>Đánh dấu đã đọc</button>}
               </div>
               <div className="tb-notif-list">
